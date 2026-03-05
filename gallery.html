@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>日向坂46 — フォトギャラリー</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8b2252">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="日向坂46">
+<link rel="apple-touch-icon" href="icons/icon-sakura.jpg">
+<link rel="stylesheet" href="style.css">
+<style>
+
+/* ── フィルターバー ── */
+.filter-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  margin-bottom: 16px;
+}
+.filter-scroll::-webkit-scrollbar { display: none; }
+.filter-chip {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--hina-2);
+  background: rgba(255,255,255,0.78);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi-light);
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.filter-chip.active {
+  background: var(--sky);
+  border-color: var(--sky);
+  color: white;
+  box-shadow: 0 3px 12px rgba(139,34,82,0.28);
+}
+.filter-chip:active { transform: scale(0.94); }
+
+/* ── 写真グリッド ── */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  margin-bottom: 100px;
+}
+.photo-cell {
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  background: var(--hina-1);
+}
+.photo-cell img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.22s;
+  display: block;
+}
+.photo-cell:active img { transform: scale(0.94); }
+.photo-cell-tag {
+  position: absolute;
+  bottom: 4px; left: 4px;
+  background: rgba(42,31,26,0.58);
+  color: white;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-family: 'Noto Serif JP', serif;
+  letter-spacing: 0.04em;
+  max-width: calc(100% - 8px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ── 追加ボタン（FAB）── */
+.fab {
+  position: fixed;
+  bottom: 28px; right: 22px;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--sky);
+  color: white;
+  font-size: 26px;
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 24px rgba(139,34,82,0.38);
+  z-index: 50;
+  transition: transform 0.18s;
+}
+.fab:active { transform: scale(0.9); }
+
+/* ── 枚数バッジ ── */
+.count-badge {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px;
+  color: var(--sumi-light);
+  margin-bottom: 12px;
+  letter-spacing: 0.06em;
+}
+
+/* ── 全画面ビューア ── */
+.viewer-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(10,6,4,0.96);
+  z-index: 500;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.viewer-overlay.open { display: flex; }
+
+.viewer-img-wrap {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: hidden;
+}
+.viewer-img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 10px;
+  object-fit: contain;
+  user-select: none;
+}
+
+.viewer-bar {
+  width: 100%;
+  padding: 14px 20px 36px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(20,10,8,0.7);
+}
+.viewer-info { flex: 1; }
+.viewer-member {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 2px;
+}
+.viewer-caption {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+}
+.viewer-delete {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 50%;
+  width: 38px; height: 38px;
+  color: rgba(255,255,255,0.7);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.viewer-delete:active { background: rgba(200,60,80,0.5); }
+
+.viewer-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 50%;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── スワイプナビ ── */
+.viewer-nav {
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  background: rgba(255,255,255,0.12);
+  border: none;
+  color: white;
+  font-size: 22px;
+  width: 40px; height: 60px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.viewer-nav:active { background: rgba(255,255,255,0.25); }
+.viewer-nav.prev { left: 8px; }
+.viewer-nav.next { right: 8px; }
+.viewer-nav:disabled { opacity: 0.2; pointer-events: none; }
+
+/* ── 追加モーダル ── */
+.add-modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(42,31,26,0.55);
+  backdrop-filter: blur(10px);
+  z-index: 300;
+  align-items: flex-end;
+  justify-content: center;
+}
+.add-modal-overlay.open { display: flex; }
+.add-modal {
+  background: var(--white-bg);
+  border-radius: 32px 32px 0 0;
+  padding: 26px 22px 44px;
+  width: 100%;
+  max-width: 430px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-top: 1.5px solid var(--hina-2);
+  position: relative;
+  animation: slideUp 0.32s cubic-bezier(0.34,1.4,0.64,1);
+}
+
+/* プレビュー */
+.photo-preview-wrap {
+  width: 100%;
+  aspect-ratio: 4/3;
+  border-radius: 16px;
+  border: 2px dashed var(--hina-3);
+  background: var(--hina-0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  margin-bottom: 14px;
+  transition: border-color 0.2s;
+  position: relative;
+}
+.photo-preview-wrap.has-img { border-style: solid; }
+.photo-preview-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 14px;
+}
+.photo-preview-placeholder {
+  text-align: center;
+  color: var(--sumi-light);
+  pointer-events: none;
+}
+.photo-preview-placeholder-icon { font-size: 36px; margin-bottom: 8px; }
+.photo-preview-placeholder-text { font-family: 'Noto Serif JP',serif; font-size: 12px; letter-spacing: 0.06em; }
+#photoFileInput { display: none; }
+
+/* メンバー選択 */
+.member-select-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+}
+.member-select-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 14px;
+  border: 1.5px solid var(--hina-2);
+  background: rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 10px;
+  font-family: 'Noto Serif JP', serif;
+  color: var(--sumi-light);
+  text-align: center;
+  line-height: 1.3;
+}
+.member-select-chip.selected {
+  border-color: var(--sky);
+  background: var(--hina-1);
+  color: var(--sky);
+  font-weight: 700;
+}
+.member-select-chip:active { transform: scale(0.94); }
+.member-chip-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  overflow: hidden;
+}
+.member-chip-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+</style>
+</head>
+<body>
+
+<canvas id="petals-canvas"></canvas>
+
+<div id="app">
+  <div id="headerMount"></div>
+
+  <div class="page-content page-enter">
+    <div class="section-kamon" style="margin-top:4px">
+      <span class="section-kamon-text">☀ フォトギャラリー ☀</span>
+    </div>
+
+    <!-- フィルター -->
+    <div class="filter-scroll" id="filterScroll"></div>
+
+    <!-- 枚数 -->
+    <div class="count-badge" id="countBadge"></div>
+
+    <!-- グリッド -->
+    <div class="photo-grid" id="photoGrid"></div>
+
+    <!-- 空状態 -->
+    <div id="emptyState" style="display:none">
+      <div class="empty-state">
+        <div class="empty-state-icon">📷</div>
+        <div class="empty-state-text">写真がまだありません<br>＋ボタンから追加しましょう</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openAddModal()" aria-label="写真を追加">＋</button>
+
+<!-- 全画面ビューア -->
+<div class="viewer-overlay" id="viewerOverlay">
+  <button class="viewer-close" onclick="closeViewer()">✕</button>
+  <div class="viewer-img-wrap">
+    <img class="viewer-img" id="viewerImg" src="" alt="">
+  </div>
+  <button class="viewer-nav prev" id="viewerPrev" onclick="viewerStep(-1)">‹</button>
+  <button class="viewer-nav next" id="viewerNext" onclick="viewerStep(1)">›</button>
+  <div class="viewer-bar">
+    <div class="viewer-info">
+      <div class="viewer-member" id="viewerMember"></div>
+      <div class="viewer-caption" id="viewerCaption"></div>
+    </div>
+    <button class="viewer-delete" onclick="deleteCurrentPhoto()" title="削除">🗑</button>
+  </div>
+</div>
+
+<!-- 追加モーダル -->
+<div class="add-modal-overlay" id="addModal" onclick="closeAddModal(event)">
+  <div class="add-modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" onclick="document.getElementById('addModal').classList.remove('open')">✕</button>
+    <div class="modal-title">写真を記す ☀</div>
+
+    <!-- 写真選択 -->
+    <div class="photo-preview-wrap" id="previewWrap" onclick="document.getElementById('photoFileInput').click()">
+      <div class="photo-preview-placeholder" id="previewPlaceholder">
+        <div class="photo-preview-placeholder-icon">📷</div>
+        <div class="photo-preview-placeholder-text">タップして写真を選択</div>
+      </div>
+      <img id="previewImg" src="" alt="" style="display:none">
+    </div>
+    <input type="file" id="photoFileInput" accept="image/*" onchange="onFileSelect(event)">
+
+    <!-- メンバータグ -->
+    <div class="form-group">
+      <label class="form-label">メンバーをタグ付け（任意）</label>
+      <div class="member-select-grid" id="memberSelectGrid"></div>
+    </div>
+
+    <!-- キャプション -->
+    <div class="form-group">
+      <label class="form-label">キャプション（任意）</label>
+      <input class="form-input" id="photoCaption" type="text" placeholder="例：握手会にて ・ お誕生日おめでとう…">
+    </div>
+
+    <button class="btn-primary" style="width:100%;margin-top:8px;justify-content:center" onclick="addPhoto()">保 存</button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="db.js"></script>
+<script src="nav.js"></script>
+<script src="sakura.js"></script>
+<script>
+document.getElementById('headerMount').outerHTML = headerHTML('ギャラリー', '☀ フォトギャラリー ☀');
+injectNav('gallery.html');
+
+let allPhotos    = [];
+let filteredPhotos = [];
+let curFilter    = 'all';
+let viewerIndex  = 0;
+let selectedMemberId = null;
+let pendingDataUrl   = null;
+
+// ── フィルター構築 ──
+function buildFilters() {
+  const memberIds = [...new Set(allPhotos.map(p => p.memberId).filter(Boolean))];
+  const members   = ACTIVE_MEMBERS.filter(m => memberIds.includes(String(m.id)));
+
+  const el = document.getElementById('filterScroll');
+  el.innerHTML = `<button class="filter-chip${curFilter==='all'?' active':''}" onclick="setFilter('all',this)">すべて</button>`
+    + members.map(m => {
+        const isImg = m.avatar && /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(m.avatar);
+        const av = isImg ? `<img src="${m.avatar}" style="width:16px;height:16px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:3px">` : m.avatar + ' ';
+        return `<button class="filter-chip${curFilter===String(m.id)?' active':''}" onclick="setFilter('${m.id}',this)">${av}${m.name}</button>`;
+      }).join('');
+}
+
+function setFilter(id, btn) {
+  curFilter = id;
+  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilter();
+}
+
+function applyFilter() {
+  filteredPhotos = curFilter === 'all'
+    ? allPhotos
+    : allPhotos.filter(p => String(p.memberId) === String(curFilter));
+  renderGrid();
+}
+
+// ── グリッド描画 ──
+function renderGrid() {
+  const grid  = document.getElementById('photoGrid');
+  const empty = document.getElementById('emptyState');
+  const badge = document.getElementById('countBadge');
+
+  badge.textContent = `✿ ${filteredPhotos.length}枚`;
+
+  if (!filteredPhotos.length) {
+    grid.innerHTML  = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  grid.innerHTML = filteredPhotos.map((p, i) => {
+    const tag = p.memberName || '';
+    return `<div class="photo-cell" onclick="openViewer(${i})">
+      <img src="${p.dataUrl}" alt="${tag}" loading="lazy">
+      ${tag ? `<div class="photo-cell-tag">${tag}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── ビューア ──
+function openViewer(idx) {
+  viewerIndex = idx;
+  showViewerPhoto();
+  document.getElementById('viewerOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function showViewerPhoto() {
+  const p = filteredPhotos[viewerIndex];
+  document.getElementById('viewerImg').src      = p.dataUrl;
+  document.getElementById('viewerMember').textContent  = p.memberName || '未タグ';
+  document.getElementById('viewerCaption').textContent = p.caption    || '';
+  document.getElementById('viewerPrev').disabled = viewerIndex === 0;
+  document.getElementById('viewerNext').disabled = viewerIndex === filteredPhotos.length - 1;
+}
+
+function viewerStep(dir) {
+  const next = viewerIndex + dir;
+  if (next < 0 || next >= filteredPhotos.length) return;
+  viewerIndex = next;
+  showViewerPhoto();
+}
+
+function closeViewer() {
+  document.getElementById('viewerOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// スワイプ対応
+let touchStartX = 0;
+document.getElementById('viewerOverlay').addEventListener('touchstart', e => {
+  touchStartX = e.changedTouches[0].screenX;
+}, { passive: true });
+document.getElementById('viewerOverlay').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  if (Math.abs(dx) > 50) viewerStep(dx < 0 ? 1 : -1);
+});
+
+async function deleteCurrentPhoto() {
+  if (!confirm('この写真を削除しますか？')) return;
+  const p = filteredPhotos[viewerIndex];
+  await deletePhoto(p.id);
+  allPhotos = allPhotos.filter(x => x.id !== p.id);
+  applyFilter();
+  buildFilters();
+  if (!filteredPhotos.length) { closeViewer(); return; }
+  viewerIndex = Math.min(viewerIndex, filteredPhotos.length - 1);
+  showViewerPhoto();
+}
+
+// ── 追加モーダル ──
+function openAddModal() {
+  pendingDataUrl   = null;
+  selectedMemberId = null;
+  document.getElementById('photoCaption').value = '';
+  document.getElementById('photoFileInput').value = '';
+  document.getElementById('previewImg').style.display = 'none';
+  document.getElementById('previewPlaceholder').style.display = 'flex';
+  document.getElementById('previewWrap').classList.remove('has-img');
+
+  // メンバー選択グリッド
+  document.getElementById('memberSelectGrid').innerHTML =
+    ACTIVE_MEMBERS.map(m => {
+      const isImg = m.avatar && /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(m.avatar);
+      const avHtml = isImg
+        ? `<img src="${m.avatar}" alt="${m.name}">`
+        : `<span style="font-size:18px">${m.avatar}</span>`;
+      return `<div class="member-select-chip" data-id="${m.id}" onclick="selectMember(${m.id},this)">
+        <div class="member-chip-avatar">${avHtml}</div>
+        <span>${m.name.split(' ')[0]}</span>
+      </div>`;
+    }).join('');
+
+  document.getElementById('addModal').classList.add('open');
+}
+
+function closeAddModal(e) {
+  if (e && e.target !== document.getElementById('addModal')) return;
+  document.getElementById('addModal').classList.remove('open');
+}
+
+function selectMember(id, el) {
+  selectedMemberId = selectedMemberId === id ? null : id;
+  document.querySelectorAll('.member-select-chip').forEach(c => c.classList.remove('selected'));
+  if (selectedMemberId !== null) el.classList.add('selected');
+}
+
+async function onFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    pendingDataUrl = await fileToBase64(file);
+    const img = document.getElementById('previewImg');
+    img.src = pendingDataUrl;
+    img.style.display = 'block';
+    document.getElementById('previewPlaceholder').style.display = 'none';
+    document.getElementById('previewWrap').classList.add('has-img');
+  } catch (err) {
+    alert('画像の読み込みに失敗しました');
+  }
+}
+
+async function addPhoto() {
+  if (!pendingDataUrl) { alert('写真を選択してください'); return; }
+  const member = selectedMemberId
+    ? ACTIVE_MEMBERS.find(m => m.id === selectedMemberId)
+    : null;
+  const photo = {
+    id:         Date.now(),
+    memberId:   member ? String(member.id) : null,
+    memberName: member ? member.name : null,
+    caption:    document.getElementById('photoCaption').value.trim(),
+    dataUrl:    pendingDataUrl,
+    createdAt:  Date.now(),
+  };
+  await savePhoto(photo);
+  allPhotos.unshift(photo);
+  document.getElementById('addModal').classList.remove('open');
+  buildFilters();
+  applyFilter();
+}
+
+// ── 初期ロード ──
+(async () => {
+  allPhotos = await getAllPhotos();
+  buildFilters();
+  applyFilter();
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js');
+  });
+}
+</script>
+</body>
+</html>

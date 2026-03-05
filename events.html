@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>日向坂46 — 行事帳</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-sakura.jpg">
+<meta name="theme-color" content="#8b2252">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="日向坂46">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── EVENTS PAGE ── */
+.events-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.events-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--sky);
+  letter-spacing: 0.08em;
+}
+
+.event-list { display: flex; flex-direction: column; gap: 11px; }
+
+.event-item {
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(8px);
+  border-radius: 18px;
+  border: 1.5px solid var(--hina-2);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-hina);
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+  position: relative;
+  animation: pageEnter 0.3s ease both;
+}
+.event-item-left {
+  border-right: 1px solid var(--hina-2);
+  padding-right: 13px;
+  min-width: 52px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.event-date-month {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 10px;
+  color: var(--hina-4);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.event-date-day {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--sumi);
+  line-height: 1.1;
+}
+.event-date-dow {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 10px;
+  color: var(--sumi-light);
+}
+.event-date-time {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sky);
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+.event-info { flex: 1; }
+.event-info-name {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  color: var(--sumi);
+}
+.event-info-note { font-size: 11px; color: var(--sumi-light); }
+.event-info-countdown {
+  display: inline-block;
+  margin-top: 5px;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--hina-1);
+  color: var(--sky);
+  border: 1px solid var(--hina-2);
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 600;
+}
+.event-info-countdown.past { background: #f0f0f0; color: #999; border-color: #e0e0e0; }
+.event-emoji { font-size: 24px; flex-shrink: 0; align-self: center; }
+.event-delete {
+  position: absolute;
+  right: 10px; top: 10px;
+  background: none;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  opacity: 0.3;
+  padding: 5px;
+  color: var(--sumi);
+  transition: opacity 0.2s;
+  border-radius: 50%;
+}
+.event-delete:hover { opacity: 0.8; background: var(--hina-1); }
+
+/* Tab filter */
+.event-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.event-tab {
+  flex: 1;
+  padding: 9px 4px;
+  border-radius: 22px;
+  border: 1.5px solid var(--hina-2);
+  background: rgba(255,255,255,0.75);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi-light);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+.event-tab.active {
+  background: var(--sky);
+  border-color: var(--sky);
+  color: white;
+  box-shadow: 0 3px 14px rgba(139,34,82,0.28);
+}
+.event-tab:active { transform: scale(0.95); }
+/* ── 通知ボタン ── */
+.notif-toggle-btn {
+  padding: 7px 13px;
+  border-radius: 20px;
+  border: 1.5px solid var(--hina-2);
+  background: rgba(255,255,255,0.8);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi-light);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  line-height: 1;
+}
+.notif-toggle-btn.notif-on {
+  background: var(--hina-1);
+  border-color: var(--hina-3);
+  color: var(--sky);
+}
+.notif-toggle-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+</style>
+</head>
+<body>
+
+<canvas id="petals-canvas"></canvas>
+
+<div id="app">
+  <div id="headerMount"></div>
+
+  <div class="page-content page-enter">
+    <div class="events-header">
+      <div class="events-title">行事帳</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="notifToggleBtn" class="notif-toggle-btn">🔔 通知を許可する</button>
+        <button class="btn-icon" onclick="openModal()" aria-label="行事を追加">＋</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="event-tabs">
+      <button class="event-tab active" onclick="setTab('upcoming',this)">これから</button>
+      <button class="event-tab"        onclick="setTab('past',this)">過去</button>
+      <button class="event-tab"        onclick="setTab('all',this)">全て</button>
+    </div>
+
+    <div class="event-list" id="eventList"></div>
+  </div>
+</div>
+
+<!-- ADD EVENT MODAL -->
+<div class="modal-overlay" id="eventModal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" onclick="document.getElementById('eventModal').classList.remove('open')" aria-label="閉じる">✕</button>
+    <div class="modal-title">行事を記す ☀</div>
+    <div class="form-group">
+      <label class="form-label">行事の名前</label>
+      <input class="form-input" id="evName" placeholder="例：コンサート、握手会…" type="text">
+    </div>
+    <div class="form-group">
+      <label class="form-label">日付</label>
+      <input class="form-input" id="evDate" type="date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">時間（任意）</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input class="form-input" id="evTime" type="time" style="flex:1">
+        <button type="button" onclick="clearTime()" style="padding:11px 14px;border-radius:13px;border:1.5px solid var(--hina-2);background:rgba(255,255,255,0.8);font-family:'Noto Sans JP',sans-serif;font-size:12px;color:var(--sumi-light);cursor:pointer;white-space:nowrap">時間なし</button>
+      </div>
+      <div style="font-size:10px;color:var(--sumi-light);margin-top:5px;font-family:'Noto Serif JP',serif;letter-spacing:0.04em">✿ 時間を設定すると、その時刻を基準に通知が届きます</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">覚え書き</label>
+      <input class="form-input" id="evNote" placeholder="場所・詳細など" type="text">
+    </div>
+    <div class="form-group">
+      <label class="form-label">絵文字</label>
+      <div class="emoji-picker" id="emojiPicker"></div>
+    </div>
+    <button class="btn-primary" style="width:100%;margin-top:8px;justify-content:center" onclick="addEvent()">記 す</button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="nav.js"></script>
+<script src="sakura.js"></script>
+<script src="notify.js"></script>
+<script>
+document.getElementById('headerMount').outerHTML = headerHTML('行事帳', '☀ イベント管理 ☀');
+injectNav('events.html');
+
+const EMOJIS = ['🎪','🎤','🎸','💿','🎟️','🌸','💖','🎀','📸','✈️','🎁','🏆','🎂','🎵','📱','🎭'];
+let selectedEmoji = '🎪';
+let curTab = 'upcoming';
+
+const DOW = ['日','月','火','水','木','金','土'];
+
+function setTab(mode, btn) {
+  curTab = mode;
+  document.querySelectorAll('.event-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  initNotifications();
+renderEvents();
+}
+
+function renderEvents() {
+  const today  = new Date(); today.setHours(0,0,0,0);
+  let events   = loadEvents();
+
+  // Sort by date
+  events = events.map((e,i) => ({...e, _idx:i}))
+                 .sort((a,b) => new Date(a.date) - new Date(b.date));
+
+  // Filter by tab
+  if (curTab === 'upcoming') events = events.filter(e => new Date((e.date + 'T' + (e.time || '00:00') + ':00')) >= new Date());
+  if (curTab === 'past')     events = events.filter(e => new Date((e.date + 'T' + (e.time || '23:59') + ':00')) < new Date());
+
+  const el = document.getElementById('eventList');
+  if (!events.length) {
+    const msg = curTab === 'past'
+      ? '過去の行事はありません'
+      : '行事がまだ記されていません\n＋ ボタンから追加しましょう';
+    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✿</div><div class="empty-state-text">${msg}</div></div>`;
+    return;
+  }
+
+  el.innerHTML = events.map(e => {
+    const d    = new Date(e.date + 'T' + (e.time || '00:00') + ':00');
+    const mo   = MONTHS_JP[d.getMonth()];
+    const now2 = new Date();
+    const diff = Math.round((d - now2) / 86400000);
+    const diffStr = diff === 0 ? (e.time ? `今日 ${e.time}` : '今日！') : diff > 0 ? `あと${diff}日` : `${Math.abs(diff)}日前`;
+    const isPast  = diff < 0;
+    return `<div class="event-item">
+      <div class="event-item-left">
+        <div class="event-date-month">${mo}</div>
+        <div class="event-date-day">${d.getDate()}</div>
+        <div class="event-date-dow">${DOW[d.getDay()]}</div>
+        ${e.time ? `<div class="event-date-time">${e.time}</div>` : ''}
+      </div>
+      <div class="event-info">
+        <div class="event-info-name">${e.name}</div>
+        <div class="event-info-note">${e.note || '覚え書きなし'}</div>
+        <span class="event-info-countdown${isPast?' past':''}">${diffStr}</span>
+      </div>
+      <div class="event-emoji">${e.emoji}</div>
+      <button class="event-delete" onclick="deleteEvent(${e._idx})" title="削除">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function deleteEvent(idx) {
+  const events = loadEvents();
+  const ev = events[idx];
+  if (ev) cancelEventNotifs(ev.id); // 通知キャンセル
+  events.splice(idx, 1);
+  saveEvents(events);
+  renderEvents();
+  updateNotifBtn();
+}
+
+// ── MODAL ──
+function openModal() {
+  document.getElementById('evDate').value  = new Date().toISOString().split('T')[0];
+  document.getElementById('evTime').value  = '';
+  document.getElementById('evName').value  = '';
+  document.getElementById('evNote').value  = '';
+  selectedEmoji = '🎪';
+  document.getElementById('emojiPicker').innerHTML = EMOJIS.map(e =>
+    `<div class="emoji-opt${e===selectedEmoji?' selected':''}" onclick="pickEmoji('${e}',this)">${e}</div>`
+  ).join('');
+  document.getElementById('eventModal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('eventModal')) return;
+  document.getElementById('eventModal').classList.remove('open');
+}
+
+function pickEmoji(emoji, el) {
+  selectedEmoji = emoji;
+  document.querySelectorAll('.emoji-opt').forEach(x => x.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function clearTime() {
+  document.getElementById('evTime').value = '';
+}
+
+function addEvent() {
+  const name = document.getElementById('evName').value.trim();
+  const date = document.getElementById('evDate').value;
+  const note = document.getElementById('evNote').value.trim();
+  if (!name || !date) { alert('行事の名前と日付を入力してください'); return; }
+  const time  = document.getElementById('evTime').value || '';
+  const event = { name, date, time, note, emoji: selectedEmoji, id: Date.now() };
+  const events = loadEvents();
+  events.push(event);
+  saveEvents(events);
+  scheduleEventNotifs(event); // 通知スケジュール
+  document.getElementById('eventModal').classList.remove('open');
+  updateNotifBtn();
+  renderEvents();
+}
+
+renderEvents();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js');
+  });
+}
+</script>
+</body>
+</html>

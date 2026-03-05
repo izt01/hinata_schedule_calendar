@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>日向坂46 — 推しメン一覧</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-sakura.jpg">
+<meta name="theme-color" content="#8b2252">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="日向坂46">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── FILTER BAR ── */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.filter-pill {
+  flex: 1;
+  padding: 10px 6px;
+  border-radius: 22px;
+  border: 1.5px solid var(--hina-2);
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(6px);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sumi-light);
+  cursor: pointer;
+  text-align: center;
+  letter-spacing: 0.04em;
+  transition: all 0.2s;
+}
+.filter-pill.active {
+  background: var(--sky);
+  border-color: var(--sky);
+  color: white;
+  box-shadow: 0 3px 14px rgba(139,34,82,0.28);
+}
+.filter-pill:active { transform: scale(0.95); }
+
+/* ── MEMBER GRID ── */
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 13px;
+}
+
+.member-card {
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(10px);
+  border-radius: 22px;
+  border: 1.5px solid var(--hina-2);
+  padding: 20px 12px 16px;
+  text-align: center;
+  box-shadow: var(--shadow-hina);
+  cursor: pointer;
+  transition: transform 0.18s;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.member-card::before {
+  content: '✿';
+  position: absolute;
+  bottom: -8px; right: -4px;
+  font-size: 50px;
+  color: var(--hina-2);
+  opacity: 0.6;
+  pointer-events: none;
+}
+.member-card.is-oshi {
+  border-color: var(--hina-3);
+  box-shadow: 0 4px 24px rgba(200,80,120,0.2), 0 0 0 1px var(--hina-2);
+}
+.member-card.is-oshi::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 22px;
+  background: linear-gradient(160deg, rgba(255,200,220,0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+.member-card.hidden { display: none; }
+.member-card:active { transform: scale(0.96); }
+
+/* Avatar with orbit */
+.avatar-wrap {
+  position: relative;
+  width: 70px; height: 70px;
+  margin: 0 auto 10px;
+}
+.member-avatar {
+  width: 70px; height: 70px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255,255,255,0.9);
+  box-shadow: 0 4px 18px rgba(139,34,82,0.16);
+  font-size: 34px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  position: relative; z-index: 1;
+}
+.member-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+
+.petal-orbit {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: orbitSpin 7s linear infinite;
+  z-index: 2;
+}
+@keyframes orbitSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.petal-orbit span {
+  position: absolute;
+  font-size: 13px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 3px rgba(200,80,120,0.4));
+}
+.petal-orbit span:nth-child(1){top:0;left:50%;transform:translateX(-50%)}
+.petal-orbit span:nth-child(2){top:22%;right:2%}
+.petal-orbit span:nth-child(3){bottom:4%;right:14%}
+.petal-orbit span:nth-child(4){bottom:4%;left:14%}
+.petal-orbit span:nth-child(5){top:22%;left:2%}
+
+.member-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 3px;
+  color: var(--sumi);
+  position: relative; z-index: 1;
+}
+.member-role {
+  font-size: 10px;
+  color: var(--sumi-light);
+  margin-bottom: 8px;
+  letter-spacing: 0.04em;
+  position: relative; z-index: 1;
+}
+.member-bday {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 10px;
+  color: var(--hina-4);
+  background: var(--hina-0);
+  border: 1px solid var(--hina-2);
+  border-radius: 20px;
+  padding: 4px 10px;
+  display: inline-block;
+  position: relative; z-index: 1;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+/* Oshi toggle button */
+.oshi-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1.5px solid var(--hina-2);
+  background: rgba(255,255,255,0.8);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--sumi-light);
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: all 0.22s;
+  position: relative; z-index: 2;
+}
+.oshi-toggle-btn.registered {
+  background: linear-gradient(135deg, var(--hina-1), #ffe0ec);
+  border-color: var(--hina-3);
+  color: var(--sky);
+}
+.oshi-toggle-btn:active { transform: scale(0.92); }
+</style>
+</head>
+<body>
+
+<canvas id="petals-canvas"></canvas>
+
+<div id="app">
+  <div id="headerMount"></div>
+
+  <div class="page-content page-enter">
+    <div class="section-kamon" style="margin-top:4px">
+      <span class="section-kamon-text">✿ 推しメン一覧 ✿</span>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-bar">
+      <button class="filter-pill active" onclick="setFilter('all',this)">全員</button>
+      <button class="filter-pill"        onclick="setFilter('oshi',this)">☀️ 推しメンのみ</button>
+    </div>
+
+    <!-- Grid -->
+    <div class="members-grid" id="membersGrid"></div>
+
+    <!-- Empty state for oshi filter -->
+    <div id="membersEmpty" style="display:none">
+      <div class="empty-state">
+        <div class="empty-state-icon">☀️</div>
+        <div class="empty-state-text">まだ推しメンが登録されていません<br>カードの「推しメン登録」から追加しよう</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="nav.js"></script>
+<script src="sakura.js"></script>
+<script src="notify.js"></script>
+<script>
+document.getElementById('headerMount').outerHTML = headerHTML('推しメン', '☀ メンバー一覧 ☀');
+initNotifications();
+injectNav('members.html');
+
+let oshiSet     = new Set(loadOshi());
+let curFilter   = 'all';
+
+function setFilter(mode, btn) {
+  curFilter = mode;
+  document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilter();
+}
+
+function applyFilter() {
+  let visible = 0;
+  document.querySelectorAll('.member-card').forEach(card => {
+    const id   = parseInt(card.dataset.id);
+    const show = curFilter === 'all' || oshiSet.has(id);
+    card.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+  document.getElementById('membersEmpty').style.display = visible === 0 ? 'block' : 'none';
+}
+
+function toggleOshi(id, ev) {
+  ev.preventDefault(); ev.stopPropagation();
+  if (oshiSet.has(id)) { oshiSet.delete(id); } else { oshiSet.add(id); }
+  saveOshi([...oshiSet]);
+  renderMembers();
+  updateNotifBtn();
+}
+
+function renderMembers() {
+  const today = new Date();
+  document.getElementById('membersGrid').innerHTML = ACTIVE_MEMBERS.map(m => {
+    const _bpm = m.birthday.split('-'); const mm = parseInt(_bpm[_bpm.length-2]); const dd = parseInt(_bpm[_bpm.length-1]);
+    let next = new Date(today.getFullYear(), mm-1, dd);
+    if (next < today) next.setFullYear(today.getFullYear()+1);
+    const diff    = Math.round((next-today)/86400000);
+    const diffStr = diff===0 ? '☀ 今日！' : `あと${diff}日`;
+    const isOshi  = oshiSet.has(m.id);
+
+    const orbit = isOshi
+      ? `<div class="petal-orbit"><span>☀️</span><span>☀️</span><span>☀️</span><span>☀️</span><span>☀️</span></div>`
+      : '';
+
+    const isImg = m.avatar && /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(m.avatar);
+    const avatarInner = isImg ? `<img src="${m.avatar}" alt="${m.name}">` : (m.avatar || '🌻');
+
+    return `<a class="member-card${isOshi?' is-oshi':''}" data-id="${m.id}" href="member-detail.html?id=${m.id}">
+      <div class="avatar-wrap">
+        <div class="member-avatar" style="background:${m.bg}">${avatarInner}</div>
+        ${orbit}
+      </div>
+      <div class="member-name">${m.name}</div>
+      <div class="member-role">${m.role}</div>
+      <div class="member-bday">☀️ ${mm}/${dd}・${diffStr}</div>
+      <button class="oshi-toggle-btn${isOshi?' registered':''}" onclick="toggleOshi(${m.id},event)">
+        ${isOshi ? '☀️ 推しメン登録中' : '＋ 推しメン登録'}
+      </button>
+    </a>`;
+  }).join('');
+
+  applyFilter();
+}
+
+renderMembers();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js');
+  });
+}
+</script>
+</body>
+</html>

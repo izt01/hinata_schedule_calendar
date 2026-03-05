@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>日向坂46 — カレンダー</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-sakura.jpg">
+<meta name="theme-color" content="#8b2252">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="日向坂46">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── CALENDAR SPECIFIC ── */
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.cal-month-wrap { text-align: center; }
+.cal-month-jp {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--sky);
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.cal-month-sub {
+  font-size: 10px;
+  color: var(--hina-4);
+  letter-spacing: 0.22em;
+  margin-top: 2px;
+}
+.cal-nav-btn {
+  width: 38px; height: 38px;
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(6px);
+  border: 1.5px solid var(--hina-2);
+  border-radius: 50%;
+  font-size: 16px;
+  color: var(--sky);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-hina);
+  transition: all 0.18s;
+}
+.cal-nav-btn:active { background: var(--sky); color: white; transform: scale(0.9); }
+
+.cal-grid {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  border: 1.5px solid var(--hina-2);
+  padding: 18px 10px 14px;
+  box-shadow: var(--shadow-deep);
+  position: relative;
+  overflow: hidden;
+}
+.cal-grid::before {
+  content: '✿';
+  position: absolute;
+  bottom: -6px; right: 8px;
+  font-size: 72px;
+  color: var(--hina-2);
+  opacity: 0.45;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 6px;
+}
+.cal-wd {
+  text-align: center;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--sumi-light);
+  padding: 4px 0 8px;
+  letter-spacing: 0.05em;
+}
+.cal-wd:first-child { color: var(--hina-4); }
+.cal-wd:last-child  { color: #7090c8; }
+
+.cal-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.cal-day {
+  min-height: 52px;
+  border-radius: 10px;
+  padding: 4px 2px 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+}
+.cal-day:not(.empty):active { background: var(--hina-1); }
+.cal-day.empty { cursor: default; }
+.day-num {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px;
+  font-weight: 500;
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.cal-day.today .day-num { background: var(--sky); color: white; box-shadow: 0 2px 10px rgba(139,34,82,0.35); }
+.cal-day.sunday .day-num    { color: var(--hina-4); }
+.cal-day.saturday .day-num  { color: #7090c8; }
+
+.day-events {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  margin-top: 1px;
+  width: 100%;
+}
+.member-pip {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.9);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 1px 6px rgba(139,34,82,0.2);
+  transition: transform 0.15s;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+.member-pip:active { transform: scale(1.35); }
+.event-petal {
+  width: 7px; height: 7px;
+  background: var(--matcha);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Upcoming strip */
+.upcoming-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+}
+.upcoming-scroll::-webkit-scrollbar { display: none; }
+.upcoming-card {
+  flex-shrink: 0;
+  width: 124px;
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(8px);
+  border-radius: 18px;
+  border: 1.5px solid var(--hina-2);
+  padding: 13px 11px;
+  box-shadow: var(--shadow-hina);
+  cursor: pointer;
+  transition: transform 0.18s;
+  text-decoration: none;
+  display: block;
+}
+.upcoming-card:active { transform: scale(0.95); }
+.upcoming-card.birthday  { border-color: var(--hina-3); }
+.upcoming-card.user-event{ border-color: rgba(90,122,90,0.35); }
+.upcoming-icon { font-size: 20px; margin-bottom: 5px; }
+.upcoming-name { font-family: 'Noto Serif JP', serif; font-size: 11px; font-weight: 600; margin-bottom: 3px; color: var(--sumi); line-height: 1.3; }
+.upcoming-date { font-size: 10px; color: var(--sumi-light); margin-bottom: 5px; }
+.upcoming-badge {
+  display: inline-block;
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-family: 'Noto Serif JP', serif;
+  letter-spacing: 0.05em;
+}
+.upcoming-badge.bday  { background: var(--hina-1); color: var(--sky); border: 1px solid var(--hina-2); }
+.upcoming-badge.event { background: rgba(90,122,90,0.1); color: var(--matcha); border: 1px solid rgba(90,122,90,0.3); }
+</style>
+</head>
+<body>
+
+<canvas id="petals-canvas"></canvas>
+
+<div id="app">
+  <div id="headerMount"></div>
+
+  <div class="page-content page-enter">
+    <!-- Month nav -->
+    <div class="cal-header">
+      <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+      <div class="cal-month-wrap">
+        <div class="cal-month-jp" id="calMonthLabel"></div>
+        <div class="cal-month-sub" id="calYearLabel"></div>
+      </div>
+      <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+    </div>
+
+    <!-- Grid -->
+    <div class="cal-grid">
+      <div class="cal-weekdays">
+        <div class="cal-wd">日</div><div class="cal-wd">月</div>
+        <div class="cal-wd">火</div><div class="cal-wd">水</div>
+        <div class="cal-wd">木</div><div class="cal-wd">金</div>
+        <div class="cal-wd">土</div>
+      </div>
+      <div class="cal-days" id="calDays"></div>
+    </div>
+
+    <!-- Upcoming -->
+    <div class="section-kamon" style="margin-top:22px">
+      <span class="section-kamon-text">☀ COMING UP ☀</span>
+    </div>
+    <div class="upcoming-scroll" id="upcomingScroll"></div>
+  </div>
+</div>
+
+<!-- Birthday popup -->
+<div class="bday-popup" id="bdayPopup">
+  <div class="bday-card">
+    <div class="bday-avatar" id="bdayAvatar"></div>
+    <div class="bday-title"  id="bdayTitle"></div>
+    <div class="bday-sub"    id="bdaySub"></div>
+    <button class="bday-close" onclick="document.getElementById('bdayPopup').classList.remove('open')">✿ おめでとう ✿</button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="nav.js"></script>
+<script src="sakura.js"></script>
+<script src="notify.js"></script>
+<script>
+document.getElementById('headerMount').outerHTML = headerHTML('日向坂46', '☀ カレンダー ☀');
+initNotifications();
+injectNav('calendar.html');
+
+let curYear  = new Date().getFullYear();
+let curMonth = new Date().getMonth();
+
+function changeMonth(d) {
+  curMonth += d;
+  if (curMonth > 11) { curMonth = 0; curYear++; }
+  if (curMonth < 0)  { curMonth = 11; curYear--; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  document.getElementById('calMonthLabel').textContent = `${curMonth+1}月　${MONTHS_JP[curMonth]}`;
+  document.getElementById('calYearLabel').textContent  = `${curYear} · ${MONTHS_EN[curMonth]}`;
+
+  const today     = new Date();
+  const firstDay  = new Date(curYear, curMonth, 1).getDay();
+  const totalDays = new Date(curYear, curMonth+1, 0).getDate();
+  const events    = loadEvents();
+
+  // Birthday map
+  const bdayMap = {};
+  ACTIVE_MEMBERS.forEach(m => {
+    const _bp1 = m.birthday.split('-'); const mm1 = parseInt(_bp1[_bp1.length-2]); const dd1 = parseInt(_bp1[_bp1.length-1]);
+    if (mm1 === curMonth+1) (bdayMap[dd1] = bdayMap[dd1]||[]).push(m);
+  });
+
+  // Event map
+  const evtMap = {};
+  events.forEach(e => {
+    const d = new Date(e.date+'T00:00:00');
+    if (d.getFullYear()===curYear && d.getMonth()===curMonth) {
+      const day = d.getDate();
+      (evtMap[day] = evtMap[day]||[]).push(e);
+    }
+  });
+
+  let html = '';
+  for (let i=0; i<firstDay; i++) html += `<div class="cal-day empty"></div>`;
+  for (let d=1; d<=totalDays; d++) {
+    const dow     = new Date(curYear, curMonth, d).getDay();
+    const isToday = today.getFullYear()===curYear && today.getMonth()===curMonth && today.getDate()===d;
+    let cls = 'cal-day';
+    if (isToday) cls += ' today';
+    if (dow===0) cls += ' sunday';
+    if (dow===6) cls += ' saturday';
+
+    let inner = `<div class="day-num">${d}</div><div class="day-events">`;
+    (bdayMap[d]||[]).forEach(m => {
+      const isImg = m.avatar && /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(m.avatar);
+      const pipInner = isImg
+        ? `<img src="${m.avatar}" alt="${m.name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+        : m.avatar || '✿';
+      inner += `<a class="member-pip" style="background:${m.bg}" href="member-detail.html?id=${m.id}" onclick="event.stopPropagation()" title="${m.name}の誕生日">${pipInner}</a>`;
+    });
+    if (evtMap[d]) inner += `<div class="event-petal"></div>`;
+    inner += '</div>';
+
+    html += `<div class="${cls}" onclick="onDayClick(${d})">${inner}</div>`;
+  }
+  document.getElementById('calDays').innerHTML = html;
+  renderUpcoming();
+}
+
+function onDayClick(d) {
+  const bdays = ACTIVE_MEMBERS.filter(m => {
+    const _bp2 = m.birthday.split('-'); const mm2 = parseInt(_bp2[_bp2.length-2]); const dd2 = parseInt(_bp2[_bp2.length-1]);
+    return mm2===curMonth+1 && dd2===d;
+  });
+  if (!bdays.length) return;
+  const m = bdays[0];
+  document.getElementById('bdayAvatar').textContent = m.avatar;
+  document.getElementById('bdayTitle').textContent  = `${m.name}の誕生日`;
+  document.getElementById('bdaySub').textContent    = `${m.name}が${calcAge(m.birthday)+1}歳のお誕生日を迎えます。\nお祝いの気持ちを届けよう🌻`;
+  document.getElementById('bdayPopup').classList.add('open');
+}
+
+function renderUpcoming() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const items = [];
+
+  ACTIVE_MEMBERS.forEach(m => {
+    const diff = daysUntilBirthday(m.birthday);
+    if (diff <= 60) {
+      const _bp3 = m.birthday.split('-'); const mm3 = parseInt(_bp3[_bp3.length-2]); const dd3 = parseInt(_bp3[_bp3.length-1]);
+      items.push({ type:'bday', name:`${m.name}の誕生日`, dateStr:`${mm3}月${dd3}日`, icon:m.avatar, diff, href:`member-detail.html?id=${m.id}` });
+    }
+  });
+
+  loadEvents().forEach(e => {
+    const d = new Date(e.date+'T00:00:00');
+    const diff = Math.round((d-today)/86400000);
+    if (diff>=0 && diff<=60) {
+      items.push({ type:'event', name:e.name, dateStr:`${d.getMonth()+1}月${d.getDate()}日`, icon:e.emoji, diff, href:'events.html' });
+    }
+  });
+
+  items.sort((a,b)=>a.diff-b.diff);
+
+  const el = document.getElementById('upcomingScroll');
+  if (!items.length) {
+    el.innerHTML = `<div style="font-family:'Noto Serif JP',serif;font-size:12px;color:var(--sumi-light);padding:8px 2px">近日の行事はありません</div>`;
+    return;
+  }
+  el.innerHTML = items.map(u => {
+    const diffStr = u.diff===0?'今日':u.diff===1?'明日':`あと${u.diff}日`;
+    const isImg = u.icon && /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(u.icon);
+    const iconHTML = isImg
+      ? `<img src="${u.icon}" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">`
+      : u.icon;
+    return `<a class="upcoming-card ${u.type==='bday'?'birthday':'user-event'}" href="${u.href}">
+      <div class="upcoming-icon">${iconHTML}</div>
+      <div class="upcoming-name">${u.name}</div>
+      <div class="upcoming-date">${u.dateStr}</div>
+      <span class="upcoming-badge ${u.type==='bday'?'bday':'event'}">${diffStr}</span>
+    </a>`;
+  }).join('');
+}
+
+renderCalendar();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js');
+  });
+}
+</script>
+</body>
+</html>

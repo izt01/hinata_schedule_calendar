@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>日向坂46 — メンバー詳細</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-sakura.jpg">
+<meta name="theme-color" content="#8b2252">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="日向坂46">
+<link rel="stylesheet" href="style.css">
+<style>
+.hero {
+  margin: 0 18px 16px;
+  border-radius: 28px;
+  padding: 32px 20px 28px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '✿  ✿  ✿  ✿  ✿';
+  position: absolute;
+  bottom: 12px; left: 0; right: 0;
+  text-align: center;
+  font-size: 11px;
+  color: rgba(255,255,255,0.22);
+  letter-spacing: 12px;
+  pointer-events: none;
+}
+.hero-avatar {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.72);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.16);
+  margin: 0 auto 14px;
+  font-size: 50px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.22);
+  overflow: hidden;
+}
+.hero-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.hero-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: white;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.hero-name-roma {
+  color: rgba(255,255,255,0.7);
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  margin-bottom: 6px;
+}
+.hero-role {
+  color: rgba(255,255,255,0.85);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  font-family: 'Noto Serif JP', serif;
+}
+
+/* Oshi stamp */
+.oshi-stamp-wrap { text-align: center; margin: 0 0 16px; }
+.oshi-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 22px;
+  border-radius: 28px;
+  border: 2px solid var(--hina-3);
+  background: var(--hina-1);
+  color: var(--sky);
+  font-family: 'Shippori Mincho', serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.22s;
+  box-shadow: 0 2px 12px rgba(200,80,120,0.18);
+}
+.oshi-stamp.registered {
+  background: var(--sky);
+  border-color: var(--sky);
+  color: white;
+  box-shadow: 0 4px 18px rgba(139,34,82,0.3);
+}
+.oshi-stamp:active { transform: scale(0.95); }
+
+/* Countdown */
+.countdown-card {
+  margin: 0 18px 14px;
+  border-radius: 22px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 6px 24px rgba(139,34,82,0.18);
+}
+.countdown-left .label {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px;
+  color: rgba(255,255,255,0.82);
+  margin-bottom: 4px;
+  letter-spacing: 0.12em;
+}
+.countdown-left .num {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 52px;
+  font-weight: 800;
+  color: white;
+  line-height: 1;
+}
+.countdown-left .unit {
+  font-size: 12px;
+  color: rgba(255,255,255,0.82);
+  letter-spacing: 0.1em;
+}
+.countdown-flower { font-size: 56px; }
+
+/* Info grid */
+.info-grid {
+  margin: 0 18px 14px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.info-tile {
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(8px);
+  border-radius: 18px;
+  border: 1.5px solid var(--hina-2);
+  padding: 14px 12px;
+  box-shadow: var(--shadow-hina);
+}
+.info-tile-label {
+  font-size: 9px;
+  color: var(--hina-4);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.info-tile-value {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--sumi);
+}
+
+/* Fav block */
+.fav-block {
+  margin: 0 18px 80px;
+  background: rgba(255,255,255,0.8);
+  border: 1.5px solid var(--hina-2);
+  border-radius: 18px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow-hina);
+}
+.fav-block-label {
+  font-size: 9px;
+  color: var(--hina-4);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.fav-block-value {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 14px;
+  color: var(--sumi);
+  line-height: 1.9;
+}
+
+/* Back link */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sky);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  padding: 14px 18px 0;
+  transition: opacity 0.2s;
+}
+.back-link:active { opacity: 0.55; }
+
+/* Not found */
+.not-found {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--sumi-light);
+  font-family: 'Noto Serif JP', serif;
+}
+</style>
+</head>
+<body>
+
+<canvas id="petals-canvas"></canvas>
+
+<div id="app">
+  <div id="headerMount"></div>
+
+  <div class="page-content page-enter" style="padding-top:10px">
+    <a class="back-link" href="members.html">← 推しメン一覧へ戻る</a>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="nav.js"></script>
+<script src="sakura.js"></script>
+<script src="notify.js"></script>
+<script>
+document.getElementById('headerMount').outerHTML = headerHTML('日向坂46', '☀ メンバー詳細 ☀');
+initNotifications();
+injectNav('members.html');
+
+// Get member ID from URL
+const params = new URLSearchParams(location.search);
+const memberId = parseInt(params.get('id'));
+const m = ACTIVE_MEMBERS.find(x => x.id === memberId);
+let oshiSet = new Set(loadOshi());
+
+if (!m) {
+  document.getElementById('detailContent').innerHTML = `
+    <div class="not-found">
+      <div style="font-size:48px;margin-bottom:12px">🌻</div>
+      メンバーが見つかりませんでした
+    </div>`;
+} else {
+  document.title = `日向坂46 — ${m.name}`;
+  renderDetail();
+}
+
+function renderDetail() {
+  const diff    = daysUntilBirthday(m.birthday);
+  const parts = m.birthday.split('-');
+  const [yy, mm, dd] = parts.length === 3 ? parts.map(Number) : [null, ...parts.map(Number)];
+  const isOshi  = oshiSet.has(m.id);
+
+  // 拡張子で画像か絵文字かを判定
+  const isImg = m.avatar && /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(m.avatar);
+  const heroAvatar    = isImg ? `<img src="${m.avatar}" alt="${m.name}">` : (m.avatar || '🌻');
+  const flowerAvatar  = isImg
+    ? `<img src="${m.avatar}" alt="${m.name}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.6);">`
+    : `<span style="font-size:52px;line-height:1">${m.avatar || '🌻'}</span>`;
+
+  document.getElementById('detailContent').innerHTML = `
+    <div class="hero" style="background:${m.bg}">
+      <div class="hero-avatar">${heroAvatar}</div>
+      <div class="hero-name">${m.name}</div>
+      ${m.nameRoma ? `<div class="hero-name-roma">${m.nameRoma}</div>` : ''}
+      ${m.role ? `<div class="hero-role">${m.role}</div>` : ''}
+    </div>
+
+    <div class="oshi-stamp-wrap">
+      <button class="oshi-stamp${isOshi?' registered':''}" id="oshiStamp" onclick="toggleOshi()">
+        ${isOshi ? '🌸 推しメン登録中' : '🌸 推しメン登録'}
+      </button>
+    </div>
+
+    <div class="countdown-card" style="background:${m.bg}">
+      <div class="countdown-left">
+        <div class="label">☀ 次のお誕生日まで</div>
+        <div class="num">${diff}</div>
+        <div class="unit">日</div>
+      </div>
+      <div class="countdown-flower">${flowerAvatar}</div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-tile">
+        <div class="info-tile-label">誕生日</div>
+        <div class="info-tile-value" style="font-size:15px">${yy ? yy + '年' : ''}${mm}月${dd}日</div>
+      </div>
+      <div class="info-tile">
+        <div class="info-tile-label">年齢</div>
+        <div class="info-tile-value">${calcAge(m.birthday) !== null ? calcAge(m.birthday) + '歳' : '—'}</div>
+      </div>
+      <div class="info-tile">
+        <div class="info-tile-label">身長</div>
+        <div class="info-tile-value">${m.height || '—'}</div>
+      </div>
+      <div class="info-tile">
+        <div class="info-tile-label">MBTI</div>
+        <div class="info-tile-value">${m.mbti || '—'}</div>
+      </div>
+    </div>
+
+    ${m.fav ? `
+    <div class="fav-block">
+      <div class="fav-block-label">好きなもの</div>
+      <div class="fav-block-value">${m.fav}</div>
+    </div>` : ''}
+
+    ${m.memo ? `
+    <div class="fav-block" style="margin-top:-4px">
+      <div class="fav-block-label">メモ</div>
+      <div class="fav-block-value">${m.memo}</div>
+    </div>` : ''}
+  `;
+}
+
+function toggleOshi() {
+  if (oshiSet.has(m.id)) { oshiSet.delete(m.id); } else { oshiSet.add(m.id); }
+  saveOshi([...oshiSet]);
+  updateNotifBtn();
+  const stamp  = document.getElementById('oshiStamp');
+  const isOshi = oshiSet.has(m.id);
+  stamp.className = 'oshi-stamp' + (isOshi ? ' registered' : '');
+  stamp.textContent = isOshi ? '🌸 推しメン登録中' : '🌸 推しメン登録';
+  stamp.style.transform = 'scale(1.1)';
+  setTimeout(() => stamp.style.transform = '', 220);
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js');
+  });
+}
+</script>
+</body>
+</html>
