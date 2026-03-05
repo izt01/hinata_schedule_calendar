@@ -8,8 +8,8 @@ function injectNav(activePage) {
   const pages = [
     { href: 'index.html',         icon: '🏮', label: 'トップ' },
     { href: 'calendar.html',      icon: '📅', label: '日向坂46（カレンダー）' },
-    { href: 'members.html',       icon: '🌸', label: '推しメン一覧' },
-    { href: 'events.html',        icon: '☀',  label: '行事帳' },
+    { href: 'members.html',       icon: '🌻', label: '推しメン一覧' },
+    { href: 'events.html',        icon: '☀️',  label: '行事帳' },
     { href: 'gallery.html',       icon: '📷', label: 'フォトギャラリー' },
   ];
 
@@ -30,7 +30,7 @@ function injectNav(activePage) {
           <button class="drawer-close" onclick="closeDrawerDirect()">✕</button>
         </div>
         <div class="drawer-nav">${navItems}</div>
-        <div class="drawer-footer">☀ 日向坂46 · Hanagoyomi ☀</div>
+        <div class="drawer-footer">☀ 日向坂46 · hinatazaka calendar ☀</div>
       </nav>
     </div>
 
