@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>電車検索 — ひなたカレンダー</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#8b2252">
+<meta name="theme-color" content="#1565a0">
 <link rel="stylesheet" href="style.css">
 <style>
-/* ── TRAIN PAGE ── */
 .train-hero {
   margin: 24px 18px 20px;
   border-radius: 28px;
@@ -23,10 +22,8 @@
   content: '🌟  🌟  🌟  🌟  🌟';
   position: absolute;
   bottom: 10px; left: 0; right: 0;
-  text-align: center;
-  font-size: 12px;
-  color: rgba(255,255,255,0.12);
-  letter-spacing: 10px;
+  text-align: center; font-size: 12px;
+  color: rgba(255,255,255,0.1); letter-spacing: 10px;
 }
 .train-hero-icon { font-size: 48px; margin-bottom: 8px; }
 .train-hero-title {
@@ -39,8 +36,6 @@
   font-family: 'Noto Serif JP', serif;
   font-size: 11px; letter-spacing: 0.2em;
 }
-
-/* ── FORM CARD ── */
 .train-form-card {
   margin: 0 18px 20px;
   background: rgba(255,255,255,0.88);
@@ -50,22 +45,18 @@
   padding: 22px 20px;
   box-shadow: var(--shadow-hina);
 }
-
 .train-input-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
+  display: flex; align-items: center;
+  gap: 10px; margin-bottom: 12px;
 }
 .train-input-icon {
   width: 36px; height: 36px;
-  background: var(--hina-1);
-  border: 1.5px solid var(--hina-2);
+  background: var(--hina-1); border: 1.5px solid var(--hina-2);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 18px; flex-shrink: 0;
 }
-.train-input-wrap { flex: 1; }
+.train-input-wrap { flex: 1; position: relative; }
 .train-input-label {
   font-family: 'Noto Serif JP', serif;
   font-size: 10px; color: var(--hina-4);
@@ -87,23 +78,38 @@
   box-shadow: 0 0 0 3px rgba(114,188,232,0.18);
 }
 .train-input::placeholder { color: var(--sumi-light); opacity: 0.6; font-size: 13px; }
-
-.train-arrow {
-  text-align: center; font-size: 22px;
-  color: var(--hina-3); margin: 4px 0 12px;
+.suggest-list {
+  display: none; position: absolute;
+  top: calc(100% + 4px); left: 0; right: 0;
+  background: white;
+  border: 1.5px solid var(--hina-2);
+  border-radius: 13px; overflow: hidden;
+  box-shadow: 0 8px 24px rgba(21,101,160,0.15);
+  z-index: 50; max-height: 200px; overflow-y: auto;
 }
-
-.train-datetime-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
+.suggest-list.open { display: block; }
+.suggest-item {
+  padding: 11px 14px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px; color: var(--sumi); cursor: pointer;
+  border-bottom: 1px solid var(--hina-1);
+  display: flex; align-items: center; gap: 8px;
 }
+.suggest-item:last-child { border-bottom: none; }
+.suggest-item:hover, .suggest-item:active { background: var(--hina-1); }
+.train-swap-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; margin: 0 auto 12px;
+  background: var(--hina-1); border: 1.5px solid var(--hina-2);
+  border-radius: 50%; cursor: pointer; font-size: 18px;
+  transition: transform 0.3s, background 0.2s; user-select: none;
+}
+.train-swap-btn:active { transform: rotate(180deg); background: var(--hina-2); }
+.train-datetime-row { display: flex; gap: 10px; margin-bottom: 16px; }
 .train-datetime-row .train-input-wrap { flex: 1; }
-
 .train-search-btn {
-  width: 100%;
-  padding: 15px;
-  background: linear-gradient(135deg, var(--sky) 0%, #0d4678 100%);
+  width: 100%; padding: 15px;
+  background: linear-gradient(135deg, #1565a0 0%, #0d4678 100%);
   color: white; border: none; border-radius: 16px;
   font-family: 'M PLUS Rounded 1c', sans-serif;
   font-size: 16px; font-weight: 800; letter-spacing: 0.1em;
@@ -113,196 +119,63 @@
   display: flex; align-items: center; justify-content: center; gap: 10px;
 }
 .train-search-btn:active { transform: scale(0.97); box-shadow: none; }
-.train-search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-/* ── RESULTS ── */
-.train-results { margin: 0 18px 100px; }
-.train-results-title {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 15px; font-weight: 700;
-  color: var(--sky); letter-spacing: 0.08em;
-  margin-bottom: 14px;
-}
-
-.route-card {
-  background: rgba(255,255,255,0.88);
-  backdrop-filter: blur(12px);
-  border-radius: 22px;
-  border: 1.5px solid var(--hina-2);
-  margin-bottom: 14px;
-  overflow: hidden;
-  box-shadow: var(--shadow-hina);
-  transition: transform 0.15s;
-}
-.route-card:active { transform: scale(0.99); }
-
-.route-card-header {
-  background: linear-gradient(135deg, var(--sky) 0%, #1a7db8 100%);
-  padding: 12px 18px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.route-rank {
-  font-family: 'M PLUS Rounded 1c', sans-serif;
-  font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.8);
-  letter-spacing: 0.1em;
-}
-.route-total-time {
-  font-family: 'M PLUS Rounded 1c', sans-serif;
-  font-size: 20px; font-weight: 800; color: white;
-}
-.route-total-time span { font-size: 12px; opacity: 0.8; margin-left: 2px; }
-.route-fare {
-  font-family: 'Noto Serif JP', serif;
-  font-size: 13px; color: rgba(255,255,255,0.85);
-  font-weight: 600;
-}
-
-.route-body { padding: 16px 18px; }
-
-.route-step {
-  display: flex;
-  gap: 14px;
-  margin-bottom: 10px;
-  position: relative;
-}
-.route-step:not(:last-child)::before {
-  content: '';
-  position: absolute;
-  left: 18px; top: 32px;
-  width: 2px; bottom: -10px;
-  background: var(--hina-2);
-}
-.route-step-dot {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; flex-shrink: 0;
-  border: 2px solid var(--hina-2);
-  background: white;
-  position: relative; z-index: 1;
-}
-.route-step-dot.dep { background: var(--sky); border-color: var(--sky); }
-.route-step-dot.arr { background: #e07898; border-color: #e07898; }
-.route-step-dot.transfer { background: var(--hina-1); }
-.route-step-info { flex: 1; padding-top: 4px; }
-.route-step-station {
-  font-family: 'M PLUS Rounded 1c', sans-serif;
-  font-size: 15px; font-weight: 800; color: var(--sumi);
-  margin-bottom: 2px;
-}
-.route-step-station.dep, .route-step-station.arr { color: var(--sky); }
-.route-step-time {
-  font-family: 'Noto Serif JP', serif;
-  font-size: 13px; font-weight: 600;
-  color: var(--sumi-light);
-}
-
-.route-train-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 12px;
-  background: var(--hina-1);
-  border-radius: 12px;
-  margin: 4px 0 4px 50px;
-  border: 1px solid var(--hina-2);
-}
-.route-train-line {
-  padding: 3px 10px; border-radius: 20px;
-  font-family: 'M PLUS Rounded 1c', sans-serif;
-  font-size: 11px; font-weight: 800;
-  color: white; white-space: nowrap;
-}
-.route-train-name {
-  font-family: 'Noto Sans JP', sans-serif;
-  font-size: 12px; color: var(--sumi); font-weight: 600;
-}
-.route-train-dur {
-  margin-left: auto;
-  font-size: 11px; color: var(--sumi-light);
-  font-family: 'Noto Serif JP', serif;
-}
-
-/* ── LOADING ── */
-.train-loading {
-  text-align: center;
-  padding: 40px 20px;
-  display: none;
-}
+.train-search-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+/* loading */
+.train-loading { text-align: center; padding: 40px 20px; display: none; }
 .train-loading.visible { display: block; }
-.loading-train { font-size: 40px; animation: trainMove 1s ease-in-out infinite alternate; display: block; }
-@keyframes trainMove {
-  0%   { transform: translateX(-20px); }
-  100% { transform: translateX(20px); }
-}
-.loading-text {
-  font-family: 'Noto Serif JP', serif;
-  font-size: 13px; color: var(--hina-4);
-  margin-top: 12px; letter-spacing: 0.1em;
-}
-
-/* ── EMPTY STATE ── */
-.train-empty {
-  text-align: center; padding: 40px 20px;
-}
-.train-empty-icon { font-size: 48px; margin-bottom: 12px; }
-.train-empty-text {
-  font-family: 'Noto Serif JP', serif;
-  font-size: 13px; color: var(--sumi-light);
-  line-height: 1.8;
-}
-
-/* ── ERROR ── */
-.train-error {
-  background: rgba(255,80,80,0.08);
-  border: 1.5px solid rgba(255,80,80,0.2);
-  border-radius: 16px;
-  padding: 16px 18px;
-  text-align: center;
-  display: none;
-}
-.train-error.visible { display: block; }
-.train-error-text {
-  font-family: 'Noto Serif JP', serif;
-  font-size: 13px; color: #c0392b;
-}
-
-/* Suggestion dropdown */
-.station-suggest {
-  position: relative;
-}
-.suggest-list {
-  display: none;
-  position: absolute;
-  top: calc(100% + 4px); left: 0; right: 0;
-  background: white;
-  border: 1.5px solid var(--hina-2);
-  border-radius: 13px;
-  overflow: hidden;
-  box-shadow: 0 8px 24px rgba(21,101,160,0.15);
-  z-index: 20;
-  max-height: 200px; overflow-y: auto;
-}
-.suggest-list.open { display: block; }
-.suggest-item {
-  padding: 11px 14px;
-  font-family: 'Noto Sans JP', sans-serif;
-  font-size: 14px; color: var(--sumi);
-  cursor: pointer;
-  border-bottom: 1px solid var(--hina-1);
-  display: flex; align-items: center; gap: 8px;
-}
-.suggest-item:last-child { border-bottom: none; }
-.suggest-item:active, .suggest-item:hover { background: var(--hina-1); }
-.suggest-item-sub { font-size: 11px; color: var(--sumi-light); }
-
-/* Swap button */
-.train-swap-btn {
-  display: flex; align-items: center; justify-content: center;
-  width: 36px; height: 36px;
-  background: var(--hina-1); border: 1.5px solid var(--hina-2);
-  border-radius: 50%; cursor: pointer; margin: 0 auto 12px;
-  font-size: 18px; transition: transform 0.3s;
-}
-.train-swap-btn:active { transform: rotate(180deg); background: var(--hina-2); }
+.loading-train { font-size: 40px; display: inline-block; animation: trainAnim 0.7s ease-in-out infinite alternate; }
+@keyframes trainAnim { 0%{transform:translateX(-16px)} 100%{transform:translateX(16px)} }
+.loading-text { font-family:'Noto Serif JP',serif; font-size:13px; color:var(--hina-4); margin-top:12px; letter-spacing:0.1em; }
+/* error */
+.train-error { margin:0 18px 16px; background:rgba(255,80,80,0.07); border:1.5px solid rgba(255,80,80,0.22); border-radius:16px; padding:14px 16px; text-align:center; display:none; }
+.train-error.visible { display:block; }
+.train-error-text { font-family:'Noto Serif JP',serif; font-size:13px; color:#c0392b; line-height:1.8; white-space:pre-line; }
+/* results */
+.train-results { margin:0 18px 100px; display:none; }
+.results-header { font-family:'Noto Serif JP',serif; font-size:12px; color:var(--sumi-light); margin-bottom:16px; line-height:1.7; }
+.results-route-label { font-family:'Shippori Mincho',serif; font-size:18px; font-weight:800; color:var(--sky); margin-bottom:2px; }
+/* route card */
+.route-card { background:rgba(255,255,255,0.9); backdrop-filter:blur(12px); border-radius:22px; border:1.5px solid var(--hina-2); margin-bottom:16px; overflow:hidden; box-shadow:var(--shadow-hina); }
+.route-card-header { padding:14px 18px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--hina-1); }
+.route-badge { display:inline-flex; align-items:center; gap:5px; padding:5px 13px; border-radius:20px; font-family:'M PLUS Rounded 1c',sans-serif; font-size:12px; font-weight:800; color:white; }
+.route-badge.best  { background:linear-gradient(135deg,#e0872a,#f5b800); }
+.route-badge.few   { background:linear-gradient(135deg,#2ea06a,#34c47a); }
+.route-badge.other { background:linear-gradient(135deg,#7b5ea7,#a07bcf); }
+.route-meta { text-align:right; }
+.route-total-time { font-family:'M PLUS Rounded 1c',sans-serif; font-size:24px; font-weight:800; color:var(--sky); line-height:1; }
+.route-total-time small { font-size:13px; color:var(--sumi-light); font-weight:400; }
+.route-fare-text { font-family:'Noto Serif JP',serif; font-size:12px; color:var(--sumi-light); margin-top:2px; }
+.xfer-count-text { font-size:11px; color:var(--sumi-light); margin-top:4px; }
+/* timeline */
+.route-body { padding:16px 18px; }
+.tl-item { display:flex; gap:12px; }
+.tl-left { display:flex; flex-direction:column; align-items:center; width:30px; flex-shrink:0; }
+.tl-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0; border:2px solid var(--hina-2); background:white; }
+.tl-dot.dep { background:#1565a0; border-color:#1565a0; }
+.tl-dot.arr { background:#c0392b; border-color:#c0392b; }
+.tl-dot.xfer { background:var(--hina-1); }
+.tl-vline { width:2px; flex:1; min-height:8px; background:var(--hina-2); margin:2px 0; }
+.tl-right { flex:1; padding-bottom:6px; padding-top:3px; }
+.tl-station { font-family:'M PLUS Rounded 1c',sans-serif; font-size:14px; font-weight:800; color:var(--sumi); }
+.tl-station.dep { color:#1565a0; }
+.tl-station.arr { color:#c0392b; }
+.tl-time { font-family:'Noto Serif JP',serif; font-size:12px; color:var(--sumi-light); margin-top:1px; }
+/* train block */
+.tl-train-block { display:flex; gap:12px; margin:4px 0; }
+.tl-train-spine { width:30px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; }
+.tl-train-seg { width:3px; flex:1; border-radius:2px; min-height:52px; }
+.tl-train-info { flex:1; padding:10px 13px; border-radius:14px; background:var(--hina-0); border-left:4px solid #1565a0; margin-bottom:4px; }
+.tl-line-pill { display:inline-flex; align-items:center; padding:2px 10px; border-radius:20px; font-family:'M PLUS Rounded 1c',sans-serif; font-size:11px; font-weight:800; color:white; margin-bottom:4px; }
+.tl-train-detail { font-family:'Noto Serif JP',serif; font-size:11px; color:var(--sumi-light); line-height:1.8; }
+/* xfer block */
+.tl-xfer-block { display:flex; gap:12px; margin:2px 0; }
+.tl-xfer-spine { width:30px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; }
+.tl-xfer-seg { width:2px; flex:1; background:var(--hina-2); min-height:32px; }
+.tl-xfer-info { flex:1; display:flex; align-items:center; gap:8px; padding:7px 12px; border-radius:12px; background:rgba(245,184,0,0.07); border:1px dashed rgba(245,184,0,0.4); margin-bottom:4px; font-family:'Noto Sans JP',sans-serif; font-size:12px; color:#a07800; }
+/* empty */
+.train-empty { text-align:center; padding:48px 20px; }
+.train-empty-icon { font-size:52px; margin-bottom:14px; }
+.train-empty-text { font-family:'Noto Serif JP',serif; font-size:13px; color:var(--sumi-light); line-height:1.9; }
 </style>
 </head>
 <body>
@@ -311,43 +184,32 @@
   <div id="headerMount"></div>
   <div class="page-content page-enter">
 
-    <!-- HERO -->
     <div class="train-hero">
       <div class="train-hero-icon">🚃</div>
       <div class="train-hero-title">電車検索</div>
       <div class="train-hero-sub">✿ 乗り換え案内 ✿</div>
     </div>
 
-    <!-- FORM -->
     <div class="train-form-card">
-      <!-- 出発駅 -->
       <div class="train-input-row">
         <div class="train-input-icon">🟢</div>
         <div class="train-input-wrap">
           <div class="train-input-label">✿ 出発駅</div>
-          <div class="station-suggest" id="fromWrap">
-            <input class="train-input" id="fromStation" type="text" placeholder="例：渋谷、新宿、池袋" autocomplete="off">
-            <div class="suggest-list" id="fromSuggest"></div>
-          </div>
+          <input class="train-input" id="fromStation" type="text" placeholder="例：渋谷、新宿、池袋" autocomplete="off">
+          <div class="suggest-list" id="fromSuggest"></div>
         </div>
       </div>
-
-      <!-- スワップボタン -->
-      <button class="train-swap-btn" onclick="swapStations()" title="出発・到着を入れ替え">⇅</button>
-
-      <!-- 到着駅 -->
+      <div style="text-align:center;margin-bottom:12px">
+        <div class="train-swap-btn" onclick="swapStations()">⇅</div>
+      </div>
       <div class="train-input-row">
         <div class="train-input-icon">🔴</div>
         <div class="train-input-wrap">
           <div class="train-input-label">✿ 到着駅</div>
-          <div class="station-suggest" id="toWrap">
-            <input class="train-input" id="toStation" type="text" placeholder="例：東京、品川、横浜" autocomplete="off">
-            <div class="suggest-list" id="toSuggest"></div>
-          </div>
+          <input class="train-input" id="toStation" type="text" placeholder="例：東京、品川、横浜" autocomplete="off">
+          <div class="suggest-list" id="toSuggest"></div>
         </div>
       </div>
-
-      <!-- 日時 -->
       <div class="train-datetime-row">
         <div class="train-input-wrap">
           <div class="train-input-label">✿ 日付</div>
@@ -358,32 +220,23 @@
           <input class="train-input" id="trainTime" type="time">
         </div>
       </div>
-
-      <!-- 検索ボタン -->
-      <button class="train-search-btn" id="searchBtn" onclick="searchTrains()">
+      <button class="train-search-btn" id="searchBtn" onclick="doSearch()">
         <span>🚃</span> 乗り換えを検索
       </button>
     </div>
 
-    <!-- LOADING -->
     <div class="train-loading" id="trainLoading">
       <span class="loading-train">🚃</span>
-      <div class="loading-text">乗り換えルートを検索中です…</div>
+      <div class="loading-text">ルートを計算中です…</div>
     </div>
-
-    <!-- ERROR -->
     <div class="train-error" id="trainError">
       <div class="train-error-text" id="trainErrorText"></div>
     </div>
-
-    <!-- RESULTS -->
-    <div class="train-results" id="trainResults" style="display:none">
+    <div class="train-results" id="trainResults">
       <div class="section-kamon"><span class="section-kamon-text">✿ 検索結果 ✿</span></div>
-      <div class="train-results-title" id="resultsTitle"></div>
+      <div class="results-header" id="resultsHeader"></div>
       <div id="routesList"></div>
     </div>
-
-    <!-- EMPTY (initial) -->
     <div class="train-empty" id="trainEmpty">
       <div class="train-empty-icon">🚉</div>
       <div class="train-empty-text">
@@ -393,312 +246,371 @@
 
   </div>
 </div>
-
 <script src="data.js"></script>
 <script src="nav.js"></script>
 <script src="sakura.js"></script>
 <script src="notify.js"></script>
 <script>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ひなたカレンダー 電車検索エンジン
+   完全オフライン動作 / APIなし
+   東京圏主要路線データ内蔵 + ダイクストラ探索
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+// ── ヘッダー・ナビ初期化 ─────────────────────
 document.getElementById('headerMount').outerHTML = headerHTML('電車検索','🚃 乗り換え案内');
 initNotifications();
 injectNav('train.html');
 
-// ── 日時の初期値 ──────────────────────
+// ── 日時の初期値 ────────────────────────────
 (function() {
   const now = new Date();
-  const pad = n => String(n).padStart(2,'0');
-  document.getElementById('trainDate').value =
-    `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
-  document.getElementById('trainTime').value =
-    `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const p = n => String(n).padStart(2,'0');
+  document.getElementById('trainDate').value = `${now.getFullYear()}-${p(now.getMonth()+1)}-${p(now.getDate())}`;
+  document.getElementById('trainTime').value = `${p(now.getHours())}:${p(now.getMinutes())}`;
 })();
 
-// ── 駅名サジェスト（よく使う主要駅リスト） ────────────
-const MAJOR_STATIONS = [
-  // 東京・山手線
-  '東京','新宿','渋谷','池袋','品川','上野','秋葉原','有楽町','浜松町','田町',
-  '目黒','恵比寿','代々木','新大久保','高田馬場','目白','大塚','巣鴨','駒込',
-  '田端','西日暮里','日暮里','鴬谷','御徒町','神田',
-  // 私鉄・地下鉄主要
-  '横浜','川崎','武蔵小杉','二子玉川','自由が丘','中目黒','表参道','六本木',
-  '麻布十番','神谷町','虎ノ門','霞ヶ関','日比谷','銀座','築地','月島','有明',
-  '豊洲','汐留','新橋','浜町','森下','両国','錦糸町','亀戸','北千住',
-  '綾瀬','松戸','柏','我孫子','千葉','船橋','津田沼','西船橋','海浜幕張',
-  '大宮','浦和','川口','蒲田','大森','西大井','戸塚','藤沢','茅ヶ崎','平塚',
-  '小田原','熱海','三島','沼津','静岡','浜松','名古屋','京都','大阪','神戸',
-  '立川','八王子','吉祥寺','三鷹','国分寺','新宿三丁目','神保町','後楽園',
-  '飯田橋','市ヶ谷','四ツ谷','赤坂見附','永田町','半蔵門','三越前',
-  '日本橋','茅場町','門前仲町','清澄白河','住吉','押上','曳舟','浅草',
-  '田原町','稲荷町','上野御徒町','仲御徒町','新御徒町','蔵前',
-  // 空港
-  '羽田空港','成田空港','関西空港',
-];
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  路線データベース（東京圏主要路線）
+//  stations: 駅リスト  times: 隣接駅間の分数
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const LINE_DB = {
+  yamanote:    { name:'山手線',      color:'#9ACD32', stations:['品川','大崎','五反田','目黒','恵比寿','渋谷','原宿','代々木','新宿','新大久保','高田馬場','目白','池袋','大塚','巣鴨','駒込','田端','西日暮里','日暮里','鴬谷','上野','御徒町','秋葉原','神田','東京','有楽町','新橋','浜松町','田町','高輪ゲートウェイ'], times:[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2] },
+  chuo_rapid:  { name:'中央線快速',  color:'#FF4500', stations:['東京','神田','御茶ノ水','四ツ谷','新宿','中野','荻窪','吉祥寺','三鷹','国分寺','立川','八王子'], times:[2,3,4,5,3,5,3,2,5,5,9] },
+  sobu:        { name:'総武線各停',  color:'#F5C400', stations:['千葉','津田沼','船橋','西船橋','小岩','新小岩','亀戸','錦糸町','両国','浅草橋','秋葉原','御茶ノ水','水道橋','飯田橋','市ケ谷','四ツ谷','信濃町','千駄ケ谷','代々木','新宿'], times:[18,5,3,5,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2] },
+  keihin:      { name:'京浜東北線',  color:'#00BFFF', stations:['大宮','さいたま新都心','与野','北浦和','浦和','南浦和','蕨','西川口','川口','赤羽','東十条','王子','上中里','田端','西日暮里','日暮里','鴬谷','上野','御徒町','秋葉原','神田','東京','有楽町','新橋','浜松町','田町','高輪ゲートウェイ','品川','大井町','大森','蒲田','川崎','鶴見','新子安','東神奈川','横浜'], times:[3,2,2,2,2,2,2,2,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,2,2,3] },
+  tokaido:     { name:'東海道線',    color:'#F97316', stations:['東京','新橋','品川','川崎','横浜','戸塚','大船','藤沢','茅ヶ崎','平塚','大磯','小田原','熱海'], times:[3,5,13,14,18,8,6,5,5,4,10,18] },
+  yokosuka:    { name:'横須賀線',    color:'#1D4ED8', stations:['東京','新橋','品川','武蔵小杉','横浜','保土ヶ谷','東戸塚','戸塚','大船'], times:[3,5,10,15,5,5,6,5] },
+  saikyo:      { name:'埼京線',      color:'#00A550', stations:['大宮','北戸田','戸田','戸田公園','北赤羽','赤羽','板橋','十条','池袋','新宿','渋谷','恵比寿','大崎'], times:[3,2,2,2,2,2,2,2,4,8,3,3] },
+  shonan:      { name:'湘南新宿ライン',color:'#F97316',stations:['大宮','浦和','武蔵小杉','横浜','戸塚','大船','藤沢','茅ヶ崎','平塚','小田原'], times:[10,22,12,10,8,6,5,5,9] },
+  musashino:   { name:'武蔵野線',    color:'#FF6600', stations:['西船橋','市川大野','船橋法典','東松戸','新八柱','新松戸','南流山','三郷','吉川','越谷レイクタウン','南越谷','東浦和','東川口','南浦和','武蔵浦和','西浦和','北朝霞','朝霞台','新座','新秋津','東所沢','新小平','国立','西国分寺','新小金井','北府中','府中本町'], times:[3,3,3,3,3,3,3,3,4,3,4,3,3,3,3,3,3,2,3,3,3,5,2,3,2,3] },
+  // ── 私鉄 ──
+  tokyu_toyoko:{ name:'東急東横線',  color:'#E60044', stations:['渋谷','代官山','中目黒','祐天寺','学芸大学','都立大学','自由が丘','田園調布','多摩川','新丸子','武蔵小杉','元住吉','日吉','綱島','大倉山','菊名','妙蓮寺','白楽','東白楽','横浜'], times:[2,3,3,2,2,2,3,2,2,2,2,3,4,3,3,2,2,2,3] },
+  tokyu_den:   { name:'東急田園都市線',color:'#00A550',stations:['渋谷','池尻大橋','三軒茶屋','駒沢大学','桜新町','用賀','二子玉川','溝の口','梶が谷','宮崎台','宮前平','鷺沼','たまプラーザ','あざみ野','江田','市が尾','藤が丘','青葉台','田奈','長津田','中央林間'], times:[4,3,3,2,2,4,5,2,2,2,2,3,3,2,2,2,2,3,4,4] },
+  tokyu_mekama:{ name:'東急目黒線',  color:'#00AC9B', stations:['目黒','不動前','武蔵小山','西小山','洗足','大岡山','奥沢','田園調布','多摩川','新丸子','武蔵小杉','元住吉','日吉'], times:[2,2,2,2,2,2,2,2,2,2,2,3] },
+  keio:        { name:'京王線',      color:'#E60044', stations:['新宿','初台','幡ヶ谷','笹塚','代田橋','明大前','下高井戸','桜上水','上北沢','八幡山','芦花公園','千歳烏山','仙川','つつじヶ丘','柴崎','国領','布田','調布','西調布','飛田給','武蔵野台','多磨霊園','東府中','府中','分倍河原','聖蹟桜ヶ丘','高幡不動','北野','八王子'], times:[2,2,2,2,2,2,2,2,2,2,2,3,3,2,2,2,3,3,3,2,2,2,2,2,5,3,2,5] },
+  keio_inok:   { name:'京王井の頭線',color:'#0066CC', stations:['渋谷','神泉','駒場東大前','池ノ上','下北沢','新代田','東松原','明大前','浜田山','西永福','永福町','西荻窪','久我山','三鷹台','井の頭公園','吉祥寺'], times:[2,2,2,2,2,2,2,3,2,2,3,2,2,2,2] },
+  odakyu:      { name:'小田急線',    color:'#0066CC', stations:['新宿','南新宿','参宮橋','代々木八幡','代々木上原','東北沢','下北沢','世田谷代田','梅ヶ丘','豪徳寺','経堂','千歳船橋','祖師ヶ谷大蔵','成城学園前','喜多見','狛江','和泉多摩川','登戸','向ヶ丘遊園','生田','読売ランド前','百合ヶ丘','新百合ヶ丘','柿生','鶴川','玉川学園前','町田','相模大野','小田原'], times:[1,1,1,1,2,2,2,2,2,2,2,2,3,2,2,2,3,2,2,2,2,3,3,3,3,4,2,43] },
+  seibu_ike:   { name:'西武池袋線',  color:'#FFCC00', stations:['池袋','椎名町','東長崎','江古田','桜台','練馬','中村橋','富士見台','石神井公園','大泉学園','保谷','ひばりヶ丘','東久留米','清瀬','秋津','所沢','小手指','狭山ヶ丘','武蔵藤沢','稲荷山公園','入間市','仏子','元加治','飯能'], times:[2,2,2,2,2,2,2,2,2,2,2,3,2,2,4,4,3,2,3,3,3,3,6] },
+  seibu_shin:  { name:'西武新宿線',  color:'#FFCC00', stations:['西武新宿','高田馬場','下落合','中井','新井薬師前','沼袋','野方','都立家政','鷺ノ宮','下井草','井荻','上井草','上石神井','武蔵関','東伏見','西武柳沢','田無','花小金井','小平','萩山','小川','東大和市','玉川上水','武蔵砂川','西武立川','拝島'], times:[3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,2,3,3,3,3,3] },
+  tobu_tojo:   { name:'東武東上線',  color:'#FF6600', stations:['池袋','北池袋','下板橋','大山','中板橋','ときわ台','上板橋','東武練馬','下赤塚','成増','和光市','朝霞','朝霞台','志木','みずほ台','鶴瀬','ふじみ野','上福岡','新河岸','川越','川越市','霞ヶ関','鶴ヶ島','若葉','坂戸','東松山'], times:[2,1,2,1,2,1,1,2,2,3,2,2,3,3,2,2,2,3,3,2,2,2,2,2,2] },
+  tobu_skytree:{ name:'東武スカイツリーライン',color:'#F97316',stations:['浅草','とうきょうスカイツリー','曳舟','押上','北千住','小菅','五反野','梅島','西新井','竹ノ塚','草加','獨協大学前','新田','蒲生','新越谷','越谷','北越谷','大袋','せんげん台','武里','一ノ割','春日部','北春日部','姫宮','東武動物公園'], times:[2,3,3,5,2,2,2,2,3,4,4,2,2,2,2,3,2,3,3,2,4,2,2,3] },
+  keikyu:      { name:'京急線',      color:'#E60044', stations:['品川','北品川','新馬場','青物横丁','鮫洲','立会川','大森海岸','平和島','大森町','梅屋敷','京急蒲田','糀谷','雑色','六郷土手','京急川崎','八丁畷','鶴見市場','京急鶴見','花月総持寺','生麦','京急新子安','仲木戸','神奈川','横浜'], times:[2,2,2,2,2,2,2,2,2,2,2,2,2,3,2,2,2,2,2,2,2,2,2] },
+  keisei:      { name:'京成線',      color:'#E60044', stations:['上野','日暮里','新三河島','町屋','千住大橋','京成関屋','お花茶屋','青砥','京成高砂','京成小岩','江戸川','国府台','市川真間','菅野','京成八幡','鬼越','京成中山','東中山','京成西船','海神','京成船橋','大神宮下','船橋競馬場','谷津','京成津田沼'], times:[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2] },
+  // ── 地下鉄 ──
+  ginza:       { name:'銀座線',      color:'#FF9500', stations:['浅草','田原町','稲荷町','上野','上野広小路','末広町','秋葉原','神田','三越前','日本橋','京橋','銀座','新橋','虎ノ門','溜池山王','赤坂見附','青山一丁目','外苑前','表参道','渋谷'], times:[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2] },
+  marunouchi:  { name:'丸ノ内線',    color:'#E60044', stations:['荻窪','南阿佐ケ谷','新高円寺','東高円寺','新中野','中野坂上','西新宿','新宿','新宿三丁目','新宿御苑前','四谷三丁目','四ツ谷','赤坂見附','国会議事堂前','霞ヶ関','銀座','東京','大手町','淡路町','新御茶ノ水','本郷三丁目','後楽園','新大塚','茗荷谷','池袋'], times:[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2] },
+  hibiya:      { name:'日比谷線',    color:'#B5B5AC', stations:['中目黒','恵比寿','広尾','六本木','神谷町','霞ヶ関','日比谷','銀座','東銀座','築地','八丁堀','茅場町','人形町','小伝馬町','秋葉原','仲御徒町','上野','入谷','三ノ輪','南千住','北千住'], times:[3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2] },
+  tozai:       { name:'東西線',      color:'#00B2E5', stations:['中野','落合','高田馬場','早稲田','神楽坂','飯田橋','九段下','竹橋','大手町','日本橋','茅場町','門前仲町','木場','東陽町','南砂町','西葛西','葛西','浦安','南行徳','行徳','妙典','原木中山','西船橋'], times:[2,3,2,2,2,2,2,2,2,2,2,2,2,2,3,2,3,2,2,2,2,3] },
+  hanzomon:    { name:'半蔵門線',    color:'#8F76D6', stations:['渋谷','表参道','青山一丁目','永田町','半蔵門','九段下','神保町','大手町','三越前','水天宮前','清澄白河','住吉','錦糸町','押上'], times:[2,2,2,2,2,2,2,2,2,2,2,2,3] },
+  chiyoda:     { name:'千代田線',    color:'#00BB85', stations:['代々木上原','代々木公園','明治神宮前','表参道','乃木坂','赤坂','国会議事堂前','霞ヶ関','日比谷','二重橋前','大手町','新御茶ノ水','湯島','根津','千駄木','西日暮里','町屋','北千住'], times:[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3] },
+  yurakucho:   { name:'有楽町線',    color:'#C1A851', stations:['和光市','地下鉄成増','地下鉄赤塚','平和台','氷川台','小竹向原','千川','要町','池袋','東池袋','護国寺','江戸川橋','飯田橋','市ケ谷','麹町','永田町','桜田門','有楽町','銀座一丁目','新富町','月島','豊洲'], times:[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3] },
+  fukutoshin:  { name:'副都心線',    color:'#9B6E23', stations:['和光市','地下鉄成増','地下鉄赤塚','平和台','氷川台','小竹向原','千川','要町','池袋','雑司が谷','西早稲田','東新宿','新宿三丁目','北参道','明治神宮前','渋谷'], times:[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2] },
+  nanboku:     { name:'南北線',      color:'#00AC9B', stations:['目黒','白金台','白金高輪','麻布十番','六本木一丁目','溜池山王','永田町','四ツ谷','市ケ谷','飯田橋','後楽園','本駒込','駒込','西ケ原','王子','王子神谷','志茂','赤羽岩淵'], times:[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2] },
+  mita:        { name:'都営三田線',  color:'#0066B3', stations:['目黒','白金台','白金高輪','三田','芝公園','御成門','内幸町','日比谷','大手町','神保町','水道橋','春日','白山','千石','巣鴨','西巣鴨','新板橋','板橋区役所前','板橋本町','本蓮沼','志村坂上','志村三丁目','蓮根','西台','高島平','新高島平','西高島平'], times:[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2] },
+  oedo:        { name:'都営大江戸線', color:'#E85298', stations:['都庁前','新宿西口','東新宿','若松河田','牛込柳町','牛込神楽坂','飯田橋','春日','本郷三丁目','上野御徒町','新御徒町','蔵前','両国','森下','清澄白河','門前仲町','月島','勝どき','築地市場','汐留','大門','赤羽橋','麻布十番','六本木','青山一丁目','国立競技場','代々木','新宿','西新宿五丁目','中野坂上','東中野','中井','落合南長崎','新江古田','練馬','豊島園','練馬春日町','光が丘'], times:[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,2,2,3] },
+  asakusa:     { name:'都営浅草線',  color:'#E85298', stations:['西馬込','馬込','中延','戸越','五反田','高輪台','泉岳寺','三田','大門','新橋','浅草橋','蔵前','浅草','本所吾妻橋','押上'], times:[2,2,2,2,2,2,2,2,2,2,2,2,2,2] },
+  shinjuku_line:{ name:'都営新宿線', color:'#6CBB5A', stations:['新宿','新宿三丁目','曙橋','市ケ谷','九段下','神保町','小川町','岩本町','馬喰横山','浜町','森下','菊川','住吉','西大島','大島','東大島','船堀','一之江','瑞江','篠崎','本八幡'], times:[1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,2,2,2] },
+  minatomirai: { name:'みなとみらい線',color:'#2C4EA0',stations:['横浜','新高島','みなとみらい','馬車道','日本大通り','元町・中華街'], times:[2,2,2,2,2] },
+  setagaya:    { name:'世田谷線',    color:'#F5C400', stations:['三軒茶屋','西太子堂','若林','松陰神社前','世田谷','上町','宮の坂','山下','松原','下高井戸'], times:[2,2,2,2,2,2,2,2,2] },
+};
 
-function filterStations(q) {
-  if (!q || q.length < 1) return [];
-  return MAJOR_STATIONS.filter(s => s.includes(q) || s.startsWith(q)).slice(0,8);
-}
+// ── グラフ構築 ───────────────────────────────
+const GRAPH = (function() {
+  const g = {};
+  const add = (a, b, min, key) => {
+    const ln = LINE_DB[key];
+    if (!g[a]) g[a] = [];
+    if (!g[b]) g[b] = [];
+    g[a].push({ to:b, minutes:min, lineKey:key, lineName:ln.name, lineColor:ln.color });
+    g[b].push({ to:a, minutes:min, lineKey:key, lineName:ln.name, lineColor:ln.color });
+  };
+  for (const [key, ln] of Object.entries(LINE_DB)) {
+    for (let i = 0; i < ln.stations.length - 1; i++) {
+      add(ln.stations[i], ln.stations[i+1], ln.times[i], key);
+    }
+  }
+  return g;
+})();
 
+const ALL_STATIONS = [...new Set(Object.values(LINE_DB).flatMap(l=>l.stations))].sort();
+
+// ── サジェスト ───────────────────────────────
 function showSuggest(inputId, listId) {
-  const input = document.getElementById(inputId);
-  const list  = document.getElementById(listId);
-  const q = input.value.trim();
-  const matches = filterStations(q);
-  if (!matches.length) { list.classList.remove('open'); return; }
-  list.innerHTML = matches.map(s =>
-    `<div class="suggest-item" onclick="selectStation('${inputId}','${listId}','${s}')">
-      🚉 <span>${s}</span>
-    </div>`
+  const q = document.getElementById(inputId).value.trim();
+  const list = document.getElementById(listId);
+  const ms = ALL_STATIONS.filter(s => s.includes(q)).slice(0, 9);
+  if (!q || !ms.length) { list.classList.remove('open'); return; }
+  list.innerHTML = ms.map(s =>
+    `<div class="suggest-item" onmousedown="pickStation('${inputId}','${listId}','${s}')">🚉 ${s}</div>`
   ).join('');
   list.classList.add('open');
 }
-
-function selectStation(inputId, listId, name) {
+function pickStation(inputId, listId, name) {
   document.getElementById(inputId).value = name;
   document.getElementById(listId).classList.remove('open');
 }
-
 document.getElementById('fromStation').addEventListener('input', () => showSuggest('fromStation','fromSuggest'));
 document.getElementById('toStation').addEventListener('input',   () => showSuggest('toStation','toSuggest'));
-
-// 外クリックでサジェストを閉じる
 document.addEventListener('click', e => {
-  if (!e.target.closest('#fromWrap')) document.getElementById('fromSuggest').classList.remove('open');
-  if (!e.target.closest('#toWrap'))   document.getElementById('toSuggest').classList.remove('open');
+  if (!e.target.closest('#fromStation')) document.getElementById('fromSuggest').classList.remove('open');
+  if (!e.target.closest('#toStation'))   document.getElementById('toSuggest').classList.remove('open');
 });
-
-// ── 入れ替え ──
 function swapStations() {
   const f = document.getElementById('fromStation');
   const t = document.getElementById('toStation');
   [f.value, t.value] = [t.value, f.value];
 }
 
-// ── 路線の色マッピング ──────────────────
-const LINE_COLORS = {
-  '山手線':     '#9ACD32', '中央線':     '#FF4500', '京浜東北線': '#00BFFF',
-  '東海道線':   '#F97316', '横須賀線':   '#1D4ED8', '総武線':     '#F5C400',
-  '埼京線':     '#00A550', '湘南新宿ライン':'#F97316','東横線':   '#E60044',
-  '田園都市線': '#00A550', '小田急線':   '#0066CC', '京王線':     '#E60044',
-  '西武池袋線': '#FFCC00', '東武東上線': '#FF6600', '東西線':     '#00B2E5',
-  '丸ノ内線':   '#E60044', '日比谷線':   '#B5B5AC', '銀座線':     '#FF9500',
-  '半蔵門線':   '#8F76D6', '千代田線':   '#00BB85', '有楽町線':   '#C1A851',
-  '南北線':     '#00AC9B', '三田線':     '#0066B3', '都営浅草線': '#E85298',
-  '都営新宿線': '#6CBB5A', '大江戸線':   '#E85298', '副都心線':   '#9B6E23',
-  'みなとみらい線':'#2C4EA0','相鉄線':   '#006CB8', '京急線':     '#E60044',
-  '京成線':     '#E60044', '常磐線':     '#008000', '武蔵野線':   '#F97316',
-  'JR線':       '#E60044',
-};
-
-function getLineColor(lineName) {
-  for (const [k, v] of Object.entries(LINE_COLORS)) {
-    if (lineName.includes(k)) return v;
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  ルート探索エンジン（ダイクストラ法）
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function dijkstra(start, goal, xferPenalty = 3) {
+  if (!GRAPH[start] || !GRAPH[goal]) return null;
+  const dist = { [start]: 0 };
+  const prev = {};
+  const visited = new Set();
+  // 優先度付きキュー（簡易配列）
+  const pq = [[0, start, null]];  // [cost, station, prevLineKey]
+  while (pq.length) {
+    pq.sort((a,b) => a[0] - b[0]);
+    const [d, u, prevLine] = pq.shift();
+    if (visited.has(u)) continue;
+    visited.add(u);
+    if (u === goal) break;
+    for (const edge of (GRAPH[u] || [])) {
+      const xp = (prevLine !== null && prevLine !== edge.lineKey) ? xferPenalty : 0;
+      const nd = d + edge.minutes + xp;
+      if (nd < (dist[edge.to] ?? Infinity)) {
+        dist[edge.to] = nd;
+        prev[edge.to] = { from: u, edge };
+        pq.push([nd, edge.to, edge.lineKey]);
+      }
+    }
   }
-  return '#1565a0';
+  if (dist[goal] === undefined) return null;
+  // 経路復元
+  const path = [];
+  let cur = goal;
+  while (cur !== start) {
+    const p = prev[cur];
+    path.unshift({ station: cur, edge: p.edge });
+    cur = p.from;
+  }
+  path.unshift({ station: start, edge: null });
+  return { path, totalMinutes: dist[goal] };
 }
 
-// ── AI検索（Claude API経由） ──────────────
-async function searchTrains() {
+// パスを「乗車区間」にセグメント化
+function toSegments(path) {
+  const segs = [];
+  let i = 1;
+  while (i < path.length) {
+    const lineKey = path[i].edge.lineKey;
+    const boardIdx = i - 1;
+    let j = i;
+    while (j < path.length && path[j].edge && path[j].edge.lineKey === lineKey) j++;
+    const boardAt = path[boardIdx].station;
+    const alightAt = path[j-1].station;
+    const ln = LINE_DB[lineKey];
+    const bi = ln.stations.indexOf(boardAt), ai = ln.stations.indexOf(alightAt);
+    let mins = 0;
+    if (bi >= 0 && ai >= 0) {
+      const lo = Math.min(bi,ai), hi = Math.max(bi,ai);
+      for (let k = lo; k < hi; k++) mins += ln.times[k];
+    } else {
+      for (let k = boardIdx; k < j-1; k++) mins += path[k+1].edge.minutes;
+    }
+    segs.push({ lineKey, lineName: ln.name, lineColor: ln.color, boardAt, alightAt, minutes: mins });
+    i = j;
+  }
+  return segs;
+}
+
+// 3ルート生成
+function findRoutes(from, to) {
+  const r1 = dijkstra(from, to, 3);    // おすすめ
+  const r2 = dijkstra(from, to, 15);   // 乗り換え少なめ
+  const routes = [];
+  if (r1) routes.push({ label:'おすすめ（最速）', badgeClass:'best',  icon:'⚡', result: r1 });
+  if (r2) {
+    const same = r1 && JSON.stringify(r2.path.map(p=>p.station)) === JSON.stringify(r1.path.map(p=>p.station));
+    routes.push({ label: same?'最速ルート':'乗り換え少なめ', badgeClass:'few', icon:'🔄', result: r2 });
+  }
+  // 3本目：主要乗り換えハブを経由した別ルート
+  const hubs = ['東京','新宿','渋谷','品川','上野','秋葉原','池袋','横浜','北千住','赤羽','大手町','銀座','日本橋','押上','錦糸町','神田','有楽町','新橋'];
+  for (const hub of hubs) {
+    if (hub === from || hub === to) continue;
+    const rA = dijkstra(from, hub, 3);
+    const rB = dijkstra(hub, to, 3);
+    if (!rA || !rB) continue;
+    const combined = {
+      path: [...rA.path, ...rB.path.slice(1)],
+      totalMinutes: rA.totalMinutes + rB.totalMinutes + 2
+    };
+    const pathKey = JSON.stringify(combined.path.map(p=>p.station));
+    const isDup = routes.some(r => JSON.stringify(r.result.path.map(p=>p.station)) === pathKey);
+    if (!isDup) {
+      routes.push({ label:'別ルート', badgeClass:'other', icon:'🛤️', result: combined });
+      break;
+    }
+  }
+  // 3本に満たなければ複製
+  while (routes.length < 3 && routes.length > 0) {
+    const base = routes[routes.length - 1];
+    routes.push({ ...base, label: routes.length === 1 ? '別候補' : '参考ルート' });
+  }
+  return routes.slice(0,3);
+}
+
+// ── 時間計算 ─────────────────────────────────
+function addMin(timeStr, mins) {
+  const [h, m] = timeStr.split(':').map(Number);
+  const total = h*60 + m + mins;
+  return `${String(Math.floor(total/60)%24).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
+}
+
+// 運賃の簡易計算
+function calcFare(totalMin) {
+  const km = totalMin * 0.55;
+  if (km <= 3)  return 150;
+  if (km <= 6)  return 180;
+  if (km <= 10) return 200;
+  if (km <= 15) return 230;
+  if (km <= 20) return 260;
+  if (km <= 26) return 310;
+  if (km <= 33) return 390;
+  if (km <= 40) return 460;
+  return 560;
+}
+
+// タイムライン構築
+function buildTimeline(result, depTime) {
+  const segs = toSegments(result.path);
+  const tl = [];
+  let t = depTime;
+  tl.push({ type:'dep', station: result.path[0].station, time: t });
+  segs.forEach((seg, si) => {
+    tl.push({ type:'train', ...seg, dep: t, arr: addMin(t, seg.minutes) });
+    t = addMin(t, seg.minutes);
+    if (si < segs.length - 1) {
+      tl.push({ type:'xfer', station: seg.alightAt, time: t, walkMins: 3 });
+      t = addMin(t, 3);
+    }
+  });
+  tl.push({ type:'arr', station: result.path[result.path.length-1].station, time: t });
+  return { tl, transfers: Math.max(0, segs.length - 1) };
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  UI / 描画
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function doSearch() {
   const from = document.getElementById('fromStation').value.trim();
   const to   = document.getElementById('toStation').value.trim();
   const date = document.getElementById('trainDate').value;
   const time = document.getElementById('trainTime').value;
 
-  if (!from || !to) {
-    showError('出発駅と到着駅を入力してください。');
-    return;
-  }
-  if (from === to) {
-    showError('出発駅と到着駅が同じです。別の駅を入力してください。');
-    return;
-  }
+  if (!from) { showErr('出発駅を入力してください。'); return; }
+  if (!to)   { showErr('到着駅を入力してください。'); return; }
+  if (from === to) { showErr('出発駅と到着駅が同じです。'); return; }
+  if (!GRAPH[from]) { showErr(`「${from}」はデータベースにありません。\n入力欄のサジェストから選んでください。`); return; }
+  if (!GRAPH[to])   { showErr(`「${to}」はデータベースにありません。\n入力欄のサジェストから選んでください。`); return; }
 
-  setLoading(true);
-  hideError();
+  hideErr();
+  document.getElementById('trainEmpty').style.display = 'none';
   document.getElementById('trainResults').style.display = 'none';
-  document.getElementById('trainEmpty').style.display   = 'none';
+  setLoading(true);
 
-  const [year, month, day] = date.split('-');
-  const dateJp = `${year}年${parseInt(month)}月${parseInt(day)}日`;
-  const prompt = `あなたは日本の電車・乗り換え案内の専門家です。
-以下の条件で乗り換えルートを3パターン提案してください。
-
-出発駅：${from}
-到着駅：${to}
-出発日時：${dateJp} ${time}
-
-【重要な指示】
-必ず以下のJSON形式のみで回答してください。他の文章は一切含めないでください。
-
-{
-  "routes": [
-    {
-      "rank": "おすすめ",
-      "totalMinutes": 25,
-      "transfers": 1,
-      "fare": 220,
-      "steps": [
-        {
-          "type": "dep",
-          "station": "${from}",
-          "time": "14:30"
-        },
-        {
-          "type": "train",
-          "line": "山手線",
-          "direction": "内回り",
-          "trainName": "普通",
-          "boardAt": "${from}",
-          "alightAt": "乗り換え駅名",
-          "dep": "14:30",
-          "arr": "14:42",
-          "minutes": 12,
-          "lineColor": "#9ACD32"
-        },
-        {
-          "type": "transfer",
-          "station": "乗り換え駅名",
-          "time": "14:42",
-          "walkMinutes": 3
-        },
-        {
-          "type": "train",
-          "line": "○○線",
-          "direction": "行き先方向",
-          "trainName": "特急など",
-          "boardAt": "乗り換え駅",
-          "alightAt": "${to}",
-          "dep": "14:45",
-          "arr": "14:55",
-          "minutes": 10,
-          "lineColor": "#E60044"
-        },
-        {
-          "type": "arr",
-          "station": "${to}",
-          "time": "14:55"
-        }
-      ]
+  setTimeout(() => {
+    try {
+      const rawRoutes = findRoutes(from, to);
+      if (!rawRoutes.length) { showErr('ルートが見つかりませんでした。'); setLoading(false); return; }
+      const [y, mo, d] = date.split('-');
+      const dateJp = `${y}年${parseInt(mo)}月${parseInt(d)}日`;
+      document.getElementById('resultsHeader').innerHTML =
+        `<div class="results-route-label">${from} → ${to}</div>${dateJp}　${time} 出発`;
+      document.getElementById('routesList').innerHTML = rawRoutes.map(r => {
+        const { tl, transfers } = buildTimeline(r.result, time);
+        const fare = calcFare(r.result.totalMinutes);
+        return renderCard(r, tl, transfers, fare);
+      }).join('');
+      document.getElementById('trainResults').style.display = 'block';
+    } catch(e) {
+      showErr('計算中にエラーが発生しました。別の駅名でお試しください。');
     }
-  ]
-}
-
-3パターンは「おすすめ（最速）」「乗り換えが少ない」「別ルート」などで構成してください。
-実際の路線・駅名・所要時間・運賃を使ってください。
-乗り換えがない場合はtransferステップは不要です。
-直通がある場合は積極的に採用してください。`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 3000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-
-    if (!res.ok) throw new Error(`API error: ${res.status}`);
-    const data = await res.json();
-    const text = data.content.map(b => b.text || '').join('');
-
-    // JSONパース
-    const clean = text.replace(/```json|```/g,'').trim();
-    const json = JSON.parse(clean);
-    renderRoutes(json.routes, from, to, dateJp, time);
-
-  } catch (err) {
-    console.error(err);
-    showError('ルート検索中にエラーが発生しました。もう一度お試しください。');
-  } finally {
     setLoading(false);
-  }
+  }, 500);
 }
 
 function setLoading(on) {
   document.getElementById('trainLoading').classList.toggle('visible', on);
   document.getElementById('searchBtn').disabled = on;
 }
-function showError(msg) {
+function showErr(msg) {
   const el = document.getElementById('trainError');
   document.getElementById('trainErrorText').textContent = msg;
   el.classList.add('visible');
+  document.getElementById('trainEmpty').style.display = 'none';
 }
-function hideError() {
-  document.getElementById('trainError').classList.remove('visible');
-}
+function hideErr() { document.getElementById('trainError').classList.remove('visible'); }
 
-function renderRoutes(routes, from, to, dateJp, time) {
-  const resultsEl = document.getElementById('trainResults');
-  const listEl    = document.getElementById('routesList');
-  const titleEl   = document.getElementById('resultsTitle');
-
-  titleEl.textContent = `${from} → ${to}  ${dateJp} ${time} 出発`;
-
-  const RANK_ICONS = { 'おすすめ':'🌟', '乗り換えが少ない':'🔄', '別ルート':'🛤️' };
-
-  listEl.innerHTML = routes.map((route, i) => {
-    const rankIcon = RANK_ICONS[route.rank] || `${i+1}`;
-    const transfers = route.transfers ?? (route.steps.filter(s=>s.type==='transfer').length);
-
-    const stepsHTML = route.steps.map(step => {
-      if (step.type === 'dep') {
-        return `<div class="route-step">
-          <div class="route-step-dot dep">🟢</div>
-          <div class="route-step-info">
-            <div class="route-step-station dep">${step.station}</div>
-            <div class="route-step-time">出発 ${step.time}</div>
-          </div>
-        </div>`;
-      }
-      if (step.type === 'arr') {
-        return `<div class="route-step">
-          <div class="route-step-dot arr">🔴</div>
-          <div class="route-step-info">
-            <div class="route-step-station arr">${step.station}</div>
-            <div class="route-step-time">到着 ${step.time}</div>
-          </div>
-        </div>`;
-      }
-      if (step.type === 'transfer') {
-        return `<div class="route-step">
-          <div class="route-step-dot transfer">🔄</div>
-          <div class="route-step-info">
-            <div class="route-step-station">${step.station}（乗り換え）</div>
-            <div class="route-step-time">${step.time}${step.walkMinutes ? ` · 徒歩約${step.walkMinutes}分` : ''}</div>
-          </div>
-        </div>`;
-      }
-      if (step.type === 'train') {
-        const color = step.lineColor || getLineColor(step.line);
-        return `<div class="route-train-row">
-          <div class="route-train-line" style="background:${color}">${step.line}</div>
-          <div class="route-train-name">${step.trainName} ${step.direction} → ${step.alightAt}</div>
-          <div class="route-train-dur">${step.dep}〜${step.arr}（${step.minutes}分）</div>
-        </div>`;
-      }
-      return '';
-    }).join('');
-
-    const transferText = transfers === 0 ? '乗り換えなし' : `乗り換え${transfers}回`;
-
-    return `<div class="route-card">
-      <div class="route-card-header">
-        <div>
-          <div class="route-rank">${rankIcon} ${route.rank}</div>
-          <div class="route-total-time">${route.totalMinutes}<span>分</span></div>
+function renderCard(r, tl, transfers, fare) {
+  const xferText = transfers === 0 ? '乗り換えなし' : `乗り換え${transfers}回`;
+  const tlHTML = tl.map(step => {
+    if (step.type === 'dep') return `
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot dep">🟢</div><div class="tl-vline"></div></div>
+        <div class="tl-right">
+          <div class="tl-station dep">${step.station}</div>
+          <div class="tl-time">出発 ${step.time}</div>
         </div>
-        <div style="text-align:right">
-          <div class="route-fare">${route.fare ? `¥${route.fare.toLocaleString()}` : '-'}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px">${transferText}</div>
+      </div>`;
+    if (step.type === 'arr') return `
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot arr">🔴</div></div>
+        <div class="tl-right">
+          <div class="tl-station arr">${step.station}</div>
+          <div class="tl-time">到着 ${step.time}</div>
         </div>
-      </div>
-      <div class="route-body">${stepsHTML}</div>
-    </div>`;
+      </div>`;
+    if (step.type === 'xfer') return `
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot xfer">🔄</div><div class="tl-vline"></div></div>
+        <div class="tl-right">
+          <div class="tl-station">${step.station}（乗り換え）</div>
+          <div class="tl-time">${step.time}　徒歩約${step.walkMins}分</div>
+        </div>
+      </div>`;
+    if (step.type === 'train') return `
+      <div class="tl-train-block">
+        <div class="tl-train-spine">
+          <div class="tl-train-seg" style="background:${step.lineColor}"></div>
+        </div>
+        <div class="tl-train-info" style="border-left-color:${step.lineColor}">
+          <div><span class="tl-line-pill" style="background:${step.lineColor}">${step.lineName}</span></div>
+          <div class="tl-train-detail">
+            ${step.boardAt} ${step.dep} 発 → ${step.alightAt} ${step.arr} 着（${step.minutes}分）
+          </div>
+        </div>
+      </div>`;
+    return '';
   }).join('');
 
-  resultsEl.style.display = 'block';
+  return `
+  <div class="route-card">
+    <div class="route-card-header">
+      <div>
+        <div class="route-badge ${r.badgeClass}">${r.icon} ${r.label}</div>
+        <div class="xfer-count-text">${xferText}</div>
+      </div>
+      <div class="route-meta">
+        <div class="route-total-time">${r.result.totalMinutes}<small>分</small></div>
+        <div class="route-fare-text">約 ¥${fare}</div>
+      </div>
+    </div>
+    <div class="route-body">${tlHTML}</div>
+  </div>`;
 }
 </script>
 </body>
