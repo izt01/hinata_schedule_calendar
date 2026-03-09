@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>電車検索 — ひなたカレンダー</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8b2252">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── TRAIN PAGE ── */
+.train-hero {
+  margin: 24px 18px 20px;
+  border-radius: 28px;
+  padding: 28px 24px 22px;
+  background: linear-gradient(145deg, #1565a0 0%, #0d4678 60%, #1a3a6a 100%);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 36px rgba(21,101,160,0.35);
+}
+.train-hero::before {
+  content: '🌟  🌟  🌟  🌟  🌟';
+  position: absolute;
+  bottom: 10px; left: 0; right: 0;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255,255,255,0.12);
+  letter-spacing: 10px;
+}
+.train-hero-icon { font-size: 48px; margin-bottom: 8px; }
+.train-hero-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 26px; font-weight: 800;
+  color: white; letter-spacing: 0.12em; margin-bottom: 4px;
+}
+.train-hero-sub {
+  color: rgba(255,255,255,0.7);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px; letter-spacing: 0.2em;
+}
+
+/* ── FORM CARD ── */
+.train-form-card {
+  margin: 0 18px 20px;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  border: 1.5px solid var(--hina-2);
+  padding: 22px 20px;
+  box-shadow: var(--shadow-hina);
+}
+
+.train-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.train-input-icon {
+  width: 36px; height: 36px;
+  background: var(--hina-1);
+  border: 1.5px solid var(--hina-2);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.train-input-wrap { flex: 1; }
+.train-input-label {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 10px; color: var(--hina-4);
+  letter-spacing: 0.2em; margin-bottom: 4px;
+}
+.train-input {
+  width: 100%;
+  background: rgba(255,255,255,0.95);
+  border: 1.5px solid var(--hina-2);
+  border-radius: 13px;
+  padding: 11px 14px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 15px; color: var(--sumi);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.train-input:focus {
+  border-color: var(--hina-3);
+  box-shadow: 0 0 0 3px rgba(114,188,232,0.18);
+}
+.train-input::placeholder { color: var(--sumi-light); opacity: 0.6; font-size: 13px; }
+
+.train-arrow {
+  text-align: center; font-size: 22px;
+  color: var(--hina-3); margin: 4px 0 12px;
+}
+
+.train-datetime-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.train-datetime-row .train-input-wrap { flex: 1; }
+
+.train-search-btn {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, var(--sky) 0%, #0d4678 100%);
+  color: white; border: none; border-radius: 16px;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-size: 16px; font-weight: 800; letter-spacing: 0.1em;
+  cursor: pointer;
+  box-shadow: 0 6px 22px rgba(21,101,160,0.32);
+  transition: transform 0.15s, box-shadow 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.train-search-btn:active { transform: scale(0.97); box-shadow: none; }
+.train-search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── RESULTS ── */
+.train-results { margin: 0 18px 100px; }
+.train-results-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 15px; font-weight: 700;
+  color: var(--sky); letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+
+.route-card {
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(12px);
+  border-radius: 22px;
+  border: 1.5px solid var(--hina-2);
+  margin-bottom: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow-hina);
+  transition: transform 0.15s;
+}
+.route-card:active { transform: scale(0.99); }
+
+.route-card-header {
+  background: linear-gradient(135deg, var(--sky) 0%, #1a7db8 100%);
+  padding: 12px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.route-rank {
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.8);
+  letter-spacing: 0.1em;
+}
+.route-total-time {
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-size: 20px; font-weight: 800; color: white;
+}
+.route-total-time span { font-size: 12px; opacity: 0.8; margin-left: 2px; }
+.route-fare {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px; color: rgba(255,255,255,0.85);
+  font-weight: 600;
+}
+
+.route-body { padding: 16px 18px; }
+
+.route-step {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 10px;
+  position: relative;
+}
+.route-step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 18px; top: 32px;
+  width: 2px; bottom: -10px;
+  background: var(--hina-2);
+}
+.route-step-dot {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+  border: 2px solid var(--hina-2);
+  background: white;
+  position: relative; z-index: 1;
+}
+.route-step-dot.dep { background: var(--sky); border-color: var(--sky); }
+.route-step-dot.arr { background: #e07898; border-color: #e07898; }
+.route-step-dot.transfer { background: var(--hina-1); }
+.route-step-info { flex: 1; padding-top: 4px; }
+.route-step-station {
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-size: 15px; font-weight: 800; color: var(--sumi);
+  margin-bottom: 2px;
+}
+.route-step-station.dep, .route-step-station.arr { color: var(--sky); }
+.route-step-time {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px; font-weight: 600;
+  color: var(--sumi-light);
+}
+
+.route-train-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  background: var(--hina-1);
+  border-radius: 12px;
+  margin: 4px 0 4px 50px;
+  border: 1px solid var(--hina-2);
+}
+.route-train-line {
+  padding: 3px 10px; border-radius: 20px;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-size: 11px; font-weight: 800;
+  color: white; white-space: nowrap;
+}
+.route-train-name {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px; color: var(--sumi); font-weight: 600;
+}
+.route-train-dur {
+  margin-left: auto;
+  font-size: 11px; color: var(--sumi-light);
+  font-family: 'Noto Serif JP', serif;
+}
+
+/* ── LOADING ── */
+.train-loading {
+  text-align: center;
+  padding: 40px 20px;
+  display: none;
+}
+.train-loading.visible { display: block; }
+.loading-train { font-size: 40px; animation: trainMove 1s ease-in-out infinite alternate; display: block; }
+@keyframes trainMove {
+  0%   { transform: translateX(-20px); }
+  100% { transform: translateX(20px); }
+}
+.loading-text {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px; color: var(--hina-4);
+  margin-top: 12px; letter-spacing: 0.1em;
+}
+
+/* ── EMPTY STATE ── */
+.train-empty {
+  text-align: center; padding: 40px 20px;
+}
+.train-empty-icon { font-size: 48px; margin-bottom: 12px; }
+.train-empty-text {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px; color: var(--sumi-light);
+  line-height: 1.8;
+}
+
+/* ── ERROR ── */
+.train-error {
+  background: rgba(255,80,80,0.08);
+  border: 1.5px solid rgba(255,80,80,0.2);
+  border-radius: 16px;
+  padding: 16px 18px;
+  text-align: center;
+  display: none;
+}
+.train-error.visible { display: block; }
+.train-error-text {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px; color: #c0392b;
+}
+
+/* Suggestion dropdown */
+.station-suggest {
+  position: relative;
+}
+.suggest-list {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px); left: 0; right: 0;
+  background: white;
+  border: 1.5px solid var(--hina-2);
+  border-radius: 13px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(21,101,160,0.15);
+  z-index: 20;
+  max-height: 200px; overflow-y: auto;
+}
+.suggest-list.open { display: block; }
+.suggest-item {
+  padding: 11px 14px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px; color: var(--sumi);
+  cursor: pointer;
+  border-bottom: 1px solid var(--hina-1);
+  display: flex; align-items: center; gap: 8px;
+}
+.suggest-item:last-child { border-bottom: none; }
+.suggest-item:active, .suggest-item:hover { background: var(--hina-1); }
+.suggest-item-sub { font-size: 11px; color: var(--sumi-light); }
+
+/* Swap button */
+.train-swap-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  background: var(--hina-1); border: 1.5px solid var(--hina-2);
+  border-radius: 50%; cursor: pointer; margin: 0 auto 12px;
+  font-size: 18px; transition: transform 0.3s;
+}
+.train-swap-btn:active { transform: rotate(180deg); background: var(--hina-2); }
+</style>
+</head>
+<body>
+<canvas id="petals-canvas"></canvas>
+<div id="app">
+  <div id="headerMount"></div>
+  <div class="page-content page-enter">
+
+    <!-- HERO -->
+    <div class="train-hero">
+      <div class="train-hero-icon">🚃</div>
+      <div class="train-hero-title">電車検索</div>
+      <div class="train-hero-sub">✿ 乗り換え案内 ✿</div>
+    </div>
+
+    <!-- FORM -->
+    <div class="train-form-card">
+      <!-- 出発駅 -->
+      <div class="train-input-row">
+        <div class="train-input-icon">🟢</div>
+        <div class="train-input-wrap">
+          <div class="train-input-label">✿ 出発駅</div>
+          <div class="station-suggest" id="fromWrap">
+            <input class="train-input" id="fromStation" type="text" placeholder="例：渋谷、新宿、池袋" autocomplete="off">
+            <div class="suggest-list" id="fromSuggest"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- スワップボタン -->
+      <button class="train-swap-btn" onclick="swapStations()" title="出発・到着を入れ替え">⇅</button>
+
+      <!-- 到着駅 -->
+      <div class="train-input-row">
+        <div class="train-input-icon">🔴</div>
+        <div class="train-input-wrap">
+          <div class="train-input-label">✿ 到着駅</div>
+          <div class="station-suggest" id="toWrap">
+            <input class="train-input" id="toStation" type="text" placeholder="例：東京、品川、横浜" autocomplete="off">
+            <div class="suggest-list" id="toSuggest"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 日時 -->
+      <div class="train-datetime-row">
+        <div class="train-input-wrap">
+          <div class="train-input-label">✿ 日付</div>
+          <input class="train-input" id="trainDate" type="date">
+        </div>
+        <div class="train-input-wrap">
+          <div class="train-input-label">✿ 時刻</div>
+          <input class="train-input" id="trainTime" type="time">
+        </div>
+      </div>
+
+      <!-- 検索ボタン -->
+      <button class="train-search-btn" id="searchBtn" onclick="searchTrains()">
+        <span>🚃</span> 乗り換えを検索
+      </button>
+    </div>
+
+    <!-- LOADING -->
+    <div class="train-loading" id="trainLoading">
+      <span class="loading-train">🚃</span>
+      <div class="loading-text">乗り換えルートを検索中です…</div>
+    </div>
+
+    <!-- ERROR -->
+    <div class="train-error" id="trainError">
+      <div class="train-error-text" id="trainErrorText"></div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="train-results" id="trainResults" style="display:none">
+      <div class="section-kamon"><span class="section-kamon-text">✿ 検索結果 ✿</span></div>
+      <div class="train-results-title" id="resultsTitle"></div>
+      <div id="routesList"></div>
+    </div>
+
+    <!-- EMPTY (initial) -->
+    <div class="train-empty" id="trainEmpty">
+      <div class="train-empty-icon">🚉</div>
+      <div class="train-empty-text">
+        出発駅と到着駅を入力して<br>乗り換えルートを検索しましょう
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="nav.js"></script>
+<script src="sakura.js"></script>
+<script src="notify.js"></script>
+<script>
+document.getElementById('headerMount').outerHTML = headerHTML('電車検索','🚃 乗り換え案内');
+initNotifications();
+injectNav('train.html');
+
+// ── 日時の初期値 ──────────────────────
+(function() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('trainDate').value =
+    `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  document.getElementById('trainTime').value =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+})();
+
+// ── 駅名サジェスト（よく使う主要駅リスト） ────────────
+const MAJOR_STATIONS = [
+  // 東京・山手線
+  '東京','新宿','渋谷','池袋','品川','上野','秋葉原','有楽町','浜松町','田町',
+  '目黒','恵比寿','代々木','新大久保','高田馬場','目白','大塚','巣鴨','駒込',
+  '田端','西日暮里','日暮里','鴬谷','御徒町','神田',
+  // 私鉄・地下鉄主要
+  '横浜','川崎','武蔵小杉','二子玉川','自由が丘','中目黒','表参道','六本木',
+  '麻布十番','神谷町','虎ノ門','霞ヶ関','日比谷','銀座','築地','月島','有明',
+  '豊洲','汐留','新橋','浜町','森下','両国','錦糸町','亀戸','北千住',
+  '綾瀬','松戸','柏','我孫子','千葉','船橋','津田沼','西船橋','海浜幕張',
+  '大宮','浦和','川口','蒲田','大森','西大井','戸塚','藤沢','茅ヶ崎','平塚',
+  '小田原','熱海','三島','沼津','静岡','浜松','名古屋','京都','大阪','神戸',
+  '立川','八王子','吉祥寺','三鷹','国分寺','新宿三丁目','神保町','後楽園',
+  '飯田橋','市ヶ谷','四ツ谷','赤坂見附','永田町','半蔵門','三越前',
+  '日本橋','茅場町','門前仲町','清澄白河','住吉','押上','曳舟','浅草',
+  '田原町','稲荷町','上野御徒町','仲御徒町','新御徒町','蔵前',
+  // 空港
+  '羽田空港','成田空港','関西空港',
+];
+
+function filterStations(q) {
+  if (!q || q.length < 1) return [];
+  return MAJOR_STATIONS.filter(s => s.includes(q) || s.startsWith(q)).slice(0,8);
+}
+
+function showSuggest(inputId, listId) {
+  const input = document.getElementById(inputId);
+  const list  = document.getElementById(listId);
+  const q = input.value.trim();
+  const matches = filterStations(q);
+  if (!matches.length) { list.classList.remove('open'); return; }
+  list.innerHTML = matches.map(s =>
+    `<div class="suggest-item" onclick="selectStation('${inputId}','${listId}','${s}')">
+      🚉 <span>${s}</span>
+    </div>`
+  ).join('');
+  list.classList.add('open');
+}
+
+function selectStation(inputId, listId, name) {
+  document.getElementById(inputId).value = name;
+  document.getElementById(listId).classList.remove('open');
+}
+
+document.getElementById('fromStation').addEventListener('input', () => showSuggest('fromStation','fromSuggest'));
+document.getElementById('toStation').addEventListener('input',   () => showSuggest('toStation','toSuggest'));
+
+// 外クリックでサジェストを閉じる
+document.addEventListener('click', e => {
+  if (!e.target.closest('#fromWrap')) document.getElementById('fromSuggest').classList.remove('open');
+  if (!e.target.closest('#toWrap'))   document.getElementById('toSuggest').classList.remove('open');
+});
+
+// ── 入れ替え ──
+function swapStations() {
+  const f = document.getElementById('fromStation');
+  const t = document.getElementById('toStation');
+  [f.value, t.value] = [t.value, f.value];
+}
+
+// ── 路線の色マッピング ──────────────────
+const LINE_COLORS = {
+  '山手線':     '#9ACD32', '中央線':     '#FF4500', '京浜東北線': '#00BFFF',
+  '東海道線':   '#F97316', '横須賀線':   '#1D4ED8', '総武線':     '#F5C400',
+  '埼京線':     '#00A550', '湘南新宿ライン':'#F97316','東横線':   '#E60044',
+  '田園都市線': '#00A550', '小田急線':   '#0066CC', '京王線':     '#E60044',
+  '西武池袋線': '#FFCC00', '東武東上線': '#FF6600', '東西線':     '#00B2E5',
+  '丸ノ内線':   '#E60044', '日比谷線':   '#B5B5AC', '銀座線':     '#FF9500',
+  '半蔵門線':   '#8F76D6', '千代田線':   '#00BB85', '有楽町線':   '#C1A851',
+  '南北線':     '#00AC9B', '三田線':     '#0066B3', '都営浅草線': '#E85298',
+  '都営新宿線': '#6CBB5A', '大江戸線':   '#E85298', '副都心線':   '#9B6E23',
+  'みなとみらい線':'#2C4EA0','相鉄線':   '#006CB8', '京急線':     '#E60044',
+  '京成線':     '#E60044', '常磐線':     '#008000', '武蔵野線':   '#F97316',
+  'JR線':       '#E60044',
+};
+
+function getLineColor(lineName) {
+  for (const [k, v] of Object.entries(LINE_COLORS)) {
+    if (lineName.includes(k)) return v;
+  }
+  return '#1565a0';
+}
+
+// ── AI検索（Claude API経由） ──────────────
+async function searchTrains() {
+  const from = document.getElementById('fromStation').value.trim();
+  const to   = document.getElementById('toStation').value.trim();
+  const date = document.getElementById('trainDate').value;
+  const time = document.getElementById('trainTime').value;
+
+  if (!from || !to) {
+    showError('出発駅と到着駅を入力してください。');
+    return;
+  }
+  if (from === to) {
+    showError('出発駅と到着駅が同じです。別の駅を入力してください。');
+    return;
+  }
+
+  setLoading(true);
+  hideError();
+  document.getElementById('trainResults').style.display = 'none';
+  document.getElementById('trainEmpty').style.display   = 'none';
+
+  const [year, month, day] = date.split('-');
+  const dateJp = `${year}年${parseInt(month)}月${parseInt(day)}日`;
+  const prompt = `あなたは日本の電車・乗り換え案内の専門家です。
+以下の条件で乗り換えルートを3パターン提案してください。
+
+出発駅：${from}
+到着駅：${to}
+出発日時：${dateJp} ${time}
+
+【重要な指示】
+必ず以下のJSON形式のみで回答してください。他の文章は一切含めないでください。
+
+{
+  "routes": [
+    {
+      "rank": "おすすめ",
+      "totalMinutes": 25,
+      "transfers": 1,
+      "fare": 220,
+      "steps": [
+        {
+          "type": "dep",
+          "station": "${from}",
+          "time": "14:30"
+        },
+        {
+          "type": "train",
+          "line": "山手線",
+          "direction": "内回り",
+          "trainName": "普通",
+          "boardAt": "${from}",
+          "alightAt": "乗り換え駅名",
+          "dep": "14:30",
+          "arr": "14:42",
+          "minutes": 12,
+          "lineColor": "#9ACD32"
+        },
+        {
+          "type": "transfer",
+          "station": "乗り換え駅名",
+          "time": "14:42",
+          "walkMinutes": 3
+        },
+        {
+          "type": "train",
+          "line": "○○線",
+          "direction": "行き先方向",
+          "trainName": "特急など",
+          "boardAt": "乗り換え駅",
+          "alightAt": "${to}",
+          "dep": "14:45",
+          "arr": "14:55",
+          "minutes": 10,
+          "lineColor": "#E60044"
+        },
+        {
+          "type": "arr",
+          "station": "${to}",
+          "time": "14:55"
+        }
+      ]
+    }
+  ]
+}
+
+3パターンは「おすすめ（最速）」「乗り換えが少ない」「別ルート」などで構成してください。
+実際の路線・駅名・所要時間・運賃を使ってください。
+乗り換えがない場合はtransferステップは不要です。
+直通がある場合は積極的に採用してください。`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 3000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
+    const data = await res.json();
+    const text = data.content.map(b => b.text || '').join('');
+
+    // JSONパース
+    const clean = text.replace(/```json|```/g,'').trim();
+    const json = JSON.parse(clean);
+    renderRoutes(json.routes, from, to, dateJp, time);
+
+  } catch (err) {
+    console.error(err);
+    showError('ルート検索中にエラーが発生しました。もう一度お試しください。');
+  } finally {
+    setLoading(false);
+  }
+}
+
+function setLoading(on) {
+  document.getElementById('trainLoading').classList.toggle('visible', on);
+  document.getElementById('searchBtn').disabled = on;
+}
+function showError(msg) {
+  const el = document.getElementById('trainError');
+  document.getElementById('trainErrorText').textContent = msg;
+  el.classList.add('visible');
+}
+function hideError() {
+  document.getElementById('trainError').classList.remove('visible');
+}
+
+function renderRoutes(routes, from, to, dateJp, time) {
+  const resultsEl = document.getElementById('trainResults');
+  const listEl    = document.getElementById('routesList');
+  const titleEl   = document.getElementById('resultsTitle');
+
+  titleEl.textContent = `${from} → ${to}  ${dateJp} ${time} 出発`;
+
+  const RANK_ICONS = { 'おすすめ':'🌟', '乗り換えが少ない':'🔄', '別ルート':'🛤️' };
+
+  listEl.innerHTML = routes.map((route, i) => {
+    const rankIcon = RANK_ICONS[route.rank] || `${i+1}`;
+    const transfers = route.transfers ?? (route.steps.filter(s=>s.type==='transfer').length);
+
+    const stepsHTML = route.steps.map(step => {
+      if (step.type === 'dep') {
+        return `<div class="route-step">
+          <div class="route-step-dot dep">🟢</div>
+          <div class="route-step-info">
+            <div class="route-step-station dep">${step.station}</div>
+            <div class="route-step-time">出発 ${step.time}</div>
+          </div>
+        </div>`;
+      }
+      if (step.type === 'arr') {
+        return `<div class="route-step">
+          <div class="route-step-dot arr">🔴</div>
+          <div class="route-step-info">
+            <div class="route-step-station arr">${step.station}</div>
+            <div class="route-step-time">到着 ${step.time}</div>
+          </div>
+        </div>`;
+      }
+      if (step.type === 'transfer') {
+        return `<div class="route-step">
+          <div class="route-step-dot transfer">🔄</div>
+          <div class="route-step-info">
+            <div class="route-step-station">${step.station}（乗り換え）</div>
+            <div class="route-step-time">${step.time}${step.walkMinutes ? ` · 徒歩約${step.walkMinutes}分` : ''}</div>
+          </div>
+        </div>`;
+      }
+      if (step.type === 'train') {
+        const color = step.lineColor || getLineColor(step.line);
+        return `<div class="route-train-row">
+          <div class="route-train-line" style="background:${color}">${step.line}</div>
+          <div class="route-train-name">${step.trainName} ${step.direction} → ${step.alightAt}</div>
+          <div class="route-train-dur">${step.dep}〜${step.arr}（${step.minutes}分）</div>
+        </div>`;
+      }
+      return '';
+    }).join('');
+
+    const transferText = transfers === 0 ? '乗り換えなし' : `乗り換え${transfers}回`;
+
+    return `<div class="route-card">
+      <div class="route-card-header">
+        <div>
+          <div class="route-rank">${rankIcon} ${route.rank}</div>
+          <div class="route-total-time">${route.totalMinutes}<span>分</span></div>
+        </div>
+        <div style="text-align:right">
+          <div class="route-fare">${route.fare ? `¥${route.fare.toLocaleString()}` : '-'}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px">${transferText}</div>
+        </div>
+      </div>
+      <div class="route-body">${stepsHTML}</div>
+    </div>`;
+  }).join('');
+
+  resultsEl.style.display = 'block';
+}
+</script>
+</body>
+</html>

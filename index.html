@@ -263,6 +263,34 @@
   color: var(--sumi-light);
   letter-spacing: 0.12em;
 }
+.today-strip-clock {
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--sky);
+  letter-spacing: 0.05em;
+  margin-top: 10px;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.today-strip-clock-colon {
+  animation: clockBlink 1s step-end infinite;
+  opacity: 1;
+  color: var(--hina-3);
+}
+@keyframes clockBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+.today-strip-clock-sec {
+  font-size: 18px;
+  color: var(--hina-4);
+  font-weight: 700;
+  margin-left: 2px;
+  align-self: flex-end;
+  padding-bottom: 3px;
+}
 
 /* Upcoming mini list */
 .upcoming-mini {
@@ -352,6 +380,9 @@
         <div class="today-strip-label">✿ TODAY</div>
         <div class="today-strip-date" id="todayDate"></div>
         <div class="today-strip-reki" id="todayReki"></div>
+        <div class="today-strip-clock">
+          <span id="clockH">--</span><span class="today-strip-clock-colon">:</span><span id="clockM">--</span><span class="today-strip-clock-colon">:</span><span id="clockS" class="today-strip-clock-sec">--</span>
+        </div>
       </div>
 
       <!-- QUICK ACCESS -->
@@ -376,6 +407,11 @@
           <div class="quick-card-icon">📷</div>
           <div class="quick-card-label">ギャラリー</div>
           <div class="quick-card-sub">フォトコレクション</div>
+        </a>
+        <a class="quick-card" href="train.html" style="grid-column: span 2;">
+          <div class="quick-card-icon">🚃</div>
+          <div class="quick-card-label">電車検索</div>
+          <div class="quick-card-sub">乗り換え案内</div>
         </a>
       </div>
 
@@ -457,6 +493,19 @@ injectNav('index.html');
   const dateStr = `${now.getFullYear()}年 ${now.getMonth()+1}月${now.getDate()}日（${DOW[now.getDay()]}）`;
   document.getElementById('todayDate').textContent = dateStr;
   document.getElementById('todayReki').textContent = `${MONTHS_JP[now.getMonth()]} 🌻 ${MONTHS_EN[now.getMonth()]}`;
+})();
+
+// ── LIVE CLOCK ──────────────────────
+(function() {
+  function pad(n) { return String(n).padStart(2,'0'); }
+  function tick() {
+    const t = new Date();
+    document.getElementById('clockH').textContent = pad(t.getHours());
+    document.getElementById('clockM').textContent = pad(t.getMinutes());
+    document.getElementById('clockS').textContent = pad(t.getSeconds());
+  }
+  tick();
+  setInterval(tick, 1000);
 })();
 
 // ── UPCOMING ──────────────────────
