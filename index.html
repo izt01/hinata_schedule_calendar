@@ -393,15 +393,16 @@
 
 /* ── メンバー写真エリア ── */
 #login-member-wrap {
-  position: absolute;
-  inset: 0;
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: 80vh;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   pointer-events: none;
 }
 #login-member-img {
-  height: 88vh;
+  height: 100%;
   max-width: 100vw;
   object-fit: contain;
   object-position: bottom center;
@@ -415,10 +416,10 @@
   transform: translateY(0);
 }
 
-/* ── 吹き出し（JS で top を動的セット） ── */
+/* ── 吹き出し ── */
 #login-bubble {
-  position: absolute;
-  /* top / right は JS で動的にセット */
+  position: fixed;
+  top: clamp(16px, 8vh, 60px);
   right: clamp(12px, 5vw, 40px);
   max-width: min(60vw, 240px);
   background: rgba(255,255,255,.97);
@@ -473,8 +474,8 @@
 
 /* ── タイトル帯（右上） ── */
 #login-title-badge {
-  position: absolute;
-  top: clamp(20px, 9vh, 68px);
+  position: fixed;
+  top: clamp(16px, 8vh, 60px);
   left: clamp(12px, 5vw, 40px);
   display: flex;
   flex-direction: column;
@@ -504,7 +505,7 @@
 
 /* ── タップヒント ── */
 #login-tap-hint {
-  position: absolute;
+  position: fixed;
   bottom: clamp(24px, 5vh, 44px);
   left: 0; right: 0;
   text-align: center;
@@ -707,65 +708,16 @@ function showLoginScreen(onDone) {
 
   // 画像読み込み
   if (imgSrc) {
-    imgEl.onload = () => {
-      imgEl.classList.add('show');
-      positionBubble();
-      bubble.classList.add('show');
-    };
-    imgEl.onerror = () => {
-      // 画像なし → 吹き出しをデフォルト位置で表示
-      bubble.style.top = clampPx(window.innerHeight * 0.12, 20, 80);
-      bubble.classList.add('show');
-    };
+    imgEl.onload  = () => { imgEl.classList.add('show'); bubble.classList.add('show'); };
+    imgEl.onerror = () => { bubble.classList.add('show'); };
     imgEl.src = imgSrc;
   } else {
-    bubble.style.top = clampPx(window.innerHeight * 0.12, 20, 80);
     bubble.classList.add('show');
-  }
-
-  // リサイズ時も追従
-  window._loginResizeHandler = () => positionBubble();
-  window.addEventListener('resize', window._loginResizeHandler);
-
-  function clampPx(val, min, max) {
-    return Math.max(min, Math.min(max, val)) + 'px';
-  }
-
-  function positionBubble() {
-    // 写真の実際の表示領域を取得
-    const imgRect = imgEl.getBoundingClientRect();
-    const screenH = window.innerHeight;
-    const screenW = window.innerWidth;
-
-    // 写真の「上端」を基準に吹き出しを配置
-    // 写真上端が画面上部から何px？
-    const imgTop = imgRect.top;
-
-    // 吹き出し上端 = 写真上端の少し上（写真が見切れているときは画面上部から一定量）
-    const bubbleTop = Math.max(16, imgTop - 8);
-
-    // スマホ（縦長）では吹き出しを写真の右上、PCでは右上固定
-    const isNarrow = screenW < 600;
-    if (isNarrow) {
-      // スマホ: 写真の上端より少し上に
-      bubble.style.top  = Math.max(16, imgTop - 4) + 'px';
-      bubble.style.right = '12px';
-      bubble.style.maxWidth = Math.min(screenW * 0.58, 220) + 'px';
-    } else {
-      // PC: 写真上端に合わせつつ、最低でも上から16px
-      bubble.style.top  = Math.max(16, imgTop + 8) + 'px';
-      bubble.style.right = clampPx(screenW * 0.04, 16, 48);
-      bubble.style.maxWidth = Math.min(screenW * 0.35, 280) + 'px';
-    }
   }
 
   // タップで次へ
   function proceed() {
     screen.removeEventListener('click', proceed);
-    if (window._loginResizeHandler) {
-      window.removeEventListener('resize', window._loginResizeHandler);
-      window._loginResizeHandler = null;
-    }
     screen.classList.add('closing');
     setTimeout(() => {
       screen.classList.remove('active', 'closing');
