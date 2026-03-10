@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>日向坂46 — ライブ会場一覧</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-sakura.jpg">
+<meta name="theme-color" content="#1565a0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="日向坂46">
+<link rel="stylesheet" href="style.css">
+<style>
+
+/* ── エリアフィルター ── */
+.area-filter {
+  display: flex;
+  gap: 8px;
+  padding: 14px 16px 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.area-filter::-webkit-scrollbar { display: none; }
+
+.area-pill {
+  flex-shrink: 0;
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1.8px solid var(--hina-2);
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(6px);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sky);
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.area-pill.active,
+.area-pill:active {
+  background: var(--sky);
+  color: #fff;
+  border-color: var(--sky);
+}
+
+/* ── 件数表示 ── */
+.venue-count {
+  padding: 8px 16px 0;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px;
+  color: var(--sumi-light, #888);
+  letter-spacing: .05em;
+}
+
+/* ── 会場カードリスト ── */
+.venue-list {
+  padding: 12px 16px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.venue-card {
+  background: rgba(255,255,255,0.92);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow:
+    0 4px 20px rgba(21,101,160,.1),
+    0 1px 4px rgba(0,0,0,.06);
+  border: 1px solid rgba(179,220,245,.5);
+  transition: transform .18s, box-shadow .18s;
+}
+.venue-card:active {
+  transform: scale(.985);
+}
+
+/* 写真エリア */
+.venue-photo-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, var(--hina-1) 0%, var(--hina-2) 100%);
+  overflow: hidden;
+}
+.venue-photo {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .4s ease;
+}
+.venue-card:hover .venue-photo {
+  transform: scale(1.03);
+}
+/* 写真がない時のプレースホルダー */
+.venue-photo-placeholder {
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: var(--hina-3);
+  opacity: .6;
+}
+/* エリアバッジ（写真の上） */
+.venue-area-badge {
+  position: absolute;
+  top: 10px; left: 12px;
+  background: rgba(21,101,160,.85);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'Noto Serif JP', serif;
+  letter-spacing: .1em;
+  padding: 3px 10px;
+  border-radius: 10px;
+  backdrop-filter: blur(4px);
+}
+
+/* テキストエリア */
+.venue-body {
+  padding: 16px 16px 14px;
+}
+
+.venue-name {
+  font-size: 16px;
+  font-weight: 800;
+  font-family: 'Noto Serif JP', serif;
+  color: var(--sky);
+  line-height: 1.35;
+  margin-bottom: 2px;
+}
+.venue-name-roma {
+  font-size: 10px;
+  color: var(--sumi-light, #aaa);
+  letter-spacing: .08em;
+  margin-bottom: 10px;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+/* 情報行 */
+.venue-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+.venue-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #334;
+}
+.venue-info-icon {
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+  margin-top: 1px;
+  font-size: 13px;
+}
+.venue-info-label {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--sky);
+  font-size: 10px;
+  letter-spacing: .06em;
+  margin-top: 2px;
+  min-width: 36px;
+}
+.venue-info-text {
+  flex: 1;
+  color: #2a3a4a;
+}
+
+/* メモ */
+.venue-memo {
+  font-size: 11.5px;
+  font-family: 'Noto Serif JP', serif;
+  color: var(--sky);
+  background: var(--hina-0, #f0f8ff);
+  border-left: 3px solid var(--hina-3);
+  padding: 6px 10px;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+/* Google Mapsボタン */
+.venue-map-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  padding: 11px;
+  background: linear-gradient(120deg, var(--hina-4), var(--hina-5));
+  color: #fff;
+  border-radius: 12px;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-decoration: none;
+  box-shadow: 0 3px 12px rgba(21,101,160,.28);
+  transition: opacity .18s, transform .18s;
+}
+.venue-map-btn:active {
+  opacity: .85;
+  transform: scale(.97);
+}
+
+/* 空状態 */
+.venue-empty {
+  text-align: center;
+  padding: 60px 24px;
+  font-family: 'Noto Serif JP', serif;
+  color: var(--sumi-light, #aaa);
+}
+.venue-empty-icon { font-size: 40px; margin-bottom: 12px; }
+.venue-empty-text { font-size: 14px; }
+
+/* ページタイトル */
+.page-section-title {
+  padding: 16px 16px 0;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sky);
+  letter-spacing: .12em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.page-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--hina-2), transparent);
+}
+
+</style>
+</head>
+<body>
+
+<canvas id="petals-canvas" style="pointer-events:none"></canvas>
+
+<div id="main" class="visible">
+  <div id="app">
+    <div id="headerMount"></div>
+    <div class="page-content page-enter">
+
+      <div class="page-section-title">🏟️ ライブ会場一覧</div>
+
+      <!-- エリアフィルター -->
+      <div class="area-filter" id="areaFilter">
+        <button class="area-pill active" data-area="all" onclick="filterVenues('all', this)">すべて</button>
+        <!-- エリアボタンはJSで動的生成 -->
+      </div>
+
+      <!-- 件数 -->
+      <div class="venue-count" id="venueCount"></div>
+
+      <!-- 会場リスト -->
+      <div class="venue-list" id="venueList"></div>
+
+    </div><!-- /page-content -->
+  </div><!-- /app -->
+</div><!-- /main -->
+
+<script src="data.js"></script>
+<script src="notify.js"></script>
+<script src="nav.js"></script>
+<script src="sakura.js"></script>
+<script>
+
+// ── ヘッダー・ナビ ──
+document.getElementById('headerMount').outerHTML = headerHTML('ライブ会場', '🏟️ 会場一覧 🏟️');
+initNotifications();
+injectNav('venue.html');
+
+// ── エリア一覧を動的生成 ──
+let currentArea = 'all';
+
+function buildAreaFilters() {
+  const areas = [...new Set((VENUES || []).map(v => v.area))].filter(Boolean);
+  const bar = document.getElementById('areaFilter');
+  areas.forEach(area => {
+    const btn = document.createElement('button');
+    btn.className = 'area-pill';
+    btn.dataset.area = area;
+    btn.textContent = area;
+    btn.onclick = () => filterVenues(area, btn);
+    bar.appendChild(btn);
+  });
+}
+
+function filterVenues(area, btnEl) {
+  currentArea = area;
+  // ボタンのactive切り替え
+  document.querySelectorAll('.area-pill').forEach(b => b.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+  renderVenues();
+}
+
+// ── 会場カード描画 ──
+function renderVenues() {
+  const list = document.getElementById('venueList');
+  const countEl = document.getElementById('venueCount');
+  const venues = (VENUES || []).filter(v =>
+    currentArea === 'all' || v.area === currentArea
+  );
+
+  countEl.textContent = `${venues.length}件`;
+
+  if (!venues.length) {
+    list.innerHTML = `
+      <div class="venue-empty">
+        <div class="venue-empty-icon">🏟️</div>
+        <div class="venue-empty-text">会場がありません</div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = venues.map(v => venueCardHTML(v)).join('');
+}
+
+function venueCardHTML(v) {
+  // 写真
+  const photoHTML = v.photo
+    ? `<img class="venue-photo" src="${v.photo}" alt="${v.name}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">\
+       <div class="venue-photo-placeholder" style="display:none">🏟️</div>`
+    : `<div class="venue-photo-placeholder">🏟️</div>`;
+
+  // メモ
+  const memoHTML = v.memo
+    ? `<div class="venue-memo">✿ ${v.memo}</div>`
+    : '';
+
+  // 各情報行
+  const rows = [
+    v.address  ? { icon: '📍', label: '住所', text: v.address }  : null,
+    v.access   ? { icon: '🚃', label: 'アクセス', text: v.access }  : null,
+    v.capacity ? { icon: '👥', label: '収容', text: v.capacity } : null,
+  ].filter(Boolean);
+
+  const infoHTML = rows.map(r => `
+    <div class="venue-info-row">
+      <span class="venue-info-icon">${r.icon}</span>
+      <span class="venue-info-label">${r.label}</span>
+      <span class="venue-info-text">${r.text}</span>
+    </div>`).join('');
+
+  // Google Mapsボタン
+  const mapBtnHTML = v.mapUrl
+    ? `<a class="venue-map-btn" href="${v.mapUrl}" target="_blank" rel="noopener">
+        <span>📍</span> Google Maps で開く
+       </a>`
+    : '';
+
+  return `
+    <div class="venue-card">
+      <div class="venue-photo-wrap">
+        ${photoHTML}
+        <div class="venue-area-badge">${v.area || ''}</div>
+      </div>
+      <div class="venue-body">
+        <div class="venue-name">${v.name}</div>
+        <div class="venue-name-roma">${v.nameRoma || ''}</div>
+        <div class="venue-info-list">${infoHTML}</div>
+        ${memoHTML}
+        ${mapBtnHTML}
+      </div>
+    </div>`;
+}
+
+// ── 初期化 ──
+buildAreaFilters();
+renderVenues();
+
+</script>
+</body>
+</html>
