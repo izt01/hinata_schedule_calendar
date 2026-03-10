@@ -12,6 +12,7 @@ function injectNav(activePage) {
     { href: 'events.html',        icon: '☀️',  label: '行事帳' },
     { href: 'gallery.html',       icon: '📷', label: 'フォトギャラリー' },
     { href: 'train.html',         icon: '🚃', label: '電車検索' },
+    { href: 'venue.html',         icon: '🏟️', label: 'ライブ会場一覧' },
   ];
 
   const navItems = pages.map(p => {
