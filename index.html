@@ -415,12 +415,12 @@
   transform: translateY(0);
 }
 
-/* ── 吹き出し ── */
+/* ── 吹き出し（JS で top を動的セット） ── */
 #login-bubble {
   position: absolute;
-  top: clamp(20px, 9vh, 68px);
+  /* top / right は JS で動的にセット */
   right: clamp(12px, 5vw, 40px);
-  max-width: min(68vw, 256px);
+  max-width: min(60vw, 240px);
   background: rgba(255,255,255,.97);
   border: 2.5px solid var(--sky, #48b4e0);
   border-radius: 24px 24px 6px 24px;
@@ -429,13 +429,13 @@
     0 8px 32px rgba(72,180,224,.22),
     0 2px 8px rgba(0,0,0,.08);
   opacity: 0;
-  transform: scale(.6) translateY(6px);
+  transform: scale(.6);
   transition: opacity .4s .28s ease, transform .4s .28s cubic-bezier(.34,1.56,.64,1);
   pointer-events: none;
 }
 #login-bubble.show {
   opacity: 1;
-  transform: scale(1) translateY(0);
+  transform: scale(1);
 }
 /* しっぽ（右下向き） */
 #login-bubble::before {
@@ -652,12 +652,12 @@
 
 // ─── ログインセリフ ───────────────────────
 const LOGIN_LINES = [
-  'おはよう！今日も一緒に頑張ろうね！',
+  'おはよう！今日も一緒に頑張ろうね☀️',
   'きた〜！嬉しい！ずっと待ってたよ♪',
   'また会えたね。今日もよろしく！',
   'わあ！来てくれたんだ〜！',
   '今日も推し活、全力で！',
-  'おかえり！ずっと待ってたよ～',
+  'おかえり！ずっと待ってたよ🌻',
   '今日もいい日にしようね！',
   '来てくれた！やった〜♪',
   '毎日来てくれてありがとう！',
@@ -666,7 +666,7 @@ const LOGIN_LINES = [
   '今日のカレンダー、確認した？',
   'また明日も来てね、約束だよ！',
   '好きな曲、最近聞いた？',
-  '今日もよい一日になりますように！',
+  '今日もよい一日になりますように🌸',
 ];
 
 function showLoginScreen(onDone) {
@@ -704,20 +704,63 @@ function showLoginScreen(onDone) {
   if (imgSrc) {
     imgEl.onload = () => {
       imgEl.classList.add('show');
+      positionBubble();
       bubble.classList.add('show');
     };
     imgEl.onerror = () => {
-      // 画像なし → 吹き出しだけ表示
+      // 画像なし → 吹き出しをデフォルト位置で表示
+      bubble.style.top = clampPx(window.innerHeight * 0.12, 20, 80);
       bubble.classList.add('show');
     };
     imgEl.src = imgSrc;
   } else {
+    bubble.style.top = clampPx(window.innerHeight * 0.12, 20, 80);
     bubble.classList.add('show');
+  }
+
+  // リサイズ時も追従
+  window._loginResizeHandler = () => positionBubble();
+  window.addEventListener('resize', window._loginResizeHandler);
+
+  function clampPx(val, min, max) {
+    return Math.max(min, Math.min(max, val)) + 'px';
+  }
+
+  function positionBubble() {
+    // 写真の実際の表示領域を取得
+    const imgRect = imgEl.getBoundingClientRect();
+    const screenH = window.innerHeight;
+    const screenW = window.innerWidth;
+
+    // 写真の「上端」を基準に吹き出しを配置
+    // 写真上端が画面上部から何px？
+    const imgTop = imgRect.top;
+
+    // 吹き出し上端 = 写真上端の少し上（写真が見切れているときは画面上部から一定量）
+    const bubbleTop = Math.max(16, imgTop - 8);
+
+    // スマホ（縦長）では吹き出しを写真の右上、PCでは右上固定
+    const isNarrow = screenW < 600;
+    if (isNarrow) {
+      // スマホ: 写真の上端より少し上に
+      bubble.style.top  = Math.max(16, imgTop - 4) + 'px';
+      bubble.style.right = '12px';
+      bubble.style.maxWidth = Math.min(screenW * 0.58, 220) + 'px';
+    } else {
+      // PC: 写真上端に合わせつつ、最低でも上から16px
+      bubble.style.top  = Math.max(16, imgTop + 8) + 'px';
+      bubble.style.right = clampPx(screenW * 0.04, 16, 48);
+      bubble.style.maxWidth = Math.min(screenW * 0.35, 280) + 'px';
+    }
   }
 
   // タップで次へ
   function proceed() {
     screen.removeEventListener('click', proceed);
+    if (window._loginResizeHandler) {
+      window.removeEventListener('resize', window._loginResizeHandler);
+      window._loginResizeHandler = null;
+    }
     screen.classList.add('closing');
     setTimeout(() => {
       screen.classList.remove('active', 'closing');
