@@ -340,6 +340,186 @@
   color: var(--matcha);
   border-color: rgba(90,122,90,0.3);
 }
+
+/* ═══════════════════════════════════════
+   LOGIN SCREEN
+   ═══════════════════════════════════════ */
+#login-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: none;
+  overflow: hidden;
+  /* 全体タップで閉じる */
+  cursor: pointer;
+}
+#login-screen.active {
+  display: block;
+}
+#login-screen.closing {
+  animation: loginClose 0.55s cubic-bezier(.4,0,.6,1) forwards;
+}
+@keyframes loginClose {
+  to { opacity: 0; transform: scale(1.05); }
+}
+
+/* ── 背景グラデーション ── */
+#login-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg,
+    #c8e8fc 0%,
+    #e4f4ff 35%,
+    #fdf4d0 70%,
+    #fff8e8 100%);
+  animation: loginBgIn 0.4s ease both;
+}
+@keyframes loginBgIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* キラキラ装飾 */
+.login-sparkle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: sparklePulse 2.5s ease-in-out infinite;
+}
+@keyframes sparklePulse {
+  0%,100% { transform: scale(1);   opacity: .5; }
+  50%      { transform: scale(1.3); opacity: .9; }
+}
+
+/* ── メンバー写真エリア ── */
+#login-member-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+#login-member-img {
+  height: 88vh;
+  max-width: 100vw;
+  object-fit: contain;
+  object-position: bottom center;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity .5s ease, transform .5s cubic-bezier(.22,.9,.36,1);
+  filter: drop-shadow(0 16px 48px rgba(0,80,160,.18));
+}
+#login-member-img.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── 吹き出し ── */
+#login-bubble {
+  position: absolute;
+  top: clamp(20px, 9vh, 68px);
+  right: clamp(12px, 5vw, 40px);
+  max-width: min(68vw, 256px);
+  background: rgba(255,255,255,.97);
+  border: 2.5px solid var(--sky, #48b4e0);
+  border-radius: 24px 24px 6px 24px;
+  padding: 14px 18px 13px;
+  box-shadow:
+    0 8px 32px rgba(72,180,224,.22),
+    0 2px 8px rgba(0,0,0,.08);
+  opacity: 0;
+  transform: scale(.6) translateY(6px);
+  transition: opacity .4s .28s ease, transform .4s .28s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none;
+}
+#login-bubble.show {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+/* しっぽ（右下向き） */
+#login-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -17px;
+  right: 26px;
+  border: 9px solid transparent;
+  border-top-color: var(--sky, #48b4e0);
+}
+#login-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -13px;
+  right: 28px;
+  border: 7px solid transparent;
+  border-top-color: rgba(255,255,255,.97);
+}
+
+.login-bubble-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sky, #48b4e0);
+  letter-spacing: .1em;
+  margin-bottom: 6px;
+  font-family: 'Noto Serif JP', serif;
+}
+.login-bubble-text {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.6;
+  color: #1a2a3a;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+}
+
+/* ── タイトル帯（右上） ── */
+#login-title-badge {
+  position: absolute;
+  top: clamp(20px, 9vh, 68px);
+  left: clamp(12px, 5vw, 40px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  pointer-events: none;
+  opacity: 0;
+  animation: titleBadgeIn .5s .1s ease forwards;
+}
+@keyframes titleBadgeIn {
+  from { opacity:0; transform:translateX(-14px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+.login-title-main {
+  font-size: clamp(22px, 5.5vw, 30px);
+  font-weight: 900;
+  color: var(--sky, #48b4e0);
+  font-family: 'Noto Serif JP', serif;
+  text-shadow: 0 2px 12px rgba(72,180,224,.35);
+  letter-spacing: .06em;
+}
+.login-title-sub {
+  font-size: 11px;
+  color: #4a7090;
+  letter-spacing: .18em;
+  font-family: 'Noto Serif JP', serif;
+}
+
+/* ── タップヒント ── */
+#login-tap-hint {
+  position: absolute;
+  bottom: clamp(24px, 5vh, 44px);
+  left: 0; right: 0;
+  text-align: center;
+  font-size: 11.5px;
+  color: rgba(40,90,140,.5);
+  letter-spacing: .2em;
+  font-family: 'Noto Serif JP', serif;
+  animation: tapHintPulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes tapHintPulse {
+  0%,100% { opacity: .4; }
+  50%      { opacity: .9; }
+}
+
 </style>
 </head>
 <body>
@@ -470,6 +650,84 @@
   window._stopSplashPetals = ()=>cancelAnimationFrame(raf);
 })();
 
+// ─── ログインセリフ ───────────────────────
+const LOGIN_LINES = [
+  'おはよう！今日も一緒に頑張ろうね！',
+  'きた〜！嬉しい！ずっと待ってたよ♪',
+  'また会えたね。今日もよろしく！',
+  'わあ！来てくれたんだ〜！',
+  '今日も推し活、全力で！',
+  'おかえり！ずっと待ってたよ～',
+  '今日もいい日にしようね！',
+  '来てくれた！やった〜♪',
+  '毎日来てくれてありがとう！',
+  'ねえ、今日の予定は決まった？',
+  '一緒にいると楽しいな〜！',
+  '今日のカレンダー、確認した？',
+  'また明日も来てね、約束だよ！',
+  '好きな曲、最近聞いた？',
+  '今日もよい一日になりますように！',
+];
+
+function showLoginScreen(onDone) {
+  const candidates = (typeof ACTIVE_MEMBERS !== 'undefined')
+    ? ACTIVE_MEMBERS.filter(m => m.enabled !== false)
+    : [];
+
+  const screen  = document.getElementById('login-screen');
+  const imgEl   = document.getElementById('login-member-img');
+  const nameEl  = document.getElementById('login-member-name');
+  const textEl  = document.getElementById('login-bubble-text');
+  const bubble  = document.getElementById('login-bubble');
+
+  // セリフをセット
+  const line = LOGIN_LINES[Math.floor(Math.random() * LOGIN_LINES.length)];
+  textEl.textContent = line;
+
+  // メンバーをランダム選択
+  let memberName = '日向坂46';
+  let imgSrc = '';
+  if (candidates.length) {
+    // login_memberフォルダに画像があるメンバーを優先
+    // → 実際には読み込んでみてエラーなら非表示にする
+    const m = candidates[Math.floor(Math.random() * candidates.length)];
+    memberName = m.name;
+    const base = m.avatar ? m.avatar.split('/').pop() : '';
+    if (base) imgSrc = 'login_member/' + base;
+  }
+  nameEl.textContent = memberName;
+
+  // 画面表示
+  screen.classList.add('active');
+
+  // 画像読み込み
+  if (imgSrc) {
+    imgEl.onload = () => {
+      imgEl.classList.add('show');
+      bubble.classList.add('show');
+    };
+    imgEl.onerror = () => {
+      // 画像なし → 吹き出しだけ表示
+      bubble.classList.add('show');
+    };
+    imgEl.src = imgSrc;
+  } else {
+    bubble.classList.add('show');
+  }
+
+  // タップで次へ
+  function proceed() {
+    screen.removeEventListener('click', proceed);
+    screen.classList.add('closing');
+    setTimeout(() => {
+      screen.classList.remove('active', 'closing');
+      onDone();
+    }, 550);
+  }
+  // 少し待ってからタップ受付（誤タップ防止）
+  setTimeout(() => screen.addEventListener('click', proceed), 400);
+}
+
 function startApp() {
   if(window._stopSplashPetals) window._stopSplashPetals();
   const splash = document.getElementById('splash');
@@ -477,7 +735,10 @@ function startApp() {
   splash.classList.add('fade-out');
   setTimeout(() => {
     splash.style.display = 'none';
-    main.classList.add('visible');
+    // ログイン演出 → メイン表示
+    showLoginScreen(() => {
+      main.classList.add('visible');
+    });
   }, 750);
 }
 
@@ -561,5 +822,36 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
+<!-- ═══════ LOGIN SCREEN ═══════ -->
+<div id="login-screen">
+  <div id="login-bg"></div>
+
+  <!-- キラキラ -->
+  <div class="login-sparkle" style="width:260px;height:260px;top:-60px;right:-50px;background:radial-gradient(circle,rgba(255,220,80,.4) 0%,transparent 70%);animation-delay:0s"></div>
+  <div class="login-sparkle" style="width:180px;height:180px;bottom:25%;left:-30px;background:radial-gradient(circle,rgba(80,200,255,.3) 0%,transparent 70%);animation-delay:.8s"></div>
+  <div class="login-sparkle" style="width:120px;height:120px;bottom:10%;right:15%;background:radial-gradient(circle,rgba(255,180,200,.4) 0%,transparent 70%);animation-delay:1.5s"></div>
+
+  <!-- タイトル -->
+  <div id="login-title-badge">
+    <div class="login-title-main">日向坂46</div>
+    <div class="login-title-sub">✿ ひなたカレンダー ✿</div>
+  </div>
+
+  <!-- 吹き出し -->
+  <div id="login-bubble">
+    <div class="login-bubble-name" id="login-member-name"></div>
+    <div class="login-bubble-text" id="login-bubble-text"></div>
+  </div>
+
+  <!-- メンバー写真 -->
+  <div id="login-member-wrap">
+    <img id="login-member-img" src="" alt="">
+  </div>
+
+  <!-- タップヒント -->
+  <div id="login-tap-hint">✦ タップして続ける ✦</div>
+</div>
+
 </body>
 </html>
