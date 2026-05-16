@@ -8,7 +8,7 @@
 // 🔧 設定：RailwayにデプロイしたAPIサーバーのURL
 //    例: 'https://hinata-api.up.railway.app'
 // -----------------------------------------
-const API_BASE = 'https://YOUR-RAILWAY-API-URL.railway.app';
+const API_BASE = 'https://hinataschedulecalendar-production.up.railway.app';
 // -----------------------------------------
 
 // ── トークン管理 ──────────────────────────
