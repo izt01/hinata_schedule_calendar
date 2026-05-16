@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>日向坂46 — アカウント設定</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8b2252">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── PROFILE PAGE ── */
+.profile-hero {
+  margin: 0 0 28px;
+  padding: 36px 24px 28px;
+  background: linear-gradient(145deg, var(--sky) 0%, #1e88c8 60%, #3aa8e8 100%);
+  border-radius: 0 0 32px 32px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 8px 36px rgba(21,101,160,0.28);
+}
+.profile-avatar-wrap {
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  border: 4px solid rgba(255,255,255,0.9);
+  margin: 0 auto 14px;
+  overflow: hidden;
+  background: var(--hina-1);
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.2);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.18s;
+}
+.profile-avatar-wrap:active { transform: scale(0.94); }
+.profile-avatar-wrap img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.profile-avatar-placeholder { font-size: 44px; }
+.profile-avatar-edit {
+  position: absolute; bottom: 0; right: 0;
+  width: 28px; height: 28px;
+  background: var(--sky); border: 2px solid white;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: white;
+}
+.profile-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 22px; font-weight: 800;
+  color: white; letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.profile-email {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px; color: rgba(255,255,255,0.75);
+  letter-spacing: 0.06em;
+}
+.profile-login-badge {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 14px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  font-size: 10px;
+  font-family: 'Noto Serif JP', serif;
+  letter-spacing: 0.1em;
+}
+
+/* アバター選択エリア */
+.avatar-section-title {
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-size: 11px; font-weight: 700;
+  color: var(--hina-4); letter-spacing: 0.18em;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.avatar-tabs {
+  display: flex; gap: 8px; margin-bottom: 14px;
+}
+.avatar-tab {
+  flex: 1; padding: 9px 4px;
+  border-radius: 20px;
+  border: 1.5px solid var(--hina-2);
+  background: rgba(255,255,255,0.75);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px; font-weight: 600;
+  color: var(--sumi-light); cursor: pointer;
+  text-align: center; transition: all 0.2s;
+}
+.avatar-tab.active {
+  background: var(--sky); border-color: var(--sky);
+  color: white; box-shadow: 0 3px 14px rgba(21,101,160,0.25);
+}
+
+/* メンバーアイコングリッド */
+.member-avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px; margin-bottom: 12px;
+}
+.member-avatar-cell {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  cursor: pointer; padding: 6px 2px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+  font-size: 9px;
+  font-family: 'Noto Serif JP', serif;
+  color: var(--sumi-light);
+  text-align: center;
+}
+.member-avatar-cell.selected {
+  border-color: var(--sky);
+  background: var(--hina-1);
+  color: var(--sky); font-weight: 700;
+}
+.member-avatar-cell img {
+  width: 44px; height: 44px;
+  border-radius: 50%; object-fit: cover;
+  border: 2px solid var(--hina-2);
+}
+
+/* アップロードプレビュー */
+.upload-avatar-area {
+  width: 100%; aspect-ratio: 1; max-width: 160px;
+  margin: 0 auto;
+  border-radius: 50%; overflow: hidden;
+  border: 2.5px dashed var(--hina-3);
+  background: var(--hina-0);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: border-color 0.2s;
+  position: relative;
+}
+.upload-avatar-area.has-img { border-style: solid; }
+.upload-avatar-area img { width:100%; height:100%; object-fit:cover; }
+.upload-avatar-placeholder {
+  text-align: center; color: var(--sumi-light);
+  font-family: 'Noto Serif JP', serif; font-size: 11px;
+}
+
+/* カード */
+.profile-card {
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1.5px solid var(--hina-2);
+  padding: 20px;
+  box-shadow: var(--shadow-hina);
+  margin-bottom: 16px;
+}
+.profile-card-title {
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-size: 13px; font-weight: 800;
+  color: var(--sky); margin-bottom: 14px;
+  letter-spacing: 0.06em;
+}
+
+/* ステータスバッジ */
+.vis-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 9px; font-weight: 700;
+  font-family: 'Noto Serif JP', serif;
+  margin-left: 6px;
+}
+.vis-private  { background: rgba(100,100,100,0.1); color: #666; border: 1px solid #ddd; }
+.vis-public   { background: rgba(21,101,160,0.1);  color: var(--sky); border: 1px solid var(--hina-2); }
+.vis-specific { background: rgba(80,160,80,0.1);   color: #3a7a3a; border: 1px solid rgba(80,160,80,0.3); }
+.vis-other    { font-size: 8px; opacity: 0.8; }
+
+/* ログアウトボタン */
+.btn-danger {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; padding: 13px 28px;
+  background: rgba(200,60,60,0.1); color: #c03030;
+  border: 1.5px solid rgba(200,60,60,0.3); border-radius: 16px;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+  cursor: pointer; transition: all 0.18s; margin-top: 8px;
+}
+.btn-danger:active { background: rgba(200,60,60,0.2); }
+</style>
+</head>
+<body>
+<canvas id="petals-canvas"></canvas>
+<div id="app">
+  <div id="headerMount"></div>
+  <div class="page-content page-enter" style="padding-top:0">
+
+    <!-- ヒーロー（ログイン時：プロフィール表示、未ログイン時：登録フォーム案内） -->
+    <div class="profile-hero" id="profileHero">
+      <div class="profile-avatar-wrap" id="heroAvatar" onclick="scrollToForm()">
+        <span class="profile-avatar-placeholder">🌸</span>
+        <div class="profile-avatar-edit">✎</div>
+      </div>
+      <div class="profile-name" id="heroName">ゲスト</div>
+      <div class="profile-email" id="heroEmail">アカウント未設定</div>
+      <span class="profile-login-badge" id="loginBadge">✿ タップして設定 ✿</span>
+    </div>
+
+    <!-- アカウント設定フォーム -->
+    <div class="profile-card" id="formCard">
+      <div class="profile-card-title">✿ アカウント設定</div>
+
+      <!-- ニックネーム -->
+      <div class="form-group">
+        <label class="form-label">ニックネーム <span style="color:var(--sky)">*</span></label>
+        <input class="form-input" id="inputNickname" type="text" placeholder="例：おひさまファン" maxlength="50">
+      </div>
+
+      <!-- メールアドレス（任意） -->
+      <div class="form-group">
+        <label class="form-label">メールアドレス（任意）</label>
+        <input class="form-input" id="inputEmail" type="email" placeholder="example@mail.com">
+      </div>
+
+      <!-- アイコン設定 -->
+      <div class="form-group">
+        <label class="form-label">アイコン設定</label>
+        <div class="avatar-tabs">
+          <button class="avatar-tab active" onclick="switchAvatarTab('member', this)">メンバーから選ぶ</button>
+          <button class="avatar-tab"        onclick="switchAvatarTab('upload', this)">写真をアップロード</button>
+        </div>
+
+        <!-- メンバー選択 -->
+        <div id="memberAvatarPanel">
+          <div class="member-avatar-grid" id="memberAvatarGrid"></div>
+        </div>
+
+        <!-- アップロード -->
+        <div id="uploadAvatarPanel" style="display:none; text-align:center">
+          <div class="upload-avatar-area" id="uploadAvatarArea" onclick="document.getElementById('avatarFileInput').click()">
+            <div class="upload-avatar-placeholder">
+              <div style="font-size:32px;margin-bottom:6px">📷</div>
+              <div>タップして写真を選択</div>
+            </div>
+            <img id="uploadAvatarPreview" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
+          </div>
+          <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="onAvatarFileSelect(event)">
+          <div style="margin-top:8px;font-size:10px;color:var(--sumi-light);font-family:'Noto Serif JP',serif">タップしてフォトアルバムから選択</div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="saveBtn" style="width:100%;margin-top:4px;justify-content:center" onclick="saveProfile()">
+        <span id="saveBtnText">保 存</span>
+      </button>
+    </div>
+
+    <!-- ログアウト -->
+    <div class="profile-card" id="logoutCard" style="display:none">
+      <div class="profile-card-title">⚙ アカウント操作</div>
+      <button class="btn-danger" onclick="logout()">ログアウト（データはサーバーに残ります）</button>
+    </div>
+
+    <!-- 説明カード -->
+    <div class="profile-card">
+      <div class="profile-card-title">📋 共有機能について</div>
+      <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:var(--sumi-light);line-height:1.9">
+        <p>✿ <b>プライベート</b>：自分だけが見られます</p>
+        <p>✿ <b>全体公開</b>：このアプリを使う全員が見られます</p>
+        <p>✿ <b>特定共有</b>：選んだユーザーだけが見られます</p>
+        <br>
+        <p style="font-size:11px">アカウントを登録すると、イベントや写真を他のユーザーと共有できるようになります。</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="db.js"></script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+<script src="sakura.js"></script>
+<script>
+document.getElementById('headerMount').outerHTML = headerHTML('アカウント設定', '✿ プロフィール設定 ✿');
+injectNav('profile.html');
+
+let selectedMemberAvatar = null;
+let uploadedAvatarDataUrl = null;
+let curAvatarTab = 'member';
+
+// ── 初期化 ──────────────────────────────
+(async function init() {
+  // メンバーアバターグリッドを構築
+  buildMemberGrid();
+
+  // ログイン中なら現在のユーザー情報を表示
+  const user = getUser();
+  if (user) {
+    updateHero(user);
+    document.getElementById('inputNickname').value = user.nickname || '';
+    document.getElementById('inputEmail').value = user.email || '';
+    document.getElementById('logoutCard').style.display = 'block';
+
+    // 既存アバターを選択状態にする
+    if (user.avatar_type === 'member' && user.avatar_url) {
+      const memberName = user.avatar_url.split('/').pop()?.replace('.png','');
+      selectMemberAvatar(user.avatar_url, memberName);
+    }
+  }
+})();
+
+function updateHero(user) {
+  const heroAvatar = document.getElementById('heroAvatar');
+  const heroName   = document.getElementById('heroName');
+  const heroEmail  = document.getElementById('heroEmail');
+  const badge      = document.getElementById('loginBadge');
+
+  heroName.textContent  = user.nickname || 'ゲスト';
+  heroEmail.textContent = user.email || 'メール未設定';
+  badge.textContent     = '✿ 設定済み ✿';
+
+  if (user.avatar_url) {
+    heroAvatar.innerHTML = `<img src="${user.avatar_url}" alt="${user.nickname}"><div class="profile-avatar-edit">✎</div>`;
+  }
+}
+
+function scrollToForm() {
+  document.getElementById('formCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── アバタータブ切替 ──────────────────────
+function switchAvatarTab(tab, btn) {
+  curAvatarTab = tab;
+  document.querySelectorAll('.avatar-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('memberAvatarPanel').style.display = tab === 'member' ? 'block' : 'none';
+  document.getElementById('uploadAvatarPanel').style.display = tab === 'upload' ? 'block' : 'none';
+}
+
+// ── メンバーグリッド構築 ──────────────────
+function buildMemberGrid() {
+  const grid = document.getElementById('memberAvatarGrid');
+  grid.innerHTML = ACTIVE_MEMBERS.map(m => {
+    const src = 'login_member/' + (m.avatar?.split('/').pop() || m.id + '.png');
+    return `<div class="member-avatar-cell" data-src="${src}" data-name="${m.name}" onclick="selectMemberAvatar('${src}','${m.name}',this)">
+      <img src="${src}" alt="${m.name}" onerror="this.style.display='none';this.nextSibling.style.display='block'">
+      <span style="display:none;font-size:22px">${m.avatar?.match(/\.(png|jpg)/i) ? '👤' : m.avatar || '👤'}</span>
+      <span>${m.name.split(' ')[0]}</span>
+    </div>`;
+  }).join('');
+}
+
+function selectMemberAvatar(src, name, el) {
+  selectedMemberAvatar = src;
+  uploadedAvatarDataUrl = null;
+  document.querySelectorAll('.member-avatar-cell').forEach(c => c.classList.remove('selected'));
+  if (el) el.classList.add('selected');
+  else {
+    // 初期化時、既存選択を復元
+    document.querySelectorAll('.member-avatar-cell').forEach(c => {
+      if (c.dataset.src === src) c.classList.add('selected');
+    });
+  }
+  // ヒーローアバターにプレビュー
+  const heroAvatar = document.getElementById('heroAvatar');
+  heroAvatar.innerHTML = `<img src="${src}" alt="${name}"><div class="profile-avatar-edit">✎</div>`;
+}
+
+async function onAvatarFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const dataUrl = await fileToBase64(file);
+    uploadedAvatarDataUrl = dataUrl;
+    selectedMemberAvatar = null;
+    const preview = document.getElementById('uploadAvatarPreview');
+    const area    = document.getElementById('uploadAvatarArea');
+    preview.src = dataUrl;
+    preview.style.display = 'block';
+    area.querySelector('.upload-avatar-placeholder').style.display = 'none';
+    area.classList.add('has-img');
+    // ヒーローにもプレビュー
+    const heroAvatar = document.getElementById('heroAvatar');
+    heroAvatar.innerHTML = `<img src="${dataUrl}" alt="アイコン"><div class="profile-avatar-edit">✎</div>`;
+  } catch { alert('画像の読み込みに失敗しました'); }
+}
+
+// ── プロフィール保存 ──────────────────────
+async function saveProfile() {
+  const nickname = document.getElementById('inputNickname').value.trim();
+  const email    = document.getElementById('inputEmail').value.trim();
+  if (!nickname) { alert('ニックネームを入力してください'); return; }
+
+  const avatarUrl  = uploadedAvatarDataUrl || selectedMemberAvatar || null;
+  const avatarType = uploadedAvatarDataUrl ? 'upload' : 'member';
+
+  const btn = document.getElementById('saveBtn');
+  document.getElementById('saveBtnText').textContent = '保存中…';
+  btn.disabled = true;
+
+  try {
+    let result;
+    if (isLoggedIn()) {
+      result = await UserAPI.update(nickname, email, avatarUrl, avatarType);
+    } else {
+      result = await UserAPI.register(nickname, email, avatarUrl, avatarType);
+    }
+    if (result) {
+      updateHero(result.user);
+      document.getElementById('logoutCard').style.display = 'block';
+      document.getElementById('saveBtnText').textContent = '✅ 保存しました';
+      setTimeout(() => { document.getElementById('saveBtnText').textContent = '保 存'; }, 2000);
+    }
+  } catch (err) {
+    alert('保存エラー: ' + err.message);
+    document.getElementById('saveBtnText').textContent = '保 存';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function logout() {
+  if (!confirm('ログアウトしますか？\nデータはサーバーに保存されているので、次回ログイン時に復元されます。')) return;
+  removeToken();
+  window.location.reload();
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+}
+</script>
+</body>
+</html>
