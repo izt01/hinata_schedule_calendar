@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="日向坂46">
-<link rel="apple-touch-icon" href="icons/icon-sakura.jpg">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="style.css">
 <style>
 .filter-scroll {
@@ -138,7 +138,7 @@
   </div>
 </div>
 
-<button class="fab" onclick="openAddModal()" aria-label="写真を追加">＋</button>
+<button class="fab" onclick="openAddModal()" aria-label="写真を追加" style="-webkit-appearance:none;touch-action:manipulation">＋</button>
 
 <!-- 全画面ビューア -->
 <div class="viewer-overlay" id="viewerOverlay">
@@ -321,7 +321,11 @@ async function deleteCurrentPhoto() {
 }
 
 // ── 追加モーダル ───────────────────────────
-async function openAddModal() {
+function openAddModal() {
+  _openAddModal().catch(err => console.error(err));
+}
+
+async function _openAddModal() {
   pendingDataUrl = null;
   selectedMemberId = null;
   curPhotoShareMode = 'private';

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>日向坂46 — 祝花申し込み</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8b2252">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── 祝花ページ ── */
+.flower-hero {
+  margin: 0 0 24px;
+  padding: 32px 20px 24px;
+  background: linear-gradient(145deg, #e05080 0%, #c03060 50%, #a01040 100%);
+  border-radius: 0 0 32px 32px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(200,40,80,0.3);
+}
+.flower-hero-icon { font-size: 56px; margin-bottom: 10px; }
+.flower-hero-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 26px; font-weight: 800; color: white;
+  letter-spacing: 0.1em; margin-bottom: 4px;
+}
+.flower-hero-sub {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px; color: rgba(255,255,255,0.8); letter-spacing: 0.15em;
+}
+
+/* メンバー選択 */
+.member-flower-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;
+}
+.member-flower-cell {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 10px 4px; border-radius: 16px;
+  border: 2px solid var(--hina-2); background: rgba(255,255,255,0.8);
+  cursor: pointer; transition: all 0.15s;
+  font-size: 10px; font-family: 'Noto Serif JP', serif;
+  color: var(--sumi-light); text-align: center;
+}
+.member-flower-cell.selected {
+  border-color: #e05080; background: rgba(255,200,210,0.3);
+  color: #c03060; font-weight: 700;
+}
+.member-flower-cell:active { transform: scale(0.94); }
+.member-flower-cell img {
+  width: 44px; height: 44px; border-radius: 50%;
+  object-fit: cover; border: 2px solid var(--hina-2);
+}
+
+/* 金額ボタン */
+.amount-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;
+}
+.amount-btn {
+  padding: 12px 4px; border-radius: 14px;
+  border: 1.5px solid var(--hina-2); background: rgba(255,255,255,0.8);
+  font-family: 'Shippori Mincho', serif; font-size: 15px; font-weight: 700;
+  color: var(--sumi); cursor: pointer; text-align: center; transition: all 0.18s;
+}
+.amount-btn.selected {
+  border-color: #e05080; background: rgba(255,200,210,0.3); color: #c03060;
+  box-shadow: 0 3px 12px rgba(200,40,80,0.2);
+}
+.amount-btn:active { transform: scale(0.95); }
+
+/* 申し込みリスト */
+.flower-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 100px; }
+.flower-item {
+  background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
+  border-radius: 18px; border: 1.5px solid var(--hina-2);
+  padding: 14px 16px; box-shadow: var(--shadow-hina);
+  display: flex; align-items: center; gap: 12px;
+}
+.flower-item-avatar {
+  width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
+  border: 2px solid rgba(200,40,80,0.3); flex-shrink: 0;
+}
+.flower-item-info { flex: 1; }
+.flower-item-member { font-family: 'Shippori Mincho', serif; font-size: 14px; font-weight: 700; color: var(--sumi); }
+.flower-item-amount { font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 18px; font-weight: 800; color: #c03060; }
+.flower-item-message { font-size: 11px; color: var(--sumi-light); margin-top: 2px; }
+.flower-item-status {
+  padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 700;
+  font-family: 'Noto Serif JP', serif; flex-shrink: 0;
+}
+.flower-item-status.pending  { background: rgba(255,200,50,0.2); color: #b08000; border: 1px solid rgba(255,200,50,0.4); }
+.flower-item-status.completed { background: rgba(40,180,80,0.1); color: #2a8a40; border: 1px solid rgba(40,180,80,0.3); }
+
+/* 合計バー */
+.flower-total-bar {
+  background: linear-gradient(135deg, #e05080, #c03060);
+  border-radius: 18px; padding: 14px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; box-shadow: 0 4px 18px rgba(200,40,80,0.25);
+}
+.flower-total-label { font-family: 'Noto Serif JP', serif; font-size: 11px; color: rgba(255,255,255,0.85); }
+.flower-total-amount { font-family: 'Shippori Mincho', serif; font-size: 22px; font-weight: 800; color: white; }
+</style>
+</head>
+<body>
+<canvas id="petals-canvas"></canvas>
+<div id="app">
+  <div id="headerMount"></div>
+  <div class="page-content page-enter" style="padding-top:0">
+
+    <!-- ヒーロー -->
+    <div class="flower-hero">
+      <div class="flower-hero-icon">💐</div>
+      <div class="flower-hero-title">祝花申し込み</div>
+      <div class="flower-hero-sub">✿ 推しメンに祝花を贈ろう ✿</div>
+    </div>
+
+    <!-- 合計 -->
+    <div class="flower-total-bar">
+      <div class="flower-total-label">💐 申し込み総額</div>
+      <div class="flower-total-amount" id="totalAmount">¥0</div>
+    </div>
+
+    <!-- 申し込みボタン -->
+    <button class="btn-primary" style="width:100%;justify-content:center;margin-bottom:20px;background:linear-gradient(135deg,#e05080,#c03060);box-shadow:0 6px 22px rgba(200,40,80,0.3)" onclick="openFlowerModal()">
+      💐 祝花を申し込む
+    </button>
+
+    <!-- 申し込み一覧 -->
+    <div class="section-kamon"><span class="section-kamon-text">✿ 申し込み一覧 ✿</span></div>
+    <div class="flower-list" id="flowerList">
+      <div class="empty-state"><div class="empty-state-icon">💐</div><div class="empty-state-text">読み込み中…</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 申し込みモーダル -->
+<div class="modal-overlay" id="flowerModal" onclick="closeFlowerModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" onclick="document.getElementById('flowerModal').classList.remove('open')">✕</button>
+    <div class="modal-title">💐 祝花申し込み</div>
+
+    <!-- メンバー選択 -->
+    <div class="form-group">
+      <label class="form-label">メンバーを選ぶ <span style="color:#e05080">*</span></label>
+      <div class="member-flower-grid" id="memberFlowerGrid"></div>
+    </div>
+
+    <!-- 金額 -->
+    <div class="form-group">
+      <label class="form-label">金額を選ぶ <span style="color:#e05080">*</span></label>
+      <div class="amount-grid">
+        <button class="amount-btn" onclick="selectAmount(3000,this)">¥3,000</button>
+        <button class="amount-btn" onclick="selectAmount(5000,this)">¥5,000</button>
+        <button class="amount-btn" onclick="selectAmount(10000,this)">¥10,000</button>
+        <button class="amount-btn" onclick="selectAmount(15000,this)">¥15,000</button>
+        <button class="amount-btn" onclick="selectAmount(20000,this)">¥20,000</button>
+        <button class="amount-btn" onclick="selectAmount(30000,this)">¥30,000</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+        <span style="font-size:12px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;white-space:nowrap">その他：¥</span>
+        <input class="form-input" id="customAmount" type="number" placeholder="金額を入力" min="1" style="flex:1" oninput="onCustomAmount(this)">
+      </div>
+    </div>
+
+    <!-- メッセージ -->
+    <div class="form-group">
+      <label class="form-label">メッセージ（任意）</label>
+      <input class="form-input" id="flowerMessage" type="text" placeholder="例：お誕生日おめでとう！">
+    </div>
+
+    <!-- 選択中の金額表示 -->
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-family:'Noto Serif JP',serif;font-size:11px;color:var(--sumi-light);margin-bottom:4px">申し込み金額</div>
+      <div id="selectedAmountDisplay" style="font-family:'Shippori Mincho',serif;font-size:28px;font-weight:800;color:#c03060">¥---</div>
+    </div>
+
+    <button class="btn-primary" style="width:100%;justify-content:center;background:linear-gradient(135deg,#e05080,#c03060);box-shadow:0 6px 22px rgba(200,40,80,0.3)" onclick="submitFlower()">
+      申し込む
+    </button>
+  </div>
+</div>
+
+<!-- 振込案内モーダル -->
+<div class="modal-overlay" id="transferModal" onclick="closeTransferModal(event)">
+  <div class="modal" style="text-align:center">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" onclick="document.getElementById('transferModal').classList.remove('open')">✕</button>
+    <div style="font-size:56px;margin-bottom:12px">💐</div>
+    <div class="modal-title" style="text-align:center">申し込み完了！</div>
+    <div style="font-family:'Noto Serif JP',serif;font-size:13px;color:var(--sumi-light);line-height:1.9;margin-bottom:24px">
+      以下の口座に振込をお願いします。<br>
+      振込確認後、ステータスが「完了」になります。
+    </div>
+    <div style="background:var(--hina-1);border-radius:16px;border:1.5px solid var(--hina-2);padding:18px;margin-bottom:20px;text-align:left">
+      <div style="font-family:'M PLUS Rounded 1c',sans-serif;font-size:11px;color:var(--hina-4);letter-spacing:0.15em;margin-bottom:10px">振込先</div>
+      <div style="font-family:'Shippori Mincho',serif;font-size:15px;font-weight:700;color:var(--sumi);line-height:2">
+        銀行名：〇〇銀行<br>
+        支店名：〇〇支店<br>
+        口座番号：〇〇〇〇〇〇〇<br>
+        口座名義：ヒナタカレンダー
+      </div>
+      <div style="font-size:10px;color:var(--sumi-light);margin-top:8px;font-family:'Noto Serif JP',serif">※振込先は実際のものに変更してください</div>
+    </div>
+    <div style="font-family:'Shippori Mincho',serif;font-size:24px;font-weight:800;color:#c03060;margin-bottom:20px" id="transferAmount"></div>
+    <button class="btn-primary" style="width:100%;justify-content:center" onclick="markComplete()">
+      振込完了！ → 「完了」にする
+    </button>
+    <button style="width:100%;margin-top:10px;padding:13px;border-radius:16px;border:1.5px solid var(--hina-2);background:rgba(255,255,255,0.8);font-family:'Noto Serif JP',serif;font-size:13px;color:var(--sumi-light);cursor:pointer" onclick="document.getElementById('transferModal').classList.remove('open')">
+      後で振り込む
+    </button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="db.js"></script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+<script src="sakura.js"></script>
+<script>
+document.getElementById('headerMount').outerHTML = headerHTML('祝花申し込み', '💐 推しメンに贈ろう 💐');
+injectNav('flower.html');
+
+let selectedMemberId   = null;
+let selectedMemberName = null;
+let selectedAmount     = 0;
+let pendingFlowerId    = null;
+let allFlowers         = [];
+
+// ── 初期化 ──────────────────────────────
+(async function init() {
+  buildMemberGrid();
+  await loadFlowers();
+})();
+
+function buildMemberGrid() {
+  const grid = document.getElementById('memberFlowerGrid');
+  grid.innerHTML = ACTIVE_MEMBERS.filter(m => m.enabled !== false).map(m => {
+    const src = m.avatar || '';
+    const isImg = src && /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(src);
+    return `<div class="member-flower-cell" onclick="selectMember('${m.id}','${m.name}',this)">
+      ${isImg ? `<img src="${src}" alt="${m.name}">` : `<span style="font-size:28px">${src||'🌻'}</span>`}
+      <span>${m.name.split(' ')[0]}</span>
+    </div>`;
+  }).join('');
+}
+
+function selectMember(id, name, el) {
+  selectedMemberId   = id;
+  selectedMemberName = name;
+  document.querySelectorAll('.member-flower-cell').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function selectAmount(amt, el) {
+  selectedAmount = amt;
+  document.getElementById('customAmount').value = '';
+  document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('selectedAmountDisplay').textContent = `¥${amt.toLocaleString()}`;
+}
+
+function onCustomAmount(input) {
+  const val = parseInt(input.value);
+  selectedAmount = val > 0 ? val : 0;
+  document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('selectedAmountDisplay').textContent = val > 0 ? `¥${val.toLocaleString()}` : '¥---';
+}
+
+// ── モーダル ──────────────────────────────
+function openFlowerModal() {
+  selectedMemberId   = null;
+  selectedMemberName = null;
+  selectedAmount     = 0;
+  document.getElementById('flowerMessage').value = '';
+  document.getElementById('customAmount').value  = '';
+  document.getElementById('selectedAmountDisplay').textContent = '¥---';
+  document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.member-flower-cell').forEach(c => c.classList.remove('selected'));
+  document.getElementById('flowerModal').classList.add('open');
+}
+function closeFlowerModal(e) {
+  if (e && e.target !== document.getElementById('flowerModal')) return;
+  document.getElementById('flowerModal').classList.remove('open');
+}
+function closeTransferModal(e) {
+  if (e && e.target !== document.getElementById('transferModal')) return;
+  document.getElementById('transferModal').classList.remove('open');
+}
+
+// ── 申し込み送信 ──────────────────────────
+async function submitFlower() {
+  if (!selectedMemberId) { alert('メンバーを選択してください'); return; }
+  if (!selectedAmount || selectedAmount <= 0) { alert('金額を選択または入力してください'); return; }
+
+  try {
+    const result = await apiFetch('/api/flowers', {
+      method: 'POST',
+      body: JSON.stringify({
+        member_id:   selectedMemberId,
+        member_name: selectedMemberName,
+        amount:      selectedAmount,
+        message:     document.getElementById('flowerMessage').value.trim(),
+      }),
+    });
+    if (result) {
+      pendingFlowerId = result.id;
+      document.getElementById('flowerModal').classList.remove('open');
+      document.getElementById('transferAmount').textContent = `¥${selectedAmount.toLocaleString()}`;
+      document.getElementById('transferModal').classList.add('open');
+      await loadFlowers();
+    }
+  } catch (err) {
+    alert('申し込みエラー: ' + err.message);
+  }
+}
+
+async function markComplete() {
+  if (!pendingFlowerId) return;
+  try {
+    await apiFetch(`/api/flowers/${pendingFlowerId}/complete`, { method: 'PUT' });
+    document.getElementById('transferModal').classList.remove('open');
+    await loadFlowers();
+  } catch {
+    document.getElementById('transferModal').classList.remove('open');
+  }
+}
+
+// ── 一覧読み込み ──────────────────────────
+async function loadFlowers() {
+  try {
+    allFlowers = await apiFetch('/api/flowers') || [];
+  } catch { allFlowers = []; }
+  renderFlowers();
+}
+
+function renderFlowers() {
+  const el = document.getElementById('flowerList');
+  const total = allFlowers.reduce((s, f) => s + (f.amount || 0), 0);
+  document.getElementById('totalAmount').textContent = `¥${total.toLocaleString()}`;
+
+  if (!allFlowers.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">💐</div><div class="empty-state-text">まだ申し込みはありません</div></div>`;
+    return;
+  }
+
+  el.innerHTML = allFlowers.map(f => {
+    const member = ACTIVE_MEMBERS.find(m => String(m.id) === String(f.member_id));
+    const avatarSrc = member?.avatar || '';
+    const isImg = avatarSrc && /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(avatarSrc);
+    const avatarHtml = isImg
+      ? `<img class="flower-item-avatar" src="${avatarSrc}" alt="${f.member_name}">`
+      : `<div class="flower-item-avatar" style="display:flex;align-items:center;justify-content:center;background:var(--hina-1);font-size:22px">${avatarSrc||'🌻'}</div>`;
+    const statusLabel = f.status === 'completed' ? '✅ 完了' : '⏳ 振込待ち';
+    const statusCls   = f.status === 'completed' ? 'completed' : 'pending';
+    return `<div class="flower-item">
+      ${avatarHtml}
+      <div class="flower-item-info">
+        <div class="flower-item-member">${f.member_name}</div>
+        <div class="flower-item-amount">¥${Number(f.amount).toLocaleString()}</div>
+        ${f.message ? `<div class="flower-item-message">${f.message}</div>` : ''}
+        ${f.owner_nickname ? `<div style="font-size:9px;color:var(--hina-4);margin-top:2px;font-family:'Noto Serif JP',serif">by ${f.owner_nickname}</div>` : ''}
+      </div>
+      <span class="flower-item-status ${statusCls}">${statusLabel}</span>
+    </div>`;
+  }).join('');
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+}
+</script>
+</body>
+</html>

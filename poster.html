@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>日向坂46 — ポスター案</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8b2252">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── ポスターページ ── */
+.poster-hero {
+  margin: 0 0 24px;
+  padding: 32px 20px 24px;
+  background: linear-gradient(145deg, #6040c0 0%, #4020a0 50%, #201080 100%);
+  border-radius: 0 0 32px 32px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(80,40,180,0.3);
+}
+.poster-hero-icon  { font-size: 52px; margin-bottom: 10px; }
+.poster-hero-title { font-family: 'Shippori Mincho', serif; font-size: 26px; font-weight: 800; color: white; letter-spacing: 0.1em; margin-bottom: 4px; }
+.poster-hero-sub   { font-family: 'Noto Serif JP', serif; font-size: 11px; color: rgba(255,255,255,0.8); letter-spacing: 0.15em; }
+
+/* ポスターカード */
+.poster-grid { display: flex; flex-direction: column; gap: 16px; margin-bottom: 100px; }
+.poster-card {
+  background: rgba(255,255,255,0.88); backdrop-filter: blur(10px);
+  border-radius: 22px; border: 1.5px solid var(--hina-2);
+  overflow: hidden; box-shadow: var(--shadow-hina);
+  animation: pageEnter 0.3s ease both;
+}
+.poster-card-img {
+  width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block;
+  cursor: pointer; transition: transform 0.22s;
+}
+.poster-card-img:active { transform: scale(0.98); }
+.poster-card-body { padding: 14px 16px 0; }
+.poster-card-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.poster-card-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  object-fit: cover; border: 1.5px solid var(--hina-2);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  background: var(--hina-1); font-size: 16px; overflow: hidden;
+}
+.poster-card-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.poster-card-name  { font-family: 'Noto Serif JP', serif; font-size: 12px; font-weight: 600; color: var(--sumi); flex: 1; }
+.poster-card-date  { font-size: 10px; color: var(--sumi-light); }
+.poster-card-caption { font-family: 'Noto Serif JP', serif; font-size: 13px; color: var(--sumi); line-height: 1.6; margin-bottom: 10px; }
+
+/* アクションバー */
+.poster-card-actions {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px 14px; border-top: 1px solid var(--hina-1);
+}
+.like-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: 20px;
+  border: 1.5px solid var(--hina-2); background: rgba(255,255,255,0.8);
+  font-family: 'Noto Serif JP', serif; font-size: 12px; font-weight: 600;
+  color: var(--sumi-light); cursor: pointer; transition: all 0.18s;
+}
+.like-btn.liked {
+  border-color: #e05080; background: rgba(255,200,210,0.3);
+  color: #c03060;
+}
+.like-btn:active { transform: scale(0.94); }
+.comment-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: 20px;
+  border: 1.5px solid var(--hina-2); background: rgba(255,255,255,0.8);
+  font-family: 'Noto Serif JP', serif; font-size: 12px; font-weight: 600;
+  color: var(--sumi-light); cursor: pointer; transition: all 0.18s;
+}
+.comment-btn:active { transform: scale(0.94); }
+.delete-btn {
+  margin-left: auto; padding: 7px 12px; border-radius: 20px;
+  border: 1.5px solid rgba(200,60,60,0.3); background: rgba(200,60,60,0.06);
+  font-size: 11px; color: #c03030; cursor: pointer; transition: all 0.18s;
+}
+.delete-btn:active { background: rgba(200,60,60,0.15); }
+
+/* コメントエリア */
+.comment-area { padding: 0 16px 14px; display: none; }
+.comment-area.open { display: block; }
+.comment-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.comment-item {
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.comment-avatar {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  background: var(--hina-1); display: flex; align-items: center; justify-content: center;
+  font-size: 13px; border: 1px solid var(--hina-2); overflow: hidden;
+}
+.comment-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.comment-bubble {
+  background: var(--hina-0); border-radius: 0 14px 14px 14px;
+  border: 1px solid var(--hina-2); padding: 8px 10px; flex: 1;
+}
+.comment-name { font-size: 10px; font-weight: 700; color: var(--sky); margin-bottom: 3px; font-family: 'Noto Serif JP', serif; }
+.comment-body { font-size: 12px; color: var(--sumi); line-height: 1.5; font-family: 'Noto Serif JP', serif; }
+.comment-input-row {
+  display: flex; gap: 8px; align-items: flex-end;
+}
+.comment-input {
+  flex: 1; background: rgba(255,255,255,0.92); border: 1.5px solid var(--hina-2);
+  border-radius: 13px; padding: 9px 12px; font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px; color: var(--sumi); outline: none; resize: none;
+}
+.comment-input:focus { border-color: var(--hina-3); }
+.comment-send {
+  padding: 9px 14px; border-radius: 13px; background: var(--sky);
+  border: none; color: white; font-size: 12px; font-weight: 700; cursor: pointer;
+  white-space: nowrap; transition: transform 0.15s;
+}
+.comment-send:active { transform: scale(0.92); }
+.comment-anon-row {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 6px; font-family: 'Noto Serif JP', serif; font-size: 11px; color: var(--sumi-light);
+  cursor: pointer;
+}
+.comment-anon-row input { accent-color: var(--sky); cursor: pointer; }
+
+/* 投稿モーダル */
+.anon-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  font-family: 'Noto Serif JP', serif; font-size: 13px; color: var(--sumi);
+}
+.anon-row input[type=checkbox] { width:18px; height:18px; accent-color: var(--sky); cursor: pointer; }
+
+/* ビューア */
+.poster-viewer-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(10,6,4,0.97); z-index: 500;
+  align-items: center; justify-content: center;
+}
+.poster-viewer-overlay.open { display: flex; }
+.poster-viewer-img {
+  max-width: 96vw; max-height: 92vh;
+  object-fit: contain; border-radius: 10px;
+}
+.poster-viewer-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 36px; height: 36px; background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25); border-radius: 50%;
+  color: white; font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+</style>
+</head>
+<body>
+<canvas id="petals-canvas"></canvas>
+<div id="app">
+  <div id="headerMount"></div>
+  <div class="page-content page-enter" style="padding-top:0">
+
+    <div class="poster-hero">
+      <div class="poster-hero-icon">🎨</div>
+      <div class="poster-hero-title">ポスター案</div>
+      <div class="poster-hero-sub">✿ イラストを投稿・共有しよう ✿</div>
+    </div>
+
+    <!-- 投稿ボタン -->
+    <button class="btn-primary" style="width:100%;justify-content:center;margin-bottom:20px;background:linear-gradient(135deg,#6040c0,#4020a0);box-shadow:0 6px 22px rgba(80,40,180,0.3)" onclick="openPosterModal()">
+      🎨 ポスター案を投稿する
+    </button>
+
+    <!-- ポスター一覧 -->
+    <div class="section-kamon"><span class="section-kamon-text">✿ みんなのポスター案 ✿</span></div>
+    <div class="poster-grid" id="posterGrid">
+      <div class="empty-state"><div class="empty-state-icon">🎨</div><div class="empty-state-text">読み込み中…</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 全画面ビューア -->
+<div class="poster-viewer-overlay" id="posterViewer" onclick="closePosterViewer()">
+  <button class="poster-viewer-close">✕</button>
+  <img class="poster-viewer-img" id="posterViewerImg" src="" alt="">
+</div>
+
+<!-- 投稿モーダル -->
+<div class="modal-overlay" id="posterModal" onclick="closePosterModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" onclick="document.getElementById('posterModal').classList.remove('open')">✕</button>
+    <div class="modal-title">🎨 ポスター案を投稿</div>
+
+    <!-- 画像選択 -->
+    <div class="photo-preview-wrap" id="posterPreviewWrap" onclick="document.getElementById('posterFileInput').click()" style="aspect-ratio:3/4;border-radius:16px;border:2px dashed var(--hina-3);background:var(--hina-0);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;margin-bottom:14px">
+      <div id="posterPreviewPlaceholder" style="text-align:center;color:var(--sumi-light)">
+        <div style="font-size:40px;margin-bottom:8px">🎨</div>
+        <div style="font-family:'Noto Serif JP',serif;font-size:12px">タップしてイラストを選択</div>
+      </div>
+      <img id="posterPreviewImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover">
+    </div>
+    <input type="file" id="posterFileInput" accept="image/*" style="display:none" onchange="onPosterFileSelect(event)">
+
+    <!-- キャプション -->
+    <div class="form-group">
+      <label class="form-label">説明・コメント（任意）</label>
+      <input class="form-input" id="posterCaption" type="text" placeholder="例：〇〇ちゃんのバースデーポスター案">
+    </div>
+
+    <!-- 匿名設定 -->
+    <div class="anon-row">
+      <input type="checkbox" id="posterAnon" onchange="toggleAnonPanel(this)">
+      <label for="posterAnon">匿名で投稿する</label>
+    </div>
+    <div id="nicknamePanel" style="margin-bottom:14px">
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">表示名（空白の場合はアカウント名）</label>
+        <input class="form-input" id="posterNickname" type="text" placeholder="例：おひさまファン">
+      </div>
+    </div>
+
+    <button class="btn-primary" style="width:100%;justify-content:center;background:linear-gradient(135deg,#6040c0,#4020a0);box-shadow:0 6px 22px rgba(80,40,180,0.3)" onclick="submitPoster()">
+      投 稿
+    </button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="db.js"></script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+<script src="sakura.js"></script>
+<script>
+document.getElementById('headerMount').outerHTML = headerHTML('ポスター案', '🎨 イラスト共有 🎨');
+injectNav('poster.html');
+
+let pendingPosterDataUrl = null;
+let allPosters = [];
+
+// ── 初期化 ──────────────────────────────
+(async function init() {
+  await loadPosters();
+})();
+
+async function loadPosters() {
+  try {
+    allPosters = await apiFetch('/api/posters') || [];
+  } catch { allPosters = []; }
+  renderPosters();
+}
+
+function renderPosters() {
+  const grid = document.getElementById('posterGrid');
+  if (!allPosters.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🎨</div><div class="empty-state-text">まだポスター案はありません<br>最初の1枚を投稿しましょう！</div></div>`;
+    return;
+  }
+  grid.innerHTML = allPosters.map(p => {
+    const d = new Date(p.created_at);
+    const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
+    const name = p.is_anonymous ? '匿名' : (p.nickname || p.owner_nickname || '不明');
+    const avatarHtml = (p.owner_avatar && !p.is_anonymous)
+      ? `<div class="poster-card-avatar"><img src="${p.owner_avatar}" alt="${name}"></div>`
+      : `<div class="poster-card-avatar">${p.is_anonymous ? '🌸' : '👤'}</div>`;
+    const isLiked = p.is_liked;
+    const isOwn   = p.is_own;
+
+    return `<div class="poster-card" id="poster_${p.id}">
+      <img class="poster-card-img" src="${p.image_data}" alt="${p.caption||'ポスター案'}" onclick="openPosterViewer('${p.image_data}')">
+      <div class="poster-card-body">
+        <div class="poster-card-header">
+          ${avatarHtml}
+          <div class="poster-card-name">${name}</div>
+          <div class="poster-card-date">${dateStr}</div>
+        </div>
+        ${p.caption ? `<div class="poster-card-caption">${p.caption}</div>` : ''}
+      </div>
+      <div class="poster-card-actions">
+        <button class="like-btn${isLiked?' liked':''}" onclick="toggleLike('${p.id}',this)">
+          ${isLiked?'❤️':'🤍'} <span class="like-count">${p.likes_count||0}</span>
+        </button>
+        <button class="comment-btn" onclick="toggleComments('${p.id}')">
+          💬 コメント
+        </button>
+        ${isOwn ? `<button class="delete-btn" onclick="deletePoster('${p.id}')">削除</button>` : ''}
+      </div>
+      <div class="comment-area" id="comments_${p.id}">
+        <div class="comment-list" id="commentList_${p.id}"></div>
+        ${isLoggedIn() ? `
+        <label class="comment-anon-row">
+          <input type="checkbox" id="commentAnon_${p.id}"> 匿名でコメント
+        </label>
+        <div class="comment-input-row">
+          <textarea class="comment-input" id="commentInput_${p.id}" placeholder="コメントを入力…" rows="2"></textarea>
+          <button class="comment-send" onclick="sendComment('${p.id}')">送信</button>
+        </div>` : `<div style="font-size:11px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;padding:4px 0">コメントするにはアカウント設定が必要です</div>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── ビューア ──────────────────────────────
+function openPosterViewer(src) {
+  document.getElementById('posterViewerImg').src = src;
+  document.getElementById('posterViewer').classList.add('open');
+}
+function closePosterViewer() {
+  document.getElementById('posterViewer').classList.remove('open');
+}
+
+// ── いいね ───────────────────────────────
+async function toggleLike(posterId, btn) {
+  if (!isLoggedIn()) { alert('いいねするにはアカウント設定が必要です'); return; }
+  try {
+    const result = await apiFetch(`/api/posters/${posterId}/like`, { method: 'POST' });
+    if (result) {
+      const isLiked = result.liked;
+      btn.className = `like-btn${isLiked?' liked':''}`;
+      const countEl = btn.querySelector('.like-count');
+      const cur = parseInt(countEl.textContent);
+      countEl.textContent = isLiked ? cur + 1 : cur - 1;
+      btn.innerHTML = `${isLiked?'❤️':'🤍'} <span class="like-count">${isLiked?cur+1:cur-1}</span>`;
+      btn.className = `like-btn${isLiked?' liked':''}`;
+    }
+  } catch (err) { alert('エラー: ' + err.message); }
+}
+
+// ── コメント ──────────────────────────────
+async function toggleComments(posterId) {
+  const area = document.getElementById(`comments_${posterId}`);
+  const isOpen = area.classList.toggle('open');
+  if (isOpen) await loadComments(posterId);
+}
+
+async function loadComments(posterId) {
+  try {
+    const comments = await apiFetch(`/api/posters/${posterId}/comments`) || [];
+    const list = document.getElementById(`commentList_${posterId}`);
+    if (!comments.length) {
+      list.innerHTML = `<div style="font-size:11px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;padding:4px 0;text-align:center">まだコメントはありません</div>`;
+      return;
+    }
+    list.innerHTML = comments.map(c => {
+      const av = (c.owner_avatar && !c.is_anonymous)
+        ? `<div class="comment-avatar"><img src="${c.owner_avatar}" alt="${c.display_name}"></div>`
+        : `<div class="comment-avatar">${c.is_anonymous?'🌸':'👤'}</div>`;
+      return `<div class="comment-item">
+        ${av}
+        <div class="comment-bubble">
+          <div class="comment-name">${c.display_name}</div>
+          <div class="comment-body">${c.body}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch {}
+}
+
+async function sendComment(posterId) {
+  const input  = document.getElementById(`commentInput_${posterId}`);
+  const isAnon = document.getElementById(`commentAnon_${posterId}`)?.checked;
+  const body   = input.value.trim();
+  if (!body) return;
+  try {
+    await apiFetch(`/api/posters/${posterId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ body, is_anonymous: !!isAnon }),
+    });
+    input.value = '';
+    await loadComments(posterId);
+  } catch (err) { alert('エラー: ' + err.message); }
+}
+
+// ── 削除 ─────────────────────────────────
+async function deletePoster(posterId) {
+  if (!confirm('このポスター案を削除しますか？')) return;
+  try {
+    await apiFetch(`/api/posters/${posterId}`, { method: 'DELETE' });
+    await loadPosters();
+  } catch (err) { alert('削除エラー: ' + err.message); }
+}
+
+// ── 投稿モーダル ──────────────────────────
+function openPosterModal() {
+  if (!isLoggedIn()) {
+    alert('投稿するにはアカウント設定が必要です。\nプロフィールページから設定してください。');
+    window.location.href = 'profile.html';
+    return;
+  }
+  pendingPosterDataUrl = null;
+  document.getElementById('posterCaption').value   = '';
+  document.getElementById('posterNickname').value  = '';
+  document.getElementById('posterAnon').checked    = false;
+  document.getElementById('nicknamePanel').style.display = 'block';
+  document.getElementById('posterPreviewImg').style.display = 'none';
+  document.getElementById('posterPreviewPlaceholder').style.display = 'block';
+  document.getElementById('posterModal').classList.add('open');
+}
+function closePosterModal(e) {
+  if (e && e.target !== document.getElementById('posterModal')) return;
+  document.getElementById('posterModal').classList.remove('open');
+}
+function toggleAnonPanel(cb) {
+  document.getElementById('nicknamePanel').style.display = cb.checked ? 'none' : 'block';
+}
+
+async function onPosterFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    pendingPosterDataUrl = await fileToBase64(file);
+    const img = document.getElementById('posterPreviewImg');
+    img.src = pendingPosterDataUrl;
+    img.style.display = 'block';
+    document.getElementById('posterPreviewPlaceholder').style.display = 'none';
+  } catch { alert('画像の読み込みに失敗しました'); }
+}
+
+async function submitPoster() {
+  if (!pendingPosterDataUrl) { alert('イラストを選択してください'); return; }
+  const isAnon   = document.getElementById('posterAnon').checked;
+  const nickname = document.getElementById('posterNickname').value.trim();
+  const caption  = document.getElementById('posterCaption').value.trim();
+  try {
+    const result = await apiFetch('/api/posters', {
+      method: 'POST',
+      body: JSON.stringify({ image_data: pendingPosterDataUrl, caption, is_anonymous: isAnon, nickname }),
+    });
+    if (result) {
+      document.getElementById('posterModal').classList.remove('open');
+      await loadPosters();
+    }
+  } catch (err) { alert('投稿エラー: ' + err.message); }
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+}
+</script>
+</body>
+</html>

@@ -256,6 +256,179 @@ app.delete('/api/photos/:id', authRequired, async (req, res) => {
   res.json({ ok: true });
 });
 
+// ══════════════════════════════════════════
+//  FLOWERS — 祝花申し込み
+// ══════════════════════════════════════════
+
+// 祝花一覧（メンバー別）
+app.get('/api/flowers', async (req, res) => {
+  const { member_id } = req.query;
+  try {
+    const where = member_id ? 'WHERE f.member_id=$1' : '';
+    const params = member_id ? [member_id] : [];
+    const result = await pool.query(
+      `SELECT f.*, u.nickname as owner_nickname, u.avatar_url as owner_avatar
+       FROM flowers f
+       LEFT JOIN users u ON f.user_id = u.id
+       ${where}
+       ORDER BY f.created_at DESC`,
+      params
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'サーバーエラー' });
+  }
+});
+
+// 祝花申し込み（ログイン不要）
+app.post('/api/flowers', async (req, res) => {
+  const { member_id, member_name, amount, message } = req.body;
+  if (!member_id || !amount || amount <= 0) {
+    return res.status(400).json({ error: 'メンバーと金額は必須です' });
+  }
+  const token = req.headers['authorization']?.replace('Bearer ', '');
+  let userId = null;
+  if (token) {
+    try { userId = jwt.verify(token, JWT_SECRET).userId; } catch {}
+  }
+  try {
+    const result = await pool.query(
+      `INSERT INTO flowers (user_id, member_id, member_name, amount, message, status)
+       VALUES ($1,$2,$3,$4,$5,'pending') RETURNING *`,
+      [userId, member_id, member_name, amount, message || '']
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'サーバーエラー' });
+  }
+});
+
+// 祝花ステータス更新（完了）
+app.put('/api/flowers/:id/complete', authRequired, async (req, res) => {
+  const result = await pool.query(
+    `UPDATE flowers SET status='completed' WHERE id=$1 AND user_id=$2 RETURNING *`,
+    [req.params.id, req.user.userId]
+  );
+  if (!result.rows[0]) return res.status(404).json({ error: '申し込みが見つかりません' });
+  res.json(result.rows[0]);
+});
+
+// ══════════════════════════════════════════
+//  POSTERS — ポスター案
+// ══════════════════════════════════════════
+
+// ポスター一覧
+app.get('/api/posters', async (req, res) => {
+  const token = req.headers['authorization']?.replace('Bearer ', '');
+  let userId = null;
+  if (token) { try { userId = jwt.verify(token, JWT_SECRET).userId; } catch {} }
+  try {
+    const result = await pool.query(
+      `SELECT p.*,
+        CASE WHEN p.is_anonymous THEN NULL ELSE u.nickname END as owner_nickname,
+        CASE WHEN p.is_anonymous THEN NULL ELSE u.avatar_url END as owner_avatar,
+        (SELECT COUNT(*) FROM poster_likes WHERE poster_id=p.id) as likes_count,
+        ${userId ? `(SELECT COUNT(*) FROM poster_likes WHERE poster_id=p.id AND user_id='${userId}') > 0` : 'false'} as is_liked,
+        p.user_id = '${userId || '00000000-0000-0000-0000-000000000000'}' as is_own
+       FROM posters p
+       LEFT JOIN users u ON p.user_id = u.id
+       ORDER BY p.created_at DESC`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'サーバーエラー' });
+  }
+});
+
+// ポスター投稿
+app.post('/api/posters', authRequired, async (req, res) => {
+  const { image_data, caption, is_anonymous, nickname } = req.body;
+  if (!image_data) return res.status(400).json({ error: '画像が必要です' });
+  try {
+    const displayNick = is_anonymous ? null : (nickname || null);
+    const result = await pool.query(
+      `INSERT INTO posters (user_id, image_data, caption, is_anonymous, nickname)
+       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+      [req.user.userId, image_data, caption || '', !!is_anonymous, displayNick]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'サーバーエラー' });
+  }
+});
+
+// ポスター削除（自分のみ）
+app.delete('/api/posters/:id', authRequired, async (req, res) => {
+  const result = await pool.query(
+    'DELETE FROM posters WHERE id=$1 AND user_id=$2 RETURNING id',
+    [req.params.id, req.user.userId]
+  );
+  if (!result.rows[0]) return res.status(404).json({ error: '見つかりません' });
+  res.json({ ok: true });
+});
+
+// いいね トグル
+app.post('/api/posters/:id/like', authRequired, async (req, res) => {
+  const { id } = req.params;
+  const uid = req.user.userId;
+  try {
+    const existing = await pool.query(
+      'SELECT id FROM poster_likes WHERE poster_id=$1 AND user_id=$2', [id, uid]
+    );
+    if (existing.rows.length) {
+      await pool.query('DELETE FROM poster_likes WHERE poster_id=$1 AND user_id=$2', [id, uid]);
+      res.json({ liked: false });
+    } else {
+      await pool.query('INSERT INTO poster_likes (poster_id, user_id) VALUES ($1,$2)', [id, uid]);
+      res.json({ liked: true });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'サーバーエラー' });
+  }
+});
+
+// コメント一覧
+app.get('/api/posters/:id/comments', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT c.*,
+        CASE WHEN c.is_anonymous THEN '匿名' ELSE COALESCE(c.nickname, u.nickname, '不明') END as display_name,
+        CASE WHEN c.is_anonymous THEN NULL ELSE u.avatar_url END as owner_avatar
+       FROM poster_comments c
+       LEFT JOIN users u ON c.user_id = u.id
+       WHERE c.poster_id=$1
+       ORDER BY c.created_at ASC`,
+      [req.params.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'サーバーエラー' });
+  }
+});
+
+// コメント投稿
+app.post('/api/posters/:id/comments', authRequired, async (req, res) => {
+  const { body, is_anonymous, nickname } = req.body;
+  if (!body?.trim()) return res.status(400).json({ error: 'コメントを入力してください' });
+  try {
+    const result = await pool.query(
+      `INSERT INTO poster_comments (poster_id, user_id, body, is_anonymous, nickname)
+       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+      [req.params.id, req.user.userId, body.trim(), !!is_anonymous, is_anonymous ? null : (nickname || null)]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'サーバーエラー' });
+  }
+});
+
 // ── サーバー起動 ──────────────────────────
 app.listen(PORT, () => {
   console.log(`\n🌸 ひなたカレンダー API サーバー起動`);
