@@ -521,6 +521,53 @@
   50%      { opacity: .9; }
 }
 
+
+/* ── X TIMELINE ── */
+.x-timeline-wrap {
+  margin: 0 0 24px;
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  border: 1.5px solid var(--hina-2);
+  box-shadow: var(--shadow-hina);
+  overflow: hidden;
+}
+.x-timeline-inner {
+  padding: 0 0 4px;
+  min-height: 200px;
+}
+.x-timeline-footer {
+  padding: 10px 16px 14px;
+  border-top: 1px solid var(--hina-2);
+  text-align: center;
+}
+.x-open-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 22px;
+  background: var(--sky); color: white;
+  border-radius: 20px; text-decoration: none;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.06em;
+  transition: transform 0.15s;
+}
+.x-open-btn:active { transform: scale(0.95); }
+
+/* アカウントCTA */
+.account-cta-card {
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 18px;
+  background: linear-gradient(135deg, rgba(21,101,160,0.08) 0%, rgba(114,188,232,0.12) 100%);
+  border-radius: 20px; border: 1.5px solid var(--hina-2);
+  text-decoration: none; color: var(--sumi);
+  box-shadow: var(--shadow-hina);
+  transition: transform 0.15s;
+}
+.account-cta-card:active { transform: scale(0.97); }
+.account-cta-icon { font-size: 32px; flex-shrink: 0; }
+.account-cta-info { flex: 1; }
+.account-cta-title { font-family: 'Shippori Mincho', serif; font-size: 15px; font-weight: 700; color: var(--sky); margin-bottom: 3px; }
+.account-cta-sub   { font-size: 11px; color: var(--sumi-light); font-family: 'Noto Serif JP', serif; }
 </style>
 </head>
 <body>
@@ -605,11 +652,47 @@
       <div class="section-kamon"><span class="section-kamon-text">✿ COMING UP ✿</span></div>
       <div class="upcoming-mini" id="upcomingMini"></div>
 
+      <!-- X (Twitter) 公式タイムライン -->
+      <div class="section-kamon" style="margin-top:8px"><span class="section-kamon-text">✿ 公式X ✿</span></div>
+      <div class="x-timeline-wrap" id="xTimelineWrap">
+        <div class="x-timeline-inner">
+          <a class="twitter-timeline"
+            data-lang="ja"
+            data-height="500"
+            data-theme="light"
+            data-chrome="noheader nofooter noborders"
+            data-tweet-limit="5"
+            href="https://twitter.com/hinatazaka46">
+            @hinatazaka46 のツイートを読み込み中…
+          </a>
+        </div>
+        <div class="x-timeline-footer">
+          <a href="https://twitter.com/hinatazaka46" target="_blank" rel="noopener" class="x-open-btn">
+            𝕏 @hinatazaka46 を開く
+          </a>
+        </div>
+      </div>
+
+      <!-- アカウント設定へのCTA（未ログイン時） -->
+      <div id="accountCta" style="display:none;margin-bottom:100px">
+        <div class="section-kamon" style="margin-top:4px"><span class="section-kamon-text">✿ アカウント ✿</span></div>
+        <a href="profile.html" class="account-cta-card">
+          <div class="account-cta-icon">👤</div>
+          <div class="account-cta-info">
+            <div class="account-cta-title">アカウントを設定する</div>
+            <div class="account-cta-sub">イベント・写真の共有機能が使えるようになります</div>
+          </div>
+          <div style="font-size:18px;color:var(--sky)">→</div>
+        </a>
+      </div>
+
     </div>
   </div>
 </div>
 
 <script src="data.js"></script>
+<script src="db.js"></script>
+<script src="api.js"></script>
 <script src="nav.js"></script>
 <script src="sakura.js"></script>
 <script src="notify.js"></script>
@@ -853,5 +936,12 @@ if ('serviceWorker' in navigator) {
   <div id="login-tap-hint">✦ タップして続ける ✦</div>
 </div>
 
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<script>
+// アカウントCTA: 未ログイン時のみ表示
+if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
+  document.getElementById('accountCta').style.display = 'block';
+}
+</script>
 </body>
 </html>
