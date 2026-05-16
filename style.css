@@ -172,8 +172,12 @@ body::after {
   width:40px; height:40px; background:var(--sky); border:none; border-radius:12px; color:white; font-size:20px;
   cursor:pointer; display:flex; align-items:center; justify-content:center;
   box-shadow:0 4px 18px rgba(21,101,160,0.28); transition:transform 0.15s; flex-shrink:0;
+  touch-action:manipulation; -webkit-appearance:none;
 }
 .btn-icon:active { transform:scale(0.88); }
+
+/* iOSボタン共通修正 */
+button { touch-action:manipulation; }
 
 /* ── FORM ── */
 .form-group { margin-bottom:15px; }

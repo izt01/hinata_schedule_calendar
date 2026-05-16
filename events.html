@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>日向坂46 — 行事帳</title>
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icons/icon-sakura.jpg">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="theme-color" content="#8b2252">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -170,7 +170,7 @@
       <div class="events-title">行事帳</div>
       <div style="display:flex;gap:8px;align-items:center">
         <button id="notifToggleBtn" class="notif-toggle-btn">🔔 通知を許可する</button>
-        <button class="btn-icon" onclick="openModal()" aria-label="行事を追加">＋</button>
+        <button class="btn-icon" onclick="openModal()" aria-label="行事を追加" style="cursor:pointer;-webkit-appearance:none;touch-action:manipulation">＋</button>
       </div>
     </div>
 
@@ -341,7 +341,12 @@ async function deleteEvent(id) {
 }
 
 // ── モーダル ──────────────────────────────
-async function openModal() {
+// iPhoneのonclick対応：同期ラッパー経由でasync関数を呼ぶ
+function openModal() {
+  _openModal().catch(err => console.error(err));
+}
+
+async function _openModal() {
   if (!isLoggedIn()) {
     document.getElementById('shareTabs').style.display = 'none';
     document.getElementById('shareSettingsPanel').style.display = 'none';

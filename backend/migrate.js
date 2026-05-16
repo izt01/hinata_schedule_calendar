@@ -56,19 +56,71 @@ async function migrate() {
         created_at      TIMESTAMPTZ  DEFAULT NOW()
       );
 
+      -- 祝花申し込みテーブル
+      CREATE TABLE IF NOT EXISTS flowers (
+        id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id     UUID REFERENCES users(id) ON DELETE SET NULL,
+        member_id   VARCHAR(50)  NOT NULL,
+        member_name VARCHAR(100) NOT NULL,
+        amount      INTEGER      NOT NULL,
+        message     TEXT,
+        status      VARCHAR(20)  DEFAULT 'pending', -- 'pending' | 'completed'
+        created_at  TIMESTAMPTZ  DEFAULT NOW()
+      );
+
+      -- ポスター案テーブル
+      CREATE TABLE IF NOT EXISTS posters (
+        id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id     UUID REFERENCES users(id) ON DELETE SET NULL,
+        image_data  TEXT         NOT NULL,
+        caption     TEXT,
+        is_anonymous BOOLEAN     DEFAULT false,
+        nickname    VARCHAR(50),
+        likes_count INTEGER      DEFAULT 0,
+        created_at  TIMESTAMPTZ  DEFAULT NOW()
+      );
+
+      -- ポスターいいねテーブル
+      CREATE TABLE IF NOT EXISTS poster_likes (
+        id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        poster_id  UUID REFERENCES posters(id) ON DELETE CASCADE,
+        user_id    UUID REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(poster_id, user_id)
+      );
+
+      -- ポスターコメントテーブル
+      CREATE TABLE IF NOT EXISTS poster_comments (
+        id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        poster_id   UUID REFERENCES posters(id) ON DELETE CASCADE,
+        user_id     UUID REFERENCES users(id) ON DELETE SET NULL,
+        is_anonymous BOOLEAN    DEFAULT false,
+        nickname    VARCHAR(50),
+        body        TEXT        NOT NULL,
+        created_at  TIMESTAMPTZ DEFAULT NOW()
+      );
+
       -- インデックス
-      CREATE INDEX IF NOT EXISTS idx_events_user_id    ON events(user_id);
-      CREATE INDEX IF NOT EXISTS idx_events_date       ON events(date);
-      CREATE INDEX IF NOT EXISTS idx_events_visibility ON events(visibility);
-      CREATE INDEX IF NOT EXISTS idx_photos_user_id    ON photos(user_id);
-      CREATE INDEX IF NOT EXISTS idx_photos_visibility ON photos(visibility);
-      CREATE INDEX IF NOT EXISTS idx_photos_member_id  ON photos(member_id);
+      CREATE INDEX IF NOT EXISTS idx_events_user_id      ON events(user_id);
+      CREATE INDEX IF NOT EXISTS idx_events_date         ON events(date);
+      CREATE INDEX IF NOT EXISTS idx_events_visibility   ON events(visibility);
+      CREATE INDEX IF NOT EXISTS idx_photos_user_id      ON photos(user_id);
+      CREATE INDEX IF NOT EXISTS idx_photos_visibility   ON photos(visibility);
+      CREATE INDEX IF NOT EXISTS idx_photos_member_id    ON photos(member_id);
+      CREATE INDEX IF NOT EXISTS idx_flowers_member_id   ON flowers(member_id);
+      CREATE INDEX IF NOT EXISTS idx_posters_created_at  ON posters(created_at);
+      CREATE INDEX IF NOT EXISTS idx_poster_likes_poster ON poster_likes(poster_id);
+      CREATE INDEX IF NOT EXISTS idx_poster_comments     ON poster_comments(poster_id);
     `);
 
     console.log('✅ マイグレーション完了！');
     console.log('  - users テーブル');
     console.log('  - events テーブル');
     console.log('  - photos テーブル');
+    console.log('  - flowers テーブル（祝花）');
+    console.log('  - posters テーブル（ポスター案）');
+    console.log('  - poster_likes テーブル');
+    console.log('  - poster_comments テーブル');
   } catch (err) {
     console.error('❌ マイグレーションエラー:', err.message);
     process.exit(1);
