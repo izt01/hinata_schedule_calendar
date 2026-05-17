@@ -9,6 +9,8 @@ const { Pool }  = require('pg');
 const jwt       = require('jsonwebtoken');
 const bcrypt    = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
+const { notifyAssignment, sendDueReminders } = require('./notifier');
+const { v4: uuidv4 } = require('uuid');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -491,6 +493,19 @@ app.post('/api/schedules', authRequired, async (req, res) => {
     );
     result.rows[0].steps = stepRows.rows;
     res.json(result.rows[0]);
+
+    // ── タスク割当通知を非同期送信 ──────────
+    stepRows.rows.forEach(step => {
+      if (step.assignee_id && step.status === 'in_progress') {
+        notifyAssignment({
+          pool,
+          userId:        step.assignee_id,
+          scheduleTitle: title.trim(),
+          stepTitle:     step.title,
+          dueDate:       step.due_date,
+        }).catch(err => console.error('[Notify] 割当通知エラー:', err));
+      }
+    });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error(err); res.status(500).json({ error: 'サーバーエラー' });
@@ -550,6 +565,18 @@ app.put('/api/schedules/:schedId/steps/:stepId/complete', authRequired, async (r
     }
 
     await client.query('COMMIT');
+
+    // 次ステップの担当者に通知（非同期）
+    if (nextStep.rows.length && nextStep.rows[0].assignee_id) {
+      const schedRes = await pool.query('SELECT title FROM schedules WHERE id=$1', [schedId]);
+      notifyAssignment({
+        pool,
+        userId:        nextStep.rows[0].assignee_id,
+        scheduleTitle: schedRes.rows[0]?.title || '',
+        stepTitle:     nextStep.rows[0].title,
+        dueDate:       nextStep.rows[0].due_date,
+      }).catch(err => console.error('[Notify] 次ステップ通知エラー:', err));
+    }
 
     // 最新状態を返す
     const updated = await pool.query(
@@ -634,4 +661,60 @@ app.listen(PORT, () => {
   console.log(`\n🌸 ひなたカレンダー API サーバー起動`);
   console.log(`   http://localhost:${PORT}`);
   console.log(`   DB: ${process.env.DATABASE_URL ? '✅ 接続済み' : '❌ DATABASE_URL未設定'}\n`);
+
+  // ── 毎日9:00に期限リマインダー送信 ──────
+  function scheduleDailyCheck() {
+    const now  = new Date();
+    const next = new Date();
+    next.setHours(9, 0, 0, 0);
+    if (next <= now) next.setDate(next.getDate() + 1);
+    const msUntil = next - now;
+    console.log(`[Cron] 次回リマインダー: ${next.toLocaleString('ja-JP')} (${Math.round(msUntil/60000)}分後)`);
+    setTimeout(() => {
+      sendDueReminders(pool).catch(err => console.error('[Cron] エラー:', err));
+      setInterval(() => {
+        sendDueReminders(pool).catch(err => console.error('[Cron] エラー:', err));
+      }, 24 * 60 * 60 * 1000);
+    }, msUntil);
+  }
+  scheduleDailyCheck();
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  PUSH NOTIFICATIONS — プッシュ通知
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// VAPIDの公開鍵を返す
+app.get('/api/push/vapid-public-key', (req, res) => {
+  res.json({ key: process.env.VAPID_PUBLIC_KEY || null });
+});
+
+// プッシュ購読を登録
+app.post('/api/push/subscribe', authRequired, async (req, res) => {
+  const { endpoint, keys } = req.body;
+  if (!endpoint || !keys?.p256dh || !keys?.auth) {
+    return res.status(400).json({ error: '購読情報が不正です' });
+  }
+  try {
+    await pool.query(
+      `INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth)
+       VALUES ($1,$2,$3,$4)
+       ON CONFLICT (user_id, endpoint) DO UPDATE SET p256dh=$3, auth=$4`,
+      [req.user.userId, endpoint, keys.p256dh, keys.auth]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'サーバーエラー' });
+  }
+});
+
+// プッシュ購読を解除
+app.delete('/api/push/subscribe', authRequired, async (req, res) => {
+  const { endpoint } = req.body;
+  await pool.query(
+    'DELETE FROM push_subscriptions WHERE user_id=$1 AND endpoint=$2',
+    [req.user.userId, endpoint]
+  );
+  res.json({ ok: true });
 });

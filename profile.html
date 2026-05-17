@@ -225,6 +225,19 @@
       </div>
     </div>
 
+    <!-- 通知設定 -->
+    <div class="profile-card" id="pushCard" style="display:none">
+      <div class="profile-card-title">🔔 プッシュ通知設定</div>
+      <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:var(--sumi-light);margin-bottom:12px;line-height:1.8">
+        タスクの割当・期限をこのデバイスに通知します。<br>
+        <span style="font-size:10px">※ iPhoneの場合はホーム画面に追加が必要です</span>
+      </div>
+      <button class="btn-primary" id="pushSubscribeBtn" style="width:100%;justify-content:center" onclick="togglePushSubscription()">
+        🔔 通知を有効にする
+      </button>
+      <div id="pushStatusMsg" style="font-size:11px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;margin-top:8px;text-align:center"></div>
+    </div>
+
     <!-- ログアウト -->
     <div class="profile-card" id="logoutCard" style="display:none">
       <div class="profile-card-title">⚙ アカウント操作</div>
@@ -284,6 +297,7 @@ document.getElementById('tabLogin').addEventListener('click', function() {
   const user = getUser();
   if (user) {
     showLoggedIn(user);
+    initPushCard();
   }
 })();
 
@@ -489,6 +503,63 @@ async function changePassword() {
 }
 
 // ── ログアウト ────────────────────────────
+// ── プッシュ通知設定 ──────────────────────
+async function initPushCard() {
+  if (!isLoggedIn()) return;
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  document.getElementById('pushCard').style.display = 'block';
+  await updatePushBtn();
+}
+
+async function updatePushBtn() {
+  const btn = document.getElementById('pushSubscribeBtn');
+  const msg = document.getElementById('pushStatusMsg');
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    const perm = Notification.permission;
+    if (perm === 'denied') {
+      btn.textContent = '🔕 通知がブロックされています';
+      btn.disabled = true;
+      msg.textContent = 'ブラウザの設定から通知を許可してください';
+    } else if (sub) {
+      btn.textContent = '🔕 通知を無効にする';
+      btn.style.background = 'rgba(200,60,60,0.15)';
+      btn.style.color = '#c03030';
+      btn.style.boxShadow = 'none';
+      msg.textContent = '✅ このデバイスで通知が有効です';
+    } else {
+      btn.textContent = '🔔 通知を有効にする';
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.boxShadow = '';
+      msg.textContent = '';
+    }
+  } catch {}
+}
+
+async function togglePushSubscription() {
+  const btn = document.getElementById('pushSubscribeBtn');
+  const msg = document.getElementById('pushStatusMsg');
+  btn.disabled = true;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) {
+      await PushAPI.unsubscribe();
+      msg.textContent = '通知を無効にしました';
+    } else {
+      const ok = await PushAPI.subscribe();
+      msg.textContent = ok ? '✅ 通知を有効にしました！' : '通知の設定に失敗しました';
+    }
+    await updatePushBtn();
+  } catch (err) {
+    msg.textContent = 'エラー: ' + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 function logout() {
   if (!confirm('ログアウトしますか？\nデータはサーバーに保存されているので、次回ログインで復元されます。')) return;
   removeToken();
