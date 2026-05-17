@@ -273,20 +273,7 @@ injectNav('schedule.html');
 let allUsers    = [];
 let allSchedules = [];
 
-// ── イベントリスナー（click + touchend 両対応）──
-(function bindButtons() {
-  function on(id, fn) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('click', fn);
-    el.addEventListener('touchend', function(e) { e.preventDefault(); fn.call(this, e); }, { passive: false });
-  }
-  on('createBtn',       function() { openCreateModal(); });
-  on('createModalBg',   closeCreateModal);
-  on('createModalClose',closeCreateModal);
-  on('addStepBtn',      addStepInput);
-  on('schedSaveBtn',    createSchedule);
-})();
+// ← ボタンバインドはファイル末尾に移動
 
 // ── 初期化 ──────────────────────────────
 (async function init() {
@@ -584,6 +571,21 @@ async function createSchedule() {
   } catch (err) { alert('作成エラー: ' + err.message); }
   finally { btn.disabled = false; btn.textContent = '作 成'; }
 }
+// ━━━ ボタンバインド（全関数定義後に実行）━━━
+(function bindButtons() {
+  function on(id, fn) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', fn);
+    el.addEventListener('touchend', function(e) { e.preventDefault(); fn.call(this, e); }, { passive: false });
+  }
+  on('createBtn',       function() { openCreateModal(); });
+  on('createModalBg',   closeCreateModal);
+  on('createModalClose',closeCreateModal);
+  on('addStepBtn',      addStepInput);
+  on('schedSaveBtn',    createSchedule);
+})();
+
 </script>
 <script>
 if ('serviceWorker' in navigator) {

@@ -774,28 +774,7 @@ function animRain(canvas, ctx) {
       ctx.globalAlpha = 1;
     }
 
-    if (phase === 'clearing' || phase === 'clear' || phase === 'done') {
-      // 太陽が出てくる
-      const prog = phase === 'clearing'
-        ? (t-RAIN_DUR)/(CLEAR_DUR-RAIN_DUR)
-        : 1;
-      sunR     = 40 * prog;
-      sunAlpha = prog;
-
-      // 太陽グロー
-      const sg = ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,sunR*4);
-      sg.addColorStop(0, `rgba(255,248,200,${sunAlpha*0.7})`);
-      sg.addColorStop(0.3, `rgba(255,230,100,${sunAlpha*0.3})`);
-      sg.addColorStop(1, 'transparent');
-      ctx.fillStyle = sg;
-      ctx.fillRect(0,0,W,H);
-
-      // 太陽本体
-      ctx.beginPath();
-      ctx.arc(sunX, sunY, sunR, 0, Math.PI*2);
-      ctx.fillStyle = `rgba(255,250,180,${sunAlpha*0.9})`;
-      ctx.fill();
-    }
+    // 太陽は表示しない（晴れは背景のグラデーションのみで表現）
 
     if (phase === 'clear' || phase === 'done') {
       // 水たまり
@@ -832,15 +811,9 @@ function animRain(canvas, ctx) {
     if (t < PUDDLE_DUR + 60) {
       animRAF = requestAnimationFrame(draw);
     } else {
-      // 維持（水たまりと太陽グロー）
+      // 維持（水たまりのみ・太陽なし）
       function maintain() {
         ctx.clearRect(0,0,W,H);
-        const sg = ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,160);
-        sg.addColorStop(0,'rgba(255,248,200,0.5)');
-        sg.addColorStop(1,'transparent');
-        ctx.fillStyle = sg; ctx.fillRect(0,0,W,H);
-        ctx.beginPath(); ctx.arc(sunX,sunY,40,0,Math.PI*2);
-        ctx.fillStyle='rgba(255,250,180,0.85)'; ctx.fill();
         puddles.forEach(p => {
           ctx.save(); ctx.globalAlpha=0.3;
           const pg=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.rx);
