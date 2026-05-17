@@ -182,15 +182,21 @@
       </div>
     </div>
 
-    <!-- 写真選択 -->
-    <div class="photo-preview-wrap" id="previewWrap" onclick="document.getElementById('photoFileInput').click()">
-      <div class="photo-preview-placeholder" id="previewPlaceholder">
-        <div class="photo-preview-placeholder-icon">📷</div>
-        <div class="photo-preview-placeholder-text">タップして写真を選択</div>
+    <!-- 写真選択（複数枚対応） -->
+    <div style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <label class="form-label" style="margin-bottom:0">写真を選択（複数枚OK）</label>
+        <span id="photoCountBadge" style="font-family:'Noto Serif JP',serif;font-size:11px;color:var(--sky);font-weight:700"></span>
       </div>
-      <img id="previewImg" src="" alt="" style="display:none">
+      <!-- プレビューグリッド -->
+      <div id="multiPreviewGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px"></div>
+      <!-- 追加ボタン -->
+      <div id="addMoreBtn" style="border:2px dashed var(--hina-3);border-radius:14px;padding:18px;text-align:center;cursor:pointer;background:var(--hina-0);touch-action:manipulation" onclick="document.getElementById('photoFileInput').click()">
+        <div style="font-size:28px;margin-bottom:4px">📷</div>
+        <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:var(--sumi-light)">タップして写真を選択（複数可）</div>
+      </div>
     </div>
-    <input type="file" id="photoFileInput" accept="image/*" onchange="onFileSelect(event)">
+    <input type="file" id="photoFileInput" accept="image/*" multiple style="display:none" onchange="onFileSelect(event)">
 
     <!-- メンバータグ -->
     <div class="form-group">
@@ -204,7 +210,7 @@
       <input class="form-input" id="photoCaption" type="text" placeholder="例：握手会にて ・ お誕生日おめでとう…">
     </div>
 
-    <button class="btn-primary" style="width:100%;margin-top:8px;justify-content:center" onclick="addPhoto()">保 存</button>
+    <button class="btn-primary" id="photoSaveBtn" style="width:100%;margin-top:8px;justify-content:center" onclick="addPhoto()">保 存</button>
   </div>
 </div>
 
@@ -221,13 +227,12 @@ let allPhotos      = [];
 let filteredPhotos = [];
 let curFilter      = 'all';
 let viewerIndex    = 0;
-let selectedMemberId   = null;
-let pendingDataUrl     = null;
-let curPhotoShareMode  = 'private';
+let selectedMemberId     = null;
+let pendingPhotos        = [];
+let curPhotoShareMode    = 'private';
 let selectedPhotoUserIds = new Set();
 let allUsers = [];
 
-// ── フィルター ─────────────────────────────
 function buildFilters() {
   const memberIds = [...new Set(allPhotos.map(p => p.memberId).filter(Boolean))];
   const members   = ACTIVE_MEMBERS.filter(m => memberIds.includes(String(m.id)));
@@ -241,63 +246,51 @@ function buildFilters() {
         return `<button class="filter-chip${curFilter===String(m.id)?' active':''}" onclick="setFilter('${m.id}',this)">${av}${m.name}</button>`;
       }).join('');
 }
-
 function setFilter(id, btn) {
   curFilter = id;
   document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  applyFilter();
+  btn.classList.add('active'); applyFilter();
 }
-
 function applyFilter() {
-  const myId = getUser()?.id;
-  if (curFilter === 'all')    filteredPhotos = allPhotos;
+  if (curFilter === 'all')         filteredPhotos = allPhotos;
   else if (curFilter === 'mine')   filteredPhotos = allPhotos.filter(p => p.isOwn);
   else if (curFilter === 'shared') filteredPhotos = allPhotos.filter(p => !p.isOwn || p.visibility !== 'private');
   else filteredPhotos = allPhotos.filter(p => String(p.memberId) === String(curFilter));
   renderGrid();
 }
-
-// ── グリッド ───────────────────────────────
 function renderGrid() {
-  const grid  = document.getElementById('photoGrid');
+  const grid = document.getElementById('photoGrid');
   const empty = document.getElementById('emptyState');
-  const badge = document.getElementById('countBadge');
-  badge.textContent = `✿ ${filteredPhotos.length}枚`;
+  document.getElementById('countBadge').textContent = `✿ ${filteredPhotos.length}枚`;
   if (!filteredPhotos.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
   grid.innerHTML = filteredPhotos.map((p, i) => {
     const tag = p.memberName || '';
-    const shareBadge = (!p.isOwn) ? '<div class="photo-share-badge">共有</div>' : '';
     return `<div class="photo-cell" onclick="openViewer(${i})">
       <img src="${p.dataUrl}" alt="${tag}" loading="lazy">
       ${tag ? `<div class="photo-cell-tag">${tag}</div>` : ''}
-      ${shareBadge}
+      ${!p.isOwn ? '<div class="photo-share-badge">共有</div>' : ''}
     </div>`;
   }).join('');
 }
-
-// ── ビューア ───────────────────────────────
 function openViewer(idx) {
-  viewerIndex = idx;
-  showViewerPhoto();
+  viewerIndex = idx; showViewerPhoto();
   document.getElementById('viewerOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 function showViewerPhoto() {
   const p = filteredPhotos[viewerIndex];
-  document.getElementById('viewerImg').src            = p.dataUrl;
-  document.getElementById('viewerMember').textContent = (p.memberName || '未タグ') + (p.ownerNickname && !p.isOwn ? ` ✿ ${p.ownerNickname}` : '');
+  document.getElementById('viewerImg').src             = p.dataUrl;
+  document.getElementById('viewerMember').textContent  = (p.memberName || '未タグ') + (p.ownerNickname && !p.isOwn ? ` ✿ ${p.ownerNickname}` : '');
   document.getElementById('viewerCaption').textContent = p.caption || '';
   document.getElementById('viewerPrev').disabled = viewerIndex === 0;
   document.getElementById('viewerNext').disabled = viewerIndex === filteredPhotos.length - 1;
   document.getElementById('viewerDeleteBtn').style.display = p.isOwn !== false ? '' : 'none';
 }
 function viewerStep(dir) {
-  const next = viewerIndex + dir;
-  if (next < 0 || next >= filteredPhotos.length) return;
-  viewerIndex = next;
-  showViewerPhoto();
+  const n = viewerIndex + dir;
+  if (n < 0 || n >= filteredPhotos.length) return;
+  viewerIndex = n; showViewerPhoto();
 }
 function closeViewer() {
   document.getElementById('viewerOverlay').classList.remove('open');
@@ -319,48 +312,26 @@ async function deleteCurrentPhoto() {
   viewerIndex = Math.min(viewerIndex, filteredPhotos.length - 1);
   showViewerPhoto();
 }
-
-// ── 追加モーダル ───────────────────────────
-function openAddModal() {
-  _openAddModal().catch(err => console.error(err));
-}
-
+function openAddModal() { _openAddModal().catch(console.error); }
 async function _openAddModal() {
-  pendingDataUrl = null;
-  selectedMemberId = null;
-  curPhotoShareMode = 'private';
-  selectedPhotoUserIds.clear();
+  pendingPhotos = []; selectedMemberId = null;
+  curPhotoShareMode = 'private'; selectedPhotoUserIds.clear();
   document.getElementById('photoCaption').value = '';
   document.getElementById('photoFileInput').value = '';
-  document.getElementById('previewImg').style.display = 'none';
-  document.getElementById('previewPlaceholder').style.display = 'flex';
-  document.getElementById('previewWrap').classList.remove('has-img');
-
-  // 共有タブをリセット
+  renderPendingPreviews();
   document.querySelectorAll('.share-tab').forEach((b,i) => b.classList.toggle('active', i===0));
   document.getElementById('photoSharePanel').style.display = 'none';
-  if (!isLoggedIn()) document.getElementById('photoShareTabs').style.display = 'none';
-  else document.getElementById('photoShareTabs').style.display = '';
-
-  // ユーザーリストをロード
-  if (isLoggedIn()) {
-    try { allUsers = await UserAPI.list() || []; } catch { allUsers = []; }
-  }
-
-  // メンバー選択グリッド
-  document.getElementById('memberSelectGrid').innerHTML =
-    ACTIVE_MEMBERS.map(m => {
-      const isImg = m.avatar && /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(m.avatar);
-      const avHtml = isImg ? `<img src="${m.avatar}" alt="${m.name}">` : `<span style="font-size:18px">${m.avatar}</span>`;
-      return `<div class="member-select-chip" data-id="${m.id}" onclick="selectMember(${m.id},this)">
-        <div class="member-chip-avatar">${avHtml}</div>
-        <span>${m.name.split(' ')[0]}</span>
-      </div>`;
-    }).join('');
-
+  document.getElementById('photoShareTabs').style.display = isLoggedIn() ? '' : 'none';
+  if (isLoggedIn()) { try { allUsers = await UserAPI.list() || []; } catch { allUsers = []; } }
+  document.getElementById('memberSelectGrid').innerHTML = ACTIVE_MEMBERS.map(m => {
+    const isImg = m.avatar && /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(m.avatar);
+    const avHtml = isImg ? `<img src="${m.avatar}" alt="${m.name}">` : `<span style="font-size:18px">${m.avatar}</span>`;
+    return `<div class="member-select-chip" data-id="${m.id}" onclick="selectMember(${m.id},this)">
+      <div class="member-chip-avatar">${avHtml}</div>
+      <span>${m.name.split(' ')[0]}</span></div>`;
+  }).join('');
   document.getElementById('addModal').classList.add('open');
 }
-
 function closeAddModal(e) {
   if (e && e.target !== document.getElementById('addModal')) return;
   document.getElementById('addModal').classList.remove('open');
@@ -371,58 +342,69 @@ function selectMember(id, el) {
   if (selectedMemberId !== null) el.classList.add('selected');
 }
 async function onFileSelect(e) {
-  const file = e.target.files[0];
-  if (!file) return;
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
+  if (pendingPhotos.length + files.length > 20) {
+    alert(`一度に登録できるのは20枚までです（現在${pendingPhotos.length}枚選択済み）`); return;
+  }
+  const addBtn = document.getElementById('addMoreBtn');
+  addBtn.innerHTML = '<div style="font-size:20px;margin-bottom:4px">⏳</div><div style="font-family:\'Noto Serif JP\',serif;font-size:12px;color:var(--sumi-light)">読み込み中…</div>';
   try {
-    pendingDataUrl = await fileToBase64(file);
-    const img = document.getElementById('previewImg');
-    img.src = pendingDataUrl; img.style.display = 'block';
-    document.getElementById('previewPlaceholder').style.display = 'none';
-    document.getElementById('previewWrap').classList.add('has-img');
+    const newPhotos = await Promise.all(files.map(async file => ({ dataUrl: await fileToBase64(file), name: file.name })));
+    pendingPhotos.push(...newPhotos);
   } catch { alert('画像の読み込みに失敗しました'); }
+  e.target.value = '';
+  renderPendingPreviews();
 }
-
-// 共有タブ
+function renderPendingPreviews() {
+  const grid    = document.getElementById('multiPreviewGrid');
+  const badge   = document.getElementById('photoCountBadge');
+  const addBtn  = document.getElementById('addMoreBtn');
+  const saveBtn = document.getElementById('photoSaveBtn');
+  badge.textContent = pendingPhotos.length > 0 ? `${pendingPhotos.length}枚選択中` : '';
+  if (!pendingPhotos.length) {
+    grid.innerHTML = '';
+    addBtn.innerHTML = '<div style="font-size:28px;margin-bottom:4px">📷</div><div style="font-family:\'Noto Serif JP\',serif;font-size:12px;color:var(--sumi-light)">タップして写真を選択（複数可）</div>';
+    addBtn.style.display = 'block'; saveBtn.textContent = '保 存'; return;
+  }
+  grid.innerHTML = pendingPhotos.map((p, i) => `
+    <div style="position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--hina-1)">
+      <img src="${p.dataUrl}" style="width:100%;height:100%;object-fit:cover;display:block">
+      <button onclick="removePending(${i})" style="position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,0.65);border:none;color:white;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;padding:0">✕</button>
+    </div>`).join('');
+  if (pendingPhotos.length < 20) {
+    addBtn.style.display = 'block';
+    addBtn.innerHTML = '<div style="font-size:24px;margin-bottom:4px">➕</div><div style="font-family:\'Noto Serif JP\',serif;font-size:12px;color:var(--sumi-light)">さらに追加する</div>';
+  } else { addBtn.style.display = 'none'; }
+  saveBtn.textContent = `${pendingPhotos.length}枚を保存`;
+}
+function removePending(idx) { pendingPhotos.splice(idx, 1); renderPendingPreviews(); }
 function setPhotoShareTab(mode, btn) {
   document.querySelectorAll('.share-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  if (mode === 'private') {
-    curPhotoShareMode = 'private';
-    document.getElementById('photoSharePanel').style.display = 'none';
-  } else {
-    curPhotoShareMode = 'public';
-    document.getElementById('photoSharePanel').style.display = 'block';
+  curPhotoShareMode = mode === 'private' ? 'private' : 'public';
+  document.getElementById('photoSharePanel').style.display = mode === 'private' ? 'none' : 'block';
+  if (mode !== 'private') {
     document.querySelectorAll('.share-scope-btn').forEach((b,i) => b.classList.toggle('active', i===0));
     document.getElementById('photoSpecificUsersPanel').style.display = 'none';
   }
 }
 function setPhotoShareScope(scope, btn) {
   document.querySelectorAll('.share-scope-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  if (scope === 'public') {
-    curPhotoShareMode = 'public';
-    document.getElementById('photoSpecificUsersPanel').style.display = 'none';
-  } else {
-    curPhotoShareMode = 'specific';
-    document.getElementById('photoSpecificUsersPanel').style.display = 'block';
-    buildPhotoUserSelectList();
-  }
+  btn.classList.add('active'); curPhotoShareMode = scope;
+  document.getElementById('photoSpecificUsersPanel').style.display = scope === 'specific' ? 'block' : 'none';
+  if (scope === 'specific') buildPhotoUserSelectList();
 }
 function buildPhotoUserSelectList() {
   const myId = getUser()?.id;
   const others = allUsers.filter(u => u.id !== myId);
-  if (!others.length) {
-    document.getElementById('photoUserSelectList').innerHTML = '<div style="padding:12px;text-align:center;font-size:12px;color:var(--sumi-light);font-family:\'Noto Serif JP\',serif">他のユーザーがいません</div>';
-    return;
-  }
-  document.getElementById('photoUserSelectList').innerHTML = others.map(u => {
-    const checked = selectedPhotoUserIds.has(u.id);
-    const av = u.avatar_url ? `<img src="${u.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:1.5px solid var(--hina-2)">` : `<div style="width:32px;height:32px;border-radius:50%;background:var(--hina-1);display:flex;align-items:center;justify-content:center;font-size:16px">👤</div>`;
-    return `<label class="user-select-item${checked?' selected':''}" for="puu_${u.id}">
-      <input type="checkbox" id="puu_${u.id}" ${checked?'checked':''} onchange="togglePhotoUser('${u.id}',this)">
-      ${av}
-      <span class="user-select-name">${u.nickname}</span>
-    </label>`;
+  const list = document.getElementById('photoUserSelectList');
+  if (!others.length) { list.innerHTML = '<div style="padding:12px;text-align:center;font-size:12px;color:var(--sumi-light)">他のユーザーがいません</div>'; return; }
+  list.innerHTML = others.map(u => {
+    const av = u.avatar_url ? `<img src="${u.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">` : `<div style="width:32px;height:32px;border-radius:50%;background:var(--hina-1);display:flex;align-items:center;justify-content:center;font-size:16px">👤</div>`;
+    return `<label class="user-select-item" for="puu_${u.id}">
+      <input type="checkbox" id="puu_${u.id}" onchange="togglePhotoUser('${u.id}',this)">
+      ${av}<span class="user-select-name">${u.nickname}</span></label>`;
   }).join('');
 }
 function togglePhotoUser(id, cb) {
@@ -430,38 +412,36 @@ function togglePhotoUser(id, cb) {
   else selectedPhotoUserIds.delete(id);
   cb.closest('.user-select-item')?.classList.toggle('selected', cb.checked);
 }
-
 async function addPhoto() {
-  if (!pendingDataUrl) { alert('写真を選択してください'); return; }
-  const member = selectedMemberId ? ACTIVE_MEMBERS.find(m => m.id === selectedMemberId) : null;
-  const photo = {
-    memberId:      member ? String(member.id) : null,
-    memberName:    member ? member.name : null,
-    caption:       document.getElementById('photoCaption').value.trim(),
-    dataUrl:       pendingDataUrl,
-    createdAt:     Date.now(),
-    visibility:    curPhotoShareMode,
-    targetUserIds: curPhotoShareMode === 'specific' ? [...selectedPhotoUserIds] : [],
-  };
-  const result = await PhotoAPI.add(photo);
-  if (result) {
-    allPhotos.unshift({ ...photo, ...result, isOwn: true });
-    document.getElementById('addModal').classList.remove('open');
-    buildFilters(); applyFilter();
+  if (!pendingPhotos.length) { alert('写真を選択してください'); return; }
+  const member  = selectedMemberId ? ACTIVE_MEMBERS.find(m => m.id === selectedMemberId) : null;
+  const caption = document.getElementById('photoCaption').value.trim();
+  const targetUserIds = curPhotoShareMode === 'specific' ? [...selectedPhotoUserIds] : [];
+  const btn = document.getElementById('photoSaveBtn');
+  btn.disabled = true;
+  let saved = 0;
+  for (let i = 0; i < pendingPhotos.length; i++) {
+    btn.textContent = `保存中… ${i+1}/${pendingPhotos.length}枚`;
+    try {
+      const photo = { memberId: member ? String(member.id) : null, memberName: member ? member.name : null,
+        caption, dataUrl: pendingPhotos[i].dataUrl, createdAt: Date.now(), visibility: curPhotoShareMode, targetUserIds };
+      const result = await PhotoAPI.add(photo);
+      if (result) { allPhotos.unshift({ ...photo, ...result, isOwn: true }); saved++; }
+    } catch (err) { console.error(`写真${i+1}保存失敗:`, err); }
   }
+  btn.disabled = false;
+  document.getElementById('addModal').classList.remove('open');
+  buildFilters(); applyFilter();
+  if (saved < pendingPhotos.length) alert(`${pendingPhotos.length}枚中${saved}枚保存しました`);
 }
-
-// ── 初期ロード ─────────────────────────────
 (async () => {
   try {
     const raw = await PhotoAPI.list();
     allPhotos = (raw || []).map(p => normalizePhoto(p));
-  } catch {
-    allPhotos = (await getAllPhotos()).map(p => ({ ...p, isOwn: true }));
-  }
+  } catch { allPhotos = (await getAllPhotos()).map(p => ({ ...p, isOwn: true })); }
   buildFilters(); applyFilter();
 })();
-</script>
+
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));

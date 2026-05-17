@@ -91,6 +91,15 @@
 .flower-item-status.pending  { background: rgba(255,200,50,0.2); color: #b08000; border: 1px solid rgba(255,200,50,0.4); }
 .flower-item-status.completed { background: rgba(40,180,80,0.1); color: #2a8a40; border: 1px solid rgba(40,180,80,0.3); }
 
+/* 取り消しボタン */
+.flower-cancel-btn {
+  padding: 4px 10px; border-radius: 10px; font-size: 10px; font-weight: 700;
+  font-family: 'Noto Serif JP', serif; cursor: pointer; touch-action: manipulation;
+  background: rgba(200,60,60,0.08); color: #c03030;
+  border: 1px solid rgba(200,60,60,0.25); transition: all 0.15s;
+}
+.flower-cancel-btn:active { background: rgba(200,60,60,0.18); }
+
 /* 合計バー */
 .flower-total-bar {
   background: linear-gradient(135deg, #e05080, #c03060);
@@ -346,6 +355,8 @@ function renderFlowers() {
     return;
   }
 
+  const myId = getUser()?.id;
+
   el.innerHTML = allFlowers.map(f => {
     const member = ACTIVE_MEMBERS.find(m => String(m.id) === String(f.member_id));
     const avatarSrc = member?.avatar || '';
@@ -353,9 +364,17 @@ function renderFlowers() {
     const avatarHtml = isImg
       ? `<img class="flower-item-avatar" src="${avatarSrc}" alt="${f.member_name}">`
       : `<div class="flower-item-avatar" style="display:flex;align-items:center;justify-content:center;background:var(--hina-1);font-size:22px">${avatarSrc||'🌻'}</div>`;
+
     const statusLabel = f.status === 'completed' ? '✅ 完了' : '⏳ 振込待ち';
     const statusCls   = f.status === 'completed' ? 'completed' : 'pending';
-    return `<div class="flower-item">
+
+    // 自分の申し込み かつ 振込待ち の場合だけ取り消しボタンを表示
+    const isMyPending = f.user_id === myId && f.status === 'pending';
+    const cancelBtn = isMyPending
+      ? `<button class="flower-cancel-btn" onclick="cancelFlower('${f.id}')">取り消し</button>`
+      : '';
+
+    return `<div class="flower-item" id="flower_${f.id}">
       ${avatarHtml}
       <div class="flower-item-info">
         <div class="flower-item-member">${f.member_name}</div>
@@ -363,9 +382,21 @@ function renderFlowers() {
         ${f.message ? `<div class="flower-item-message">${f.message}</div>` : ''}
         ${f.owner_nickname ? `<div style="font-size:9px;color:var(--hina-4);margin-top:2px;font-family:'Noto Serif JP',serif">by ${f.owner_nickname}</div>` : ''}
       </div>
-      <span class="flower-item-status ${statusCls}">${statusLabel}</span>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        <span class="flower-item-status ${statusCls}">${statusLabel}</span>
+        ${cancelBtn}
+      </div>
     </div>`;
   }).join('');
+}
+
+async function cancelFlower(id) {
+  if (!confirm('この申し込みを取り消しますか？')) return;
+  try {
+    await apiFetch(`/api/flowers/${id}`, { method: 'DELETE' });
+    allFlowers = allFlowers.filter(f => f.id !== id);
+    renderFlowers();
+  } catch (err) { alert('取り消しエラー: ' + err.message); }
 }
 </script>
 <script>
