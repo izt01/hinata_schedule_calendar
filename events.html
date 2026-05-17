@@ -159,21 +159,27 @@ let selectedUserIds = new Set();
 let allUsers = [];
 const DOW = ['日','月','火','水','木','金','土'];
 
-// ━━━ 全ボタンをaddEventListenerで設定（onclickを使わない）━━━
-window.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('addBtn').addEventListener('click', openModal);
-  document.getElementById('evModalBg').addEventListener('click', closeModal);
-  document.getElementById('evCloseBtn').addEventListener('click', closeModal);
-  document.getElementById('evSaveBtn').addEventListener('click', addEvent);
-  document.getElementById('clearTimeBtn').addEventListener('click', function() { document.getElementById('evTime').value = ''; });
-  document.getElementById('tabUpcoming').addEventListener('click', function() { setTab('upcoming', this); });
-  document.getElementById('tabPast').addEventListener('click',     function() { setTab('past', this); });
-  document.getElementById('tabAll').addEventListener('click',      function() { setTab('all', this); });
-  document.getElementById('shareTabPrivate').addEventListener('click', function() { setShareTab('private', this); });
-  document.getElementById('shareTabShared').addEventListener('click',  function() { setShareTab('shared', this); });
-  document.getElementById('scopePublic').addEventListener('click',   function() { setShareScope('public', this); });
-  document.getElementById('scopeSpecific').addEventListener('click', function() { setShareScope('specific', this); });
-});
+// ━━━ ボタンを直接バインド（DOMContentLoadedは使わない）━━━
+(function bindButtons() {
+  function on(id, fn) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', fn);
+    el.addEventListener('touchend', function(e) { e.preventDefault(); fn.call(this, e); }, { passive: false });
+  }
+  on('addBtn',         openModal);
+  on('evModalBg',      closeModal);
+  on('evCloseBtn',     closeModal);
+  on('evSaveBtn',      addEvent);
+  on('clearTimeBtn',   function() { document.getElementById('evTime').value = ''; });
+  on('tabUpcoming',    function() { setTab('upcoming', this); });
+  on('tabPast',        function() { setTab('past', this); });
+  on('tabAll',         function() { setTab('all', this); });
+  on('shareTabPrivate',function() { setShareTab('private', this); });
+  on('shareTabShared', function() { setShareTab('shared', this); });
+  on('scopePublic',    function() { setShareScope('public', this); });
+  on('scopeSpecific',  function() { setShareScope('specific', this); });
+})();
 
 function setTab(mode, btn) {
   curTab = mode;

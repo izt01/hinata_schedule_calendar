@@ -176,21 +176,141 @@
 .account-cta-sub { font-size:11px; color:var(--sumi-light); font-family:'Noto Serif JP',serif; }
 
 /* ━━━ LOGIN SCREEN ━━━ */
-#login-screen { position:fixed; inset:0; z-index:400; display:none; overflow:hidden; cursor:pointer; }
-#login-screen.active { display:block; }
+/* ━━━ LOGIN SCREEN ━━━ */
+#login-screen {
+  position:fixed; inset:0; z-index:400; display:none; overflow:hidden; cursor:pointer;
+}
+#login-screen.active  { display:block; }
 #login-screen.closing { animation:loginClose 0.55s cubic-bezier(.4,0,.6,1) forwards; }
-@keyframes loginClose { to{opacity:0;transform:scale(1.05)} }
-#login-bg { position:absolute; inset:0; background:linear-gradient(160deg,#c8e8fc 0%,#e4f4ff 35%,#fdf4d0 70%,#fff8e8 100%); animation:loginBgIn 0.4s ease both; }
-@keyframes loginBgIn { from{opacity:0} to{opacity:1} }
-.login-sparkle { position:absolute; border-radius:50%; pointer-events:none; animation:sparklePulse 2.5s ease-in-out infinite; }
-@keyframes sparklePulse { 0%,100%{transform:scale(1);opacity:.5} 50%{transform:scale(1.3);opacity:.9} }
+@keyframes loginClose { to{opacity:0;transform:scale(1.04)} }
 
-#login-title-badge { position:fixed; top:clamp(16px,8vh,60px); left:clamp(12px,5vw,40px); display:flex; flex-direction:column; gap:2px; pointer-events:none; opacity:0; animation:titleBadgeIn .5s .1s ease forwards; }
+/* 背景レイヤー */
+#login-bg {
+  position:absolute; inset:0;
+  background:linear-gradient(160deg,#c8e8fc 0%,#e4f4ff 35%,#fdf4d0 70%,#fff8e8 100%);
+  background-size:cover; background-position:center;
+}
+
+/* カスタム写真オーバーレイ */
+#login-photo-layer {
+  position:absolute; inset:0;
+  background-size:cover; background-position:center;
+  opacity:0; transition:opacity 0.5s;
+}
+#login-photo-layer.has-photo { opacity:1; }
+
+/* テキストオーバーレイ（写真の上） */
+#login-text-overlay {
+  position:absolute; inset:0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.25) 100%);
+  pointer-events:none;
+}
+
+/* アニメーションキャンバス */
+#login-anim-canvas { position:absolute; inset:0; pointer-events:none; }
+
+/* タイトル */
+#login-title-badge {
+  position:fixed; top:clamp(16px,8vh,60px); left:clamp(12px,5vw,40px);
+  display:flex; flex-direction:column; gap:2px; pointer-events:none;
+  opacity:0; animation:titleBadgeIn .5s .1s ease forwards;
+}
 @keyframes titleBadgeIn { from{opacity:0;transform:translateX(-14px)} to{opacity:1;transform:translateX(0)} }
 .login-title-main { font-size:clamp(22px,5.5vw,30px); font-weight:900; color:var(--sky); font-family:'Noto Serif JP',serif; text-shadow:0 2px 12px rgba(72,180,224,.35); letter-spacing:.06em; }
-.login-title-sub { font-size:11px; color:#4a7090; letter-spacing:.18em; font-family:'Noto Serif JP',serif; }
+.login-title-sub  { font-size:11px; color:#4a7090; letter-spacing:.18em; font-family:'Noto Serif JP',serif; }
+/* 写真の上でのテキスト色 */
+.login-on-photo .login-title-main { color:white; text-shadow:0 2px 16px rgba(0,0,0,0.5); }
+.login-on-photo .login-title-sub  { color:rgba(255,255,255,0.85); }
 
-#login-tap-hint { position:fixed; bottom:clamp(24px,5vh,44px); left:0; right:0; text-align:center; font-size:11.5px; color:rgba(40,90,140,.5); letter-spacing:.2em; font-family:'Noto Serif JP',serif; animation:tapHintPulse 2s ease-in-out infinite; pointer-events:none; }
+/* カスタムテキスト */
+#login-custom-text {
+  position:fixed; bottom:clamp(70px,12vh,100px); left:clamp(12px,5vw,40px); right:clamp(12px,5vw,40px);
+  text-align:center; pointer-events:none;
+  opacity:0; animation:titleBadgeIn .6s .4s ease forwards;
+}
+#login-custom-text-content {
+  font-family:'Shippori Mincho','Noto Serif JP',serif;
+  font-size:clamp(16px,4vw,22px); font-weight:700; line-height:1.6;
+  color:var(--sky); text-shadow:0 2px 12px rgba(72,180,224,.25);
+}
+.login-on-photo #login-custom-text-content {
+  color:white; text-shadow:0 2px 16px rgba(0,0,0,0.5);
+}
+
+/* タップヒント */
+#login-tap-hint {
+  position:fixed; bottom:clamp(24px,5vh,44px); left:0; right:0;
+  text-align:center; font-size:11.5px; color:rgba(40,90,140,.5);
+  letter-spacing:.2em; font-family:'Noto Serif JP',serif;
+  animation:tapHintPulse 2s ease-in-out infinite; pointer-events:none;
+}
+.login-on-photo #login-tap-hint { color:rgba(255,255,255,0.6); }
+@keyframes tapHintPulse { 0%,100%{opacity:.4} 50%{opacity:.9} }
+
+/* 設定ボタン（右下） */
+#login-settings-btn {
+  position:fixed; bottom:clamp(24px,5vh,44px); right:16px;
+  width:38px; height:38px; border-radius:50%;
+  background:rgba(255,255,255,0.3); border:1.5px solid rgba(255,255,255,0.6);
+  color:rgba(40,80,120,0.7); font-size:18px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  touch-action:manipulation; backdrop-filter:blur(8px);
+  z-index:1; transition:background 0.15s;
+}
+#login-settings-btn:active { background:rgba(255,255,255,0.5); }
+.login-on-photo #login-settings-btn { color:rgba(255,255,255,0.8); border-color:rgba(255,255,255,0.4); }
+
+/* ━━━ 設定パネル ━━━ */
+#login-settings-panel {
+  position:fixed; inset:0; z-index:500; display:none;
+  align-items:flex-end; justify-content:center;
+}
+#login-settings-panel.open { display:flex; }
+#login-settings-overlay {
+  position:absolute; inset:0; background:rgba(10,30,60,0.5); backdrop-filter:blur(8px);
+}
+#login-settings-box {
+  position:relative; width:100%; max-width:430px;
+  background:var(--white-bg); border-radius:32px 32px 0 0;
+  padding:14px 22px 52px; max-height:88vh; overflow-y:auto;
+  -webkit-overflow-scrolling:touch; border-top:1.5px solid var(--hina-2);
+  z-index:1;
+}
+.settings-section-title {
+  font-family:'M PLUS Rounded 1c',sans-serif; font-size:11px; font-weight:800;
+  color:var(--hina-4); letter-spacing:0.18em; text-transform:uppercase; margin:16px 0 8px;
+}
+
+/* アニメーション選択カード */
+.anim-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:4px; }
+.anim-card {
+  border:2px solid var(--hina-2); border-radius:16px; padding:14px 10px;
+  text-align:center; cursor:pointer; transition:all 0.18s; touch-action:manipulation;
+  background:rgba(255,255,255,0.8);
+}
+.anim-card.selected { border-color:var(--sky); background:var(--hina-1); }
+.anim-card:active { transform:scale(0.95); }
+.anim-card-icon { font-size:28px; margin-bottom:6px; }
+.anim-card-name { font-family:'Noto Serif JP',serif; font-size:11px; font-weight:700; color:var(--sumi); }
+.anim-card-desc { font-family:'Noto Serif JP',serif; font-size:9px; color:var(--sumi-light); margin-top:2px; line-height:1.4; }
+.anim-card.selected .anim-card-name { color:var(--sky); }
+
+/* 写真プレビュー */
+.photo-preview-box {
+  width:100%; aspect-ratio:16/9; border-radius:16px; overflow:hidden;
+  border:2px dashed var(--hina-3); background:var(--hina-0);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; touch-action:manipulation; transition:border-color 0.2s;
+  position:relative;
+}
+.photo-preview-box.has-photo { border-style:solid; }
+.photo-preview-box img { width:100%; height:100%; object-fit:cover; border-radius:14px; }
+
+/* テキスト入力 */
+.settings-text-preview {
+  font-family:'Shippori Mincho',serif; font-size:13px; color:var(--sky);
+  text-align:center; padding:8px 0 4px; min-height:20px;
+}
 @keyframes tapHintPulse { 0%,100%{opacity:.4} 50%{opacity:.9} }
 </style>
 </head>
@@ -312,18 +432,83 @@
 
 <!-- LOGIN SCREEN -->
 <div id="login-screen">
+  <!-- 背景グラデーション -->
   <div id="login-bg"></div>
-  <div class="login-sparkle" style="width:260px;height:260px;top:-60px;right:-50px;background:radial-gradient(circle,rgba(255,220,80,.4) 0%,transparent 70%);animation-delay:0s"></div>
-  <div class="login-sparkle" style="width:180px;height:180px;bottom:25%;left:-30px;background:radial-gradient(circle,rgba(80,200,255,.3) 0%,transparent 70%);animation-delay:.8s"></div>
-
-  <!-- 斜陽エフェクト（セリフなし） -->
+  <!-- カスタム写真 -->
+  <div id="login-photo-layer"></div>
+  <!-- 写真上のテキストオーバーレイ -->
+  <div id="login-text-overlay"></div>
+  <!-- アニメーションキャンバス -->
+  <canvas id="login-anim-canvas"></canvas>
 
   <div id="login-title-badge">
-    <div class="login-title-main">日向坂46</div>
-    <div class="login-title-sub">✿ ひなたカレンダー ✿</div>
+    <div class="login-title-main" id="loginTitleMain">日向坂46</div>
+    <div class="login-title-sub"  id="loginTitleSub">✿ ひなたカレンダー ✿</div>
+  </div>
+
+  <!-- カスタムテキスト -->
+  <div id="login-custom-text" style="display:none">
+    <div id="login-custom-text-content"></div>
   </div>
 
   <div id="login-tap-hint">✦ タップして続ける ✦</div>
+  <button id="login-settings-btn" title="画面をカスタマイズ">⚙</button>
+</div>
+
+<!-- ログイン画面設定パネル -->
+<div id="login-settings-panel">
+  <div id="login-settings-overlay"></div>
+  <div id="login-settings-box">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" id="settingsPanelClose">✕</button>
+    <div class="modal-title">🎨 画面をカスタマイズ</div>
+
+    <!-- ① 背景写真 -->
+    <div class="settings-section-title">① 背景写真</div>
+    <div class="photo-preview-box" id="loginPhotoPicker" style="margin-bottom:8px">
+      <div id="loginPhotoPlaceholder" style="text-align:center;color:var(--sumi-light);pointer-events:none">
+        <div style="font-size:32px;margin-bottom:6px">🖼</div>
+        <div style="font-family:'Noto Serif JP',serif;font-size:12px">タップして写真を選択</div>
+      </div>
+      <img id="loginPhotoPreview" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+    </div>
+    <input type="file" id="loginPhotoInput" accept="image/*" style="display:none">
+    <button id="loginPhotoRemove" style="display:none;width:100%;padding:10px;border-radius:12px;border:1.5px solid rgba(200,60,60,0.3);background:rgba(200,60,60,0.06);color:#c03030;font-family:'Noto Serif JP',serif;font-size:12px;cursor:pointer;touch-action:manipulation;margin-bottom:4px">写真を削除してデフォルトに戻す</button>
+
+    <!-- ② 表示テキスト -->
+    <div class="settings-section-title">② 表示テキスト（任意）</div>
+    <input class="form-input" id="loginCustomTextInput" type="text" placeholder="例：推し活がんばろう！" maxlength="40" style="margin-bottom:4px">
+    <div class="settings-text-preview" id="settingsTextPreview">（ここに表示されます）</div>
+
+    <!-- ③ アニメーション -->
+    <div class="settings-section-title">③ アニメーション</div>
+    <div class="anim-grid" id="animGrid">
+      <div class="anim-card selected" data-anim="none">
+        <div class="anim-card-icon">✨</div>
+        <div class="anim-card-name">なし（シンプル）</div>
+        <div class="anim-card-desc">グラデーション背景のみ</div>
+      </div>
+      <div class="anim-card" data-anim="light">
+        <div class="anim-card-icon">🌅</div>
+        <div class="anim-card-name">暗闇から光</div>
+        <div class="anim-card-desc">右上から光が差し込んで画面が現れる</div>
+      </div>
+      <div class="anim-card" data-anim="rain">
+        <div class="anim-card-icon">🌦</div>
+        <div class="anim-card-name">雨から晴れへ</div>
+        <div class="anim-card-desc">雨が降り、太陽が出て雨が止む</div>
+      </div>
+      <div class="anim-card" data-anim="leaves">
+        <div class="anim-card-icon">🍂</div>
+        <div class="anim-card-name">風と木の葉</div>
+        <div class="anim-card-desc">風が吹いて葉が舞い散る</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="settingsSaveBtn" style="width:100%;justify-content:center;margin-top:16px">
+      保 存
+    </button>
+  </div>
 </div>
 
 <script src="data.js"></script>
@@ -397,15 +582,548 @@
   window._stopSplashPetals = () => cancelAnimationFrame(raf);
 })();
 
+// ━━━ ログイン画面カスタマイズ ━━━
+const LOGIN_SETTINGS_KEY = 'hinata_login_settings';
+
+function loadLoginSettings() {
+  try { return JSON.parse(localStorage.getItem(LOGIN_SETTINGS_KEY) || '{}'); } catch { return {}; }
+}
+function saveLoginSettings(s) {
+  try { localStorage.setItem(LOGIN_SETTINGS_KEY, JSON.stringify(s)); } catch {}
+}
+
+// 設定を画面に反映
+function applyLoginSettings(settings) {
+  const screen    = document.getElementById('login-screen');
+  const bg        = document.getElementById('login-bg');
+  const photoLayer= document.getElementById('login-photo-layer');
+  const customText= document.getElementById('login-custom-text');
+  const customTxt = document.getElementById('login-custom-text-content');
+
+  // 写真
+  if (settings.photo) {
+    photoLayer.style.backgroundImage = `url(${settings.photo})`;
+    photoLayer.classList.add('has-photo');
+    screen.classList.add('login-on-photo');
+    document.getElementById('login-text-overlay').style.display = 'block';
+  } else {
+    photoLayer.style.backgroundImage = '';
+    photoLayer.classList.remove('has-photo');
+    screen.classList.remove('login-on-photo');
+    document.getElementById('login-text-overlay').style.display = 'none';
+  }
+
+  // カスタムテキスト
+  if (settings.text) {
+    customTxt.textContent = settings.text;
+    customText.style.display = 'block';
+  } else {
+    customText.style.display = 'none';
+  }
+
+  // アニメーション開始
+  startLoginAnim(settings.anim || 'none');
+}
+
+// ━━━ アニメーション ━━━
+let animRAF = null;
+
+function stopLoginAnim() {
+  if (animRAF) { cancelAnimationFrame(animRAF); animRAF = null; }
+  const c = document.getElementById('login-anim-canvas');
+  if (c) { const ctx = c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height); }
+}
+
+function startLoginAnim(type) {
+  stopLoginAnim();
+  const canvas = document.getElementById('login-anim-canvas');
+  if (!canvas) return;
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+
+  if (type === 'light')  animLight(canvas, ctx);
+  if (type === 'rain')   animRain(canvas, ctx);
+  if (type === 'leaves') animLeaves(canvas, ctx);
+}
+
+// ① 暗闇から光（右上からスポットライト）
+function animLight(canvas, ctx) {
+  const W = canvas.width, H = canvas.height;
+  let t = 0;
+  // フェーズ: 0=暗闇 → 1=光が差す → 2=維持
+  const PHASE1 = 80, PHASE2 = 200;
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    t++;
+
+    if (t < PHASE1) {
+      // 暗闇フェーズ：真っ暗
+      const alpha = Math.max(0, 1 - t/PHASE1 * 0.3);
+      ctx.fillStyle = `rgba(5,10,20,${alpha * 0.98})`;
+      ctx.fillRect(0,0,W,H);
+    } else {
+      // 光が差すフェーズ
+      const progress = Math.min(1, (t - PHASE1) / (PHASE2 - PHASE1));
+      const eased = 1 - Math.pow(1 - progress, 3);
+
+      // 残る暗さ
+      ctx.fillStyle = `rgba(5,10,20,${0.7 * (1 - eased)})`;
+      ctx.fillRect(0,0,W,H);
+
+      // 右上からの光ビーム
+      const cx = W * (0.75 + eased * 0.1), cy = -H * 0.05;
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, W * (0.5 + eased * 0.7));
+      grad.addColorStop(0, `rgba(255,250,220,${0.65 * eased})`);
+      grad.addColorStop(0.3, `rgba(255,230,140,${0.25 * eased})`);
+      grad.addColorStop(0.7, `rgba(255,210,80,${0.08 * eased})`);
+      grad.addColorStop(1,   'rgba(255,200,60,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,W,H);
+
+      // 光条（細い放射線）
+      if (eased > 0.2) {
+        const rays = 6;
+        ctx.save();
+        ctx.globalAlpha = 0.12 * eased;
+        ctx.translate(cx, cy);
+        for (let i = 0; i < rays; i++) {
+          const angle = (i / rays) * Math.PI * 0.6 + Math.PI * 0.4;
+          const len = W * 1.8;
+          ctx.fillStyle = 'rgba(255,240,160,0.5)';
+          ctx.save();
+          ctx.rotate(angle);
+          ctx.fillRect(-6, 0, 12, len);
+          ctx.restore();
+        }
+        ctx.restore();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    if (t < PHASE2 + 40) {
+      animRAF = requestAnimationFrame(draw);
+    } else {
+      // 終了後は薄いグロウのみ維持
+      function glow() {
+        ctx.clearRect(0,0,W,H);
+        const g = ctx.createRadialGradient(W*0.8, -H*0.1, 0, W*0.8, -H*0.1, W*0.6);
+        g.addColorStop(0, 'rgba(255,240,160,0.18)');
+        g.addColorStop(1, 'transparent');
+        ctx.fillStyle = g;
+        ctx.fillRect(0,0,W,H);
+        animRAF = requestAnimationFrame(glow);
+      }
+      glow();
+    }
+  }
+  draw();
+}
+
+// ② 雨から晴れへ
+function animRain(canvas, ctx) {
+  const W = canvas.width, H = canvas.height;
+  let t = 0;
+  const RAIN_DUR = 220, CLEAR_DUR = 320, PUDDLE_DUR = 420;
+
+  // 雨粒
+  const drops = Array.from({length:120}, () => ({
+    x: Math.random()*W, y: Math.random()*H*2 - H,
+    len: 12+Math.random()*20, speed: 8+Math.random()*6,
+    alpha: 0.3+Math.random()*0.5,
+  }));
+
+  // 水たまり
+  const puddles = Array.from({length:4}, () => ({
+    x: 80 + Math.random()*(W-160), y: H * (0.75+Math.random()*0.2),
+    rx: 20+Math.random()*40, ry: 4+Math.random()*6,
+    alpha: 0,
+  }));
+
+  // 太陽
+  let sunR = 0, sunAlpha = 0, sunX = W*0.72, sunY = H*0.12;
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    t++;
+    const phase = t < RAIN_DUR ? 'rain' : t < CLEAR_DUR ? 'clearing' : t < PUDDLE_DUR ? 'clear' : 'done';
+
+    if (phase === 'rain' || phase === 'clearing') {
+      // 雨の薄い青グラデーション
+      const rainAlpha = phase === 'clearing' ? Math.max(0, 1 - (t-RAIN_DUR)/(CLEAR_DUR-RAIN_DUR)) : 0.9;
+      const skyGrad = ctx.createLinearGradient(0,0,0,H);
+      skyGrad.addColorStop(0, `rgba(80,110,160,${rainAlpha*0.35})`);
+      skyGrad.addColorStop(1, `rgba(140,170,200,${rainAlpha*0.2})`);
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0,0,W,H);
+
+      // 雨粒
+      ctx.strokeStyle = `rgba(160,200,240,${rainAlpha * 0.7})`;
+      ctx.lineWidth = 1.5;
+      drops.forEach(d => {
+        d.y += d.speed;
+        d.x += 2;
+        if (d.y > H) { d.y = -d.len; d.x = Math.random()*W; }
+        ctx.globalAlpha = d.alpha * rainAlpha;
+        ctx.beginPath();
+        ctx.moveTo(d.x, d.y);
+        ctx.lineTo(d.x+d.len*0.2, d.y+d.len);
+        ctx.stroke();
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    if (phase === 'clearing' || phase === 'clear' || phase === 'done') {
+      // 太陽が出てくる
+      const prog = phase === 'clearing'
+        ? (t-RAIN_DUR)/(CLEAR_DUR-RAIN_DUR)
+        : 1;
+      sunR     = 40 * prog;
+      sunAlpha = prog;
+
+      // 太陽グロー
+      const sg = ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,sunR*4);
+      sg.addColorStop(0, `rgba(255,248,200,${sunAlpha*0.7})`);
+      sg.addColorStop(0.3, `rgba(255,230,100,${sunAlpha*0.3})`);
+      sg.addColorStop(1, 'transparent');
+      ctx.fillStyle = sg;
+      ctx.fillRect(0,0,W,H);
+
+      // 太陽本体
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, sunR, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(255,250,180,${sunAlpha*0.9})`;
+      ctx.fill();
+    }
+
+    if (phase === 'clear' || phase === 'done') {
+      // 水たまり
+      const pProg = Math.min(1, (t-CLEAR_DUR)/(PUDDLE_DUR-CLEAR_DUR));
+      puddles.forEach(p => {
+        p.alpha = pProg * 0.35;
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        // 水たまり楕円
+        const pg = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.rx);
+        pg.addColorStop(0, 'rgba(160,210,240,0.7)');
+        pg.addColorStop(0.6, 'rgba(120,180,220,0.4)');
+        pg.addColorStop(1, 'transparent');
+        ctx.fillStyle = pg;
+        ctx.scale(1, p.ry/p.rx);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y*(p.rx/p.ry), p.rx, 0, Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+
+        // 水面のキラキラ
+        if (pProg > 0.5 && Math.random() < 0.03) {
+          ctx.save();
+          ctx.globalAlpha = 0.6 * pProg;
+          ctx.fillStyle = 'rgba(255,255,255,0.8)';
+          ctx.beginPath();
+          ctx.arc(p.x + (Math.random()-0.5)*p.rx*0.8, p.y + (Math.random()-0.5)*p.ry*0.6, 2, 0, Math.PI*2);
+          ctx.fill();
+          ctx.restore();
+        }
+      });
+    }
+
+    if (t < PUDDLE_DUR + 60) {
+      animRAF = requestAnimationFrame(draw);
+    } else {
+      // 維持（水たまりと太陽グロー）
+      function maintain() {
+        ctx.clearRect(0,0,W,H);
+        const sg = ctx.createRadialGradient(sunX,sunY,0,sunX,sunY,160);
+        sg.addColorStop(0,'rgba(255,248,200,0.5)');
+        sg.addColorStop(1,'transparent');
+        ctx.fillStyle = sg; ctx.fillRect(0,0,W,H);
+        ctx.beginPath(); ctx.arc(sunX,sunY,40,0,Math.PI*2);
+        ctx.fillStyle='rgba(255,250,180,0.85)'; ctx.fill();
+        puddles.forEach(p => {
+          ctx.save(); ctx.globalAlpha=0.3;
+          const pg=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.rx);
+          pg.addColorStop(0,'rgba(160,210,240,0.7)');
+          pg.addColorStop(1,'transparent');
+          ctx.fillStyle=pg; ctx.scale(1,p.ry/p.rx);
+          ctx.beginPath(); ctx.arc(p.x,p.y*(p.rx/p.ry),p.rx,0,Math.PI*2); ctx.fill();
+          ctx.restore();
+        });
+        animRAF = requestAnimationFrame(maintain);
+      }
+      maintain();
+    }
+  }
+  draw();
+}
+
+// ③ 風と木の葉
+function animLeaves(canvas, ctx) {
+  const W = canvas.width, H = canvas.height;
+
+  // 葉の形状パラメータ
+  const COLORS = ['#8aab3a','#b4772a','#c8a030','#6a9a28','#d4841a','#a05018','#5a8a1a'];
+  let t = 0;
+  const FALL_DUR = 280;
+
+  // 舞い散る葉
+  const leaves = Array.from({length:40}, (_, i) => ({
+    x: Math.random()*W*1.4 - W*0.2,
+    y: -60 - Math.random()*H*0.8,
+    size: 8+Math.random()*12,
+    rot: Math.random()*Math.PI*2,
+    rotSpeed: (Math.random()-0.5)*0.08,
+    vx: -2 - Math.random()*3,
+    vy: 1.5+Math.random()*2.5,
+    wobble: Math.random()*Math.PI*2,
+    wobbleSpeed: 0.04+Math.random()*0.04,
+    color: COLORS[~~(Math.random()*COLORS.length)],
+    settled: false, settleX:0, settleY:0,
+    delay: i * 6,
+    alpha: 0.8+Math.random()*0.2,
+  }));
+
+  // 画面周辺に残る葉（静止葉）
+  const settled = Array.from({length:18}, () => ({
+    x: Math.random()<0.5 ? Math.random()*60 : W-Math.random()*60,
+    y: H*0.3 + Math.random()*H*0.65,
+    size: 7+Math.random()*10,
+    rot: (Math.random()-0.5)*Math.PI*0.6,
+    color: COLORS[~~(Math.random()*COLORS.length)],
+    alpha: 0,
+  }));
+
+  function drawLeaf(ctx, size, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(0, -size);
+    ctx.quadraticCurveTo(size*0.7, -size*0.3, size*0.4, size*0.4);
+    ctx.quadraticCurveTo(0, size*0.6, -size*0.4, size*0.4);
+    ctx.quadraticCurveTo(-size*0.7, -size*0.3, 0, -size);
+    ctx.fill();
+    // 葉脈
+    ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(0,-size*0.9); ctx.lineTo(0,size*0.5);
+    ctx.stroke();
+  }
+
+  // 風エフェクト（水平の細い線）
+  const windLines = Array.from({length:12}, () => ({
+    x: W+Math.random()*100, y: Math.random()*H,
+    speed: 8+Math.random()*10,
+    len: 40+Math.random()*80, alpha:0.15+Math.random()*0.15,
+  }));
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    t++;
+
+    // 風ライン
+    windLines.forEach(w => {
+      w.x -= w.speed;
+      if (w.x + w.len < 0) { w.x = W + 20; w.y = Math.random()*H; }
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, w.alpha - Math.max(0,t-FALL_DUR)*0.003);
+      ctx.strokeStyle = 'rgba(180,210,140,0.6)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(w.x,w.y); ctx.lineTo(w.x+w.len,w.y); ctx.stroke();
+      ctx.restore();
+    });
+
+    // 舞い散る葉
+    leaves.forEach(l => {
+      if (t < l.delay) return;
+      if (!l.settled) {
+        l.wobble += l.wobbleSpeed;
+        l.x += l.vx + Math.sin(l.wobble) * 1.5;
+        l.y += l.vy;
+        l.rot += l.rotSpeed;
+        if (l.y > H + 40 || l.x < -60) {
+          l.settled = true;
+          l.settleX = l.x < -60 ? 20+Math.random()*50 : l.x;
+          l.settleY = Math.min(l.y, H - 20);
+        }
+      }
+      ctx.save();
+      ctx.globalAlpha = l.alpha;
+      ctx.translate(l.settled ? l.settleX : l.x, l.settled ? l.settleY : l.y);
+      ctx.rotate(l.rot);
+      drawLeaf(ctx, l.size, l.color);
+      ctx.restore();
+    });
+
+    // 定着した葉（画面周辺）
+    if (t > FALL_DUR * 0.6) {
+      const prog = Math.min(1, (t - FALL_DUR*0.6) / 80);
+      settled.forEach(s => {
+        s.alpha = Math.min(0.85, s.alpha + 0.012 * prog);
+        ctx.save();
+        ctx.globalAlpha = s.alpha;
+        ctx.translate(s.x, s.y);
+        ctx.rotate(s.rot);
+        drawLeaf(ctx, s.size, s.color);
+        ctx.restore();
+      });
+    }
+
+    animRAF = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ━━━ 設定パネル ━━━
+(function initSettingsPanel() {
+  const STORAGE = LOGIN_SETTINGS_KEY;
+  let curSettings = loadLoginSettings();
+  let curAnim     = curSettings.anim || 'none';
+  let previewPhoto= curSettings.photo || null;
+
+  // アニメーション選択
+  document.getElementById('animGrid').addEventListener('click', function(e) {
+    const card = e.target.closest('.anim-card');
+    if (!card) return;
+    document.querySelectorAll('.anim-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    curAnim = card.dataset.anim;
+    // 既存の設定を選択状態に
+    const saved = loadLoginSettings();
+    if (saved.anim) {
+      document.querySelectorAll('.anim-card').forEach(c => {
+        c.classList.toggle('selected', c.dataset.anim === saved.anim);
+      });
+    }
+    card.classList.add('selected');
+  });
+
+  // 設定パネルを開く
+  function openSettingsPanel() {
+    const settings = loadLoginSettings();
+    curAnim = settings.anim || 'none';
+    previewPhoto = settings.photo || null;
+
+    // アニメーション選択を復元
+    document.querySelectorAll('.anim-card').forEach(c => {
+      c.classList.toggle('selected', c.dataset.anim === curAnim);
+    });
+
+    // テキスト入力を復元
+    document.getElementById('loginCustomTextInput').value = settings.text || '';
+    document.getElementById('settingsTextPreview').textContent = settings.text || '（ここに表示されます）';
+
+    // 写真プレビューを復元
+    if (settings.photo) {
+      document.getElementById('loginPhotoPreview').src = settings.photo;
+      document.getElementById('loginPhotoPreview').style.display = 'block';
+      document.getElementById('loginPhotoPlaceholder').style.display = 'none';
+      document.getElementById('loginPhotoPicker').classList.add('has-photo');
+      document.getElementById('loginPhotoRemove').style.display = 'block';
+    } else {
+      document.getElementById('loginPhotoPreview').style.display = 'none';
+      document.getElementById('loginPhotoPlaceholder').style.display = 'flex';
+      document.getElementById('loginPhotoPicker').classList.remove('has-photo');
+      document.getElementById('loginPhotoRemove').style.display = 'none';
+    }
+
+    document.getElementById('login-settings-panel').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSettingsPanel() {
+    document.getElementById('login-settings-panel').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // ボタンバインド
+  var settingsBtn = document.getElementById('login-settings-btn');
+  settingsBtn.addEventListener('click', function(e) { e.stopPropagation(); openSettingsPanel(); });
+  settingsBtn.addEventListener('touchend', function(e) { e.preventDefault(); e.stopPropagation(); openSettingsPanel(); }, { passive:false });
+
+  document.getElementById('settingsPanelClose').addEventListener('click', closeSettingsPanel);
+  document.getElementById('login-settings-overlay').addEventListener('click', closeSettingsPanel);
+
+  // 写真選択
+  document.getElementById('loginPhotoPicker').addEventListener('click', function() {
+    document.getElementById('loginPhotoInput').click();
+  });
+  document.getElementById('loginPhotoInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      previewPhoto = ev.target.result;
+      document.getElementById('loginPhotoPreview').src = previewPhoto;
+      document.getElementById('loginPhotoPreview').style.display = 'block';
+      document.getElementById('loginPhotoPlaceholder').style.display = 'none';
+      document.getElementById('loginPhotoPicker').classList.add('has-photo');
+      document.getElementById('loginPhotoRemove').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+  document.getElementById('loginPhotoRemove').addEventListener('click', function() {
+    previewPhoto = null;
+    document.getElementById('loginPhotoPreview').style.display = 'none';
+    document.getElementById('loginPhotoPlaceholder').style.display = 'flex';
+    document.getElementById('loginPhotoPicker').classList.remove('has-photo');
+    document.getElementById('loginPhotoRemove').style.display = 'none';
+  });
+
+  // テキスト入力プレビュー
+  document.getElementById('loginCustomTextInput').addEventListener('input', function() {
+    document.getElementById('settingsTextPreview').textContent = this.value || '（ここに表示されます）';
+  });
+
+  // アニメーション選択
+  document.getElementById('animGrid').addEventListener('click', function(e) {
+    const card = e.target.closest('.anim-card');
+    if (!card) return;
+    document.querySelectorAll('.anim-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    curAnim = card.dataset.anim;
+  });
+
+  // 保存
+  document.getElementById('settingsSaveBtn').addEventListener('click', function() {
+    const newSettings = {
+      photo: previewPhoto,
+      text:  document.getElementById('loginCustomTextInput').value.trim(),
+      anim:  curAnim,
+    };
+    saveLoginSettings(newSettings);
+    closeSettingsPanel();
+    applyLoginSettings(newSettings);
+    // アニメーションを再生
+    stopLoginAnim();
+    startLoginAnim(newSettings.anim);
+  });
+})();
+
 function showLoginScreen(onDone) {
   const screen = document.getElementById('login-screen');
+
+  // 保存済みの設定を適用
+  const settings = loadLoginSettings();
+  applyLoginSettings(settings);
+  startLoginAnim(settings.anim || 'none');
+
   screen.classList.add('active');
-  function proceed() {
+
+  function proceed(e) {
+    // 設定ボタンタップは無視
+    if (e.target.closest('#login-settings-btn') || e.target.closest('#login-settings-panel')) return;
     screen.removeEventListener('click', proceed);
+    screen.removeEventListener('touchend', proceed);
+    stopLoginAnim();
     screen.classList.add('closing');
     setTimeout(() => { screen.classList.remove('active','closing'); onDone(); }, 550);
   }
-  setTimeout(() => screen.addEventListener('click', proceed), 400);
+  setTimeout(() => {
+    screen.addEventListener('click', proceed);
+    screen.addEventListener('touchend', proceed, { passive: true });
+  }, 600);
 }
 
 function startApp() {

@@ -273,14 +273,20 @@ injectNav('schedule.html');
 let allUsers    = [];
 let allSchedules = [];
 
-// ── イベントリスナー（スクリプトは末尾なのでDOMContentLoaded不要）──
-document.getElementById('createBtn').addEventListener('click', function() {
-  openCreateModal();
-});
-document.getElementById('createModalBg').addEventListener('click', closeCreateModal);
-document.getElementById('createModalClose').addEventListener('click', closeCreateModal);
-document.getElementById('addStepBtn').addEventListener('click', addStepInput);
-document.getElementById('schedSaveBtn').addEventListener('click', createSchedule);
+// ── イベントリスナー（click + touchend 両対応）──
+(function bindButtons() {
+  function on(id, fn) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', fn);
+    el.addEventListener('touchend', function(e) { e.preventDefault(); fn.call(this, e); }, { passive: false });
+  }
+  on('createBtn',       function() { openCreateModal(); });
+  on('createModalBg',   closeCreateModal);
+  on('createModalClose',closeCreateModal);
+  on('addStepBtn',      addStepInput);
+  on('schedSaveBtn',    createSchedule);
+})();
 
 // ── 初期化 ──────────────────────────────
 (async function init() {
