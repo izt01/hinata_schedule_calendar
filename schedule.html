@@ -215,7 +215,7 @@
     </div>
 
     <!-- 作成ボタン -->
-    <button class="btn-primary" id="createBtn" style="width:100%;justify-content:center;margin-bottom:20px;background:linear-gradient(135deg,#3a7a50,#2a6040);box-shadow:0 6px 22px rgba(40,100,60,0.3)">
+    <button class="btn-primary" id="createBtn" style="width:100%;justify-content:center;margin-bottom:20px;background:linear-gradient(135deg,#3a7a50,#2a6040);box-shadow:0 6px 22px rgba(40,100,60,0.3);touch-action:manipulation;-webkit-appearance:none">
       ＋ スケジュールを作成する
     </button>
 
@@ -273,14 +273,14 @@ injectNav('schedule.html');
 let allUsers    = [];
 let allSchedules = [];
 
-// ── イベントリスナー ──────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('createBtn').addEventListener('click', openCreateModal);
-  document.getElementById('createModalBg').addEventListener('click', closeCreateModal);
-  document.getElementById('createModalClose').addEventListener('click', closeCreateModal);
-  document.getElementById('addStepBtn').addEventListener('click', addStepInput);
-  document.getElementById('schedSaveBtn').addEventListener('click', createSchedule);
+// ── イベントリスナー（スクリプトは末尾なのでDOMContentLoaded不要）──
+document.getElementById('createBtn').addEventListener('click', function() {
+  openCreateModal();
 });
+document.getElementById('createModalBg').addEventListener('click', closeCreateModal);
+document.getElementById('createModalClose').addEventListener('click', closeCreateModal);
+document.getElementById('addStepBtn').addEventListener('click', addStepInput);
+document.getElementById('schedSaveBtn').addEventListener('click', createSchedule);
 
 // ── 初期化 ──────────────────────────────
 (async function init() {
@@ -312,6 +312,18 @@ function renderSchedules() {
     return;
   }
   el.innerHTML = allSchedules.map(s => renderScheduleCard(s)).join('');
+
+  // iOS対応：イベント委任でボタンを処理
+  el.querySelectorAll('.step-complete-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      completeStep(this.dataset.sched, this.dataset.step);
+    });
+  });
+  el.querySelectorAll('.schedule-delete-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      deleteSchedule(this.dataset.delete);
+    });
+  });
 }
 
 // ── 期限フォーマットヘルパー ──────────────
@@ -352,7 +364,7 @@ function renderScheduleCard(s) {
     // 完了ボタン（in_progress かつ 自分が担当 or 担当未設定）
     const canComplete = st.status === 'in_progress' && (isMe || !st.assignee_id);
     const completeBtn = canComplete
-      ? `<button class="step-complete-btn" onclick="completeStep('${s.id}','${st.id}')">タスク完了</button>`
+      ? `<button class="step-complete-btn" data-sched="${s.id}" data-step="${st.id}" style="touch-action:manipulation">タスク完了</button>`
       : '';
 
     const completedAt = st.completed_at
@@ -411,7 +423,7 @@ function renderScheduleCard(s) {
     ${isCreator ? `
     <div class="schedule-card-footer">
       <div style="font-size:10px;color:var(--sumi-light);font-family:'Noto Serif JP',serif">進捗 ${pct}%</div>
-      <button class="schedule-delete-btn" onclick="deleteSchedule('${s.id}')">🗑 削除</button>
+      <button class="schedule-delete-btn" data-delete="${s.id}" style="touch-action:manipulation">🗑 削除</button>
     </div>` : `<div style="height:8px"></div>`}
   </div>`;
 }
@@ -448,24 +460,28 @@ async function deleteSchedule(id) {
 let stepCount = 0;
 
 function openCreateModal() {
-  if (!isLoggedIn()) { alert('アカウント設定が必要です'); window.location.href = 'profile.html'; return; }
-  _openCreateModal();
-}
-
-async function _openCreateModal() {
+  if (!isLoggedIn()) {
+    alert('アカウント設定が必要です');
+    window.location.href = 'profile.html';
+    return;
+  }
   document.getElementById('schedTitle').value   = '';
   document.getElementById('schedDesc').value    = '';
   document.getElementById('schedDueDate').value = '';
   stepCount = 0;
   document.getElementById('stepInputList').innerHTML = '';
-
-  // ユーザー一覧を必ず最新で取得してからステップを追加
-  try { allUsers = await UserAPI.list() || []; } catch { allUsers = []; }
-
-  addStepInput();
-  addStepInput();
   document.getElementById('createModal').classList.add('open');
   document.body.style.overflow = 'hidden';
+
+  // ユーザー一覧取得 → ステップ追加（非同期だがモーダルは先に開く）
+  UserAPI.list().then(users => {
+    allUsers = users || [];
+  }).catch(() => {
+    allUsers = [];
+  }).finally(() => {
+    addStepInput();
+    addStepInput();
+  });
 }
 
 function closeCreateModal() {
