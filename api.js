@@ -46,21 +46,34 @@ async function apiFetch(path, opts = {}) {
 //  ユーザー API
 // ══════════════════════════════════════════
 const UserAPI = {
-  // 新規登録
-  async register(nickname, email, avatarUrl, avatarType) {
+  // 新規登録（パスワード必須）
+  async register(nickname, email, password, avatarUrl, avatarType) {
     const data = await apiFetch('/api/users/register', {
       method: 'POST',
-      body: JSON.stringify({ nickname, email, avatar_url: avatarUrl, avatar_type: avatarType }),
+      body: JSON.stringify({ nickname, email, password, avatar_url: avatarUrl, avatar_type: avatarType }),
     });
     if (data) { setToken(data.token); setUser(data.user); }
     return data;
   },
 
-  // プロフィール更新
-  async update(nickname, email, avatarUrl, avatarType) {
+  // ログイン（ニックネーム or メール + パスワード）
+  async login(identifier, password) {
+    const data = await apiFetch('/api/users/login', {
+      method: 'POST',
+      body: JSON.stringify({ identifier, password }),
+    });
+    if (data) { setToken(data.token); setUser(data.user); }
+    return data;
+  },
+
+  // プロフィール更新（パスワード変更オプション付き）
+  async update(nickname, email, avatarUrl, avatarType, currentPassword, newPassword) {
+    const body = { nickname, email, avatar_url: avatarUrl, avatar_type: avatarType };
+    if (currentPassword) body.current_password = currentPassword;
+    if (newPassword)     body.new_password     = newPassword;
     const data = await apiFetch('/api/users/me', {
       method: 'PUT',
-      body: JSON.stringify({ nickname, email, avatar_url: avatarUrl, avatar_type: avatarType }),
+      body: JSON.stringify(body),
     });
     if (data) { setToken(data.token); setUser(data.user); }
     return data;
@@ -71,7 +84,7 @@ const UserAPI = {
     return apiFetch('/api/users/me');
   },
 
-  // 全ユーザー一覧（共有先選択用）
+  // 全ユーザー一覧
   async list() {
     return apiFetch('/api/users');
   },

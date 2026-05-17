@@ -6,698 +6,438 @@
 <title>日向坂46 — ひなたカレンダー</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<meta name="theme-color" content="#8b2252">
+<meta name="theme-color" content="#1565a0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="日向坂46">
 <link rel="stylesheet" href="style.css">
 <style>
-/* ── SPLASH ── */
+/* ━━━ SPLASH ━━━ */
 #splash {
   position: fixed; inset: 0;
   background: linear-gradient(165deg, #e8f6ff 0%, #c8e8f8 40%, #a8d4f0 100%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  transition: opacity 0.8s ease, transform 0.8s ease;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 1000; transition: opacity 0.8s ease, transform 0.8s ease;
 }
-#splash.fade-out {
-  opacity: 0;
-  transform: scale(1.04);
-  pointer-events: none;
-}
-
-/* Big falling petals on splash */
-.splash-petals {
-  position: absolute; inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-/* Splash content */
-.splash-crest {
-  font-size: 64px;
-  margin-bottom: 8px;
-  animation: floatCrest 3s ease-in-out infinite;
-  filter: drop-shadow(0 8px 24px rgba(200,80,130,0.25));
-}
-@keyframes floatCrest {
-  0%,100% { transform: translateY(0); }
-  50%      { transform: translateY(-10px); }
-}
-
-.splash-title {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 52px;
-  font-weight: 800;
-  color: var(--sky);
-  letter-spacing: 0.15em;
-  text-align: center;
-  line-height: 1.1;
-  margin-bottom: 6px;
-  text-shadow: 0 2px 20px rgba(139,34,82,0.15);
-  animation: titleReveal 1s cubic-bezier(0.34,1.2,0.64,1) 0.3s both;
-}
-@keyframes titleReveal {
-  from { opacity:0; transform: translateY(20px) scale(0.95); }
-  to   { opacity:1; transform: translateY(0)    scale(1); }
-}
-
-.splash-subtitle {
-  font-family: 'Noto Serif JP', serif;
-  font-size: 12px;
-  color: var(--hina-4);
-  letter-spacing: 0.35em;
-  margin-bottom: 4px;
-  animation: titleReveal 1s cubic-bezier(0.34,1.2,0.64,1) 0.5s both;
-}
-
-.splash-divider {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 18px 0 24px;
-  animation: titleReveal 1s ease 0.65s both;
-}
-.splash-divider::before,
-.splash-divider::after {
-  content: '';
-  width: 60px; height: 1px;
-  background: var(--hina-3);
-}
-.splash-divider-mark {
-  font-size: 14px;
-  color: var(--hina-3);
-  letter-spacing: 4px;
-}
-
+#splash.fade-out { opacity: 0; transform: scale(1.04); pointer-events: none; }
+.splash-petals { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.splash-crest { font-size: 64px; margin-bottom: 8px; animation: floatCrest 3s ease-in-out infinite; filter: drop-shadow(0 8px 24px rgba(200,80,130,0.25)); }
+@keyframes floatCrest { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.splash-title { font-family:'Shippori Mincho',serif; font-size:52px; font-weight:800; color:var(--sky); letter-spacing:0.15em; text-align:center; line-height:1.1; margin-bottom:6px; text-shadow:0 2px 20px rgba(139,34,82,0.15); animation:titleReveal 1s cubic-bezier(0.34,1.2,0.64,1) 0.3s both; }
+.splash-subtitle { font-family:'Noto Serif JP',serif; font-size:12px; color:var(--hina-4); letter-spacing:0.35em; margin-bottom:4px; animation:titleReveal 1s cubic-bezier(0.34,1.2,0.64,1) 0.5s both; }
+@keyframes titleReveal { from{opacity:0;transform:translateY(20px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
+.splash-divider { display:flex; align-items:center; gap:10px; margin:18px 0 24px; animation:titleReveal 1s ease 0.65s both; }
+.splash-divider::before,.splash-divider::after { content:''; width:60px; height:1px; background:var(--hina-3); }
+.splash-divider-mark { font-size:14px; color:var(--hina-3); letter-spacing:4px; }
 .splash-start-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 18px 48px;
-  background: var(--sky);
-  color: white;
-  border: none;
-  border-radius: 50px;
-  font-family: 'Shippori Mincho', serif;
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: 0.2em;
-  cursor: pointer;
-  box-shadow: 0 8px 32px rgba(139,34,82,0.35);
-  transition: transform 0.18s, box-shadow 0.18s;
-  animation: titleReveal 1s cubic-bezier(0.34,1.56,0.64,1) 0.85s both;
-  position: relative;
-  overflow: hidden;
+  display:inline-flex; align-items:center; gap:10px; padding:18px 48px;
+  background:var(--sky); color:white; border:none; border-radius:50px;
+  font-family:'Shippori Mincho',serif; font-size:18px; font-weight:800;
+  letter-spacing:0.2em; cursor:pointer; box-shadow:0 8px 32px rgba(139,34,82,0.35);
+  transition:transform 0.18s,box-shadow 0.18s; animation:titleReveal 1s cubic-bezier(0.34,1.56,0.64,1) 0.85s both;
+  position:relative; overflow:hidden; touch-action:manipulation;
 }
-.splash-start-btn::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
-  border-radius: inherit;
-}
-.splash-start-btn:active {
-  transform: scale(0.95);
-  box-shadow: 0 4px 16px rgba(139,34,82,0.25);
-}
+.splash-start-btn::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,0.12) 0%,transparent 60%); border-radius:inherit; }
+.splash-start-btn:active { transform:scale(0.95); box-shadow:0 4px 16px rgba(139,34,82,0.25); }
+.splash-ver { position:absolute; bottom:24px; font-family:'Noto Serif JP',serif; font-size:10px; color:var(--hina-3); letter-spacing:0.2em; animation:titleReveal 1s ease 1.1s both; }
 
-.splash-ver {
-  position: absolute;
-  bottom: 24px;
-  font-family: 'Noto Serif JP', serif;
-  font-size: 10px;
-  color: var(--hina-3);
-  letter-spacing: 0.2em;
-  animation: titleReveal 1s ease 1.1s both;
-}
+/* ━━━ MAIN ━━━ */
+#main { opacity:0; transition:opacity 0.6s ease; pointer-events:none; }
+#main.visible { opacity:1; pointer-events:auto; }
 
-/* ── MAIN CONTENT (hidden until splash done) ── */
-#main {
-  opacity: 0;
-  transition: opacity 0.6s ease;
-  pointer-events: none;
-}
-#main.visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* ── HOME PAGE SPECIFIC ── */
+/* ━━━ HERO（陽差しアニメ＋壁紙） ━━━ */
 .home-hero {
-  margin: 24px 18px 20px;
-  border-radius: 28px;
-  padding: 32px 24px;
-  background: linear-gradient(145deg, var(--sky) 0%, #c45070 60%, #e07898 100%);
-  text-align: center;
+  margin: 0 0 20px;
+  height: 260px;
+  border-radius: 0 0 36px 36px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 8px 36px rgba(139,34,82,0.28);
+  box-shadow: 0 12px 48px rgba(21,101,160,0.22);
 }
-.home-hero::before {
-  content: '✿  ✿  ✿  ✿  ✿';
+
+/* 壁紙レイヤー */
+.hero-wallpaper {
+  position: absolute; inset: 0;
+  background: linear-gradient(160deg, #1a3a6a 0%, #1e5a9a 40%, #2878c8 80%, #3a98e8 100%);
+  background-size: cover; background-position: center;
+  transition: background-image 0.5s ease;
+}
+
+/* 陽差し光芒 */
+.hero-sun {
   position: absolute;
-  bottom: 12px; left: 0; right: 0;
-  text-align: center;
-  font-size: 12px;
-  color: rgba(255,255,255,0.2);
-  letter-spacing: 10px;
+  top: -60px; left: 50%;
+  transform: translateX(-50%);
+  width: 200px; height: 200px;
 }
-.home-hero-crest { font-size: 56px; margin-bottom: 10px; }
-.home-hero-title {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 32px;
-  font-weight: 800;
-  color: white;
-  letter-spacing: 0.12em;
-  margin-bottom: 6px;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.15);
-}
-.home-hero-sub {
-  color: rgba(255,255,255,0.8);
-  font-family: 'Noto Serif JP', serif;
-  font-size: 11px;
-  letter-spacing: 0.2em;
-}
-
-/* Quick access grid */
-.quick-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 13px;
-  margin: 0 18px 24px;
-}
-.quick-card {
-  background: rgba(255,255,255,0.82);
-  backdrop-filter: blur(10px);
-  border-radius: 22px;
-  border: 1.5px solid var(--hina-2);
-  padding: 22px 16px;
-  text-align: center;
-  text-decoration: none;
-  color: var(--sumi);
-  box-shadow: var(--shadow-hina);
-  transition: transform 0.18s, box-shadow 0.18s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  position: relative;
-  overflow: hidden;
-}
-.quick-card::before {
-  content: '✿';
-  position: absolute;
-  bottom: -6px; right: -4px;
-  font-size: 44px;
-  color: var(--hina-2);
-  opacity: 0.55;
-  pointer-events: none;
-}
-.quick-card:active { transform: scale(0.96); box-shadow: none; }
-.quick-card-icon { font-size: 32px; }
-.quick-card-label {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--sky);
-  letter-spacing: 0.08em;
-}
-.quick-card-sub {
-  font-size: 10px;
-  color: var(--sumi-light);
-  letter-spacing: 0.06em;
-}
-
-/* Today's info strip */
-.today-strip {
-  margin: 0 18px 24px;
-  background: rgba(255,255,255,0.82);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  border: 1.5px solid var(--hina-2);
-  padding: 18px 20px;
-  box-shadow: var(--shadow-hina);
-}
-.today-strip-label {
-  font-family: 'Noto Serif JP', serif;
-  font-size: 10px;
-  color: var(--hina-4);
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-.today-strip-date {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--sky);
-  letter-spacing: 0.06em;
-  margin-bottom: 2px;
-}
-.today-strip-reki {
-  font-family: 'Noto Serif JP', serif;
-  font-size: 11px;
-  color: var(--sumi-light);
-  letter-spacing: 0.12em;
-}
-.today-strip-clock {
-  font-family: 'M PLUS Rounded 1c', sans-serif;
-  font-size: 36px;
-  font-weight: 800;
-  color: var(--sky);
-  letter-spacing: 0.05em;
-  margin-top: 10px;
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-.today-strip-clock-colon {
-  animation: clockBlink 1s step-end infinite;
-  opacity: 1;
-  color: var(--hina-3);
-}
-@keyframes clockBlink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.2; }
-}
-.today-strip-clock-sec {
-  font-size: 18px;
-  color: var(--hina-4);
-  font-weight: 700;
-  margin-left: 2px;
-  align-self: flex-end;
-  padding-bottom: 3px;
-}
-
-/* Upcoming mini list */
-.upcoming-mini {
-  margin: 0 18px 100px;
-}
-.upcoming-mini-title {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--sky);
-  letter-spacing: 0.08em;
-  margin-bottom: 12px;
-}
-.upcoming-mini-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 13px 16px;
-  background: rgba(255,255,255,0.78);
-  border-radius: 16px;
-  border: 1.5px solid var(--hina-2);
-  margin-bottom: 9px;
-  box-shadow: var(--shadow-hina);
-  cursor: pointer;
-  transition: transform 0.15s;
-  text-decoration: none;
-  color: var(--sumi);
-}
-.upcoming-mini-item:active { transform: scale(0.98); }
-.upcoming-mini-icon { font-size: 22px; flex-shrink: 0; }
-.upcoming-mini-info { flex: 1; }
-.upcoming-mini-name { font-family: 'Noto Serif JP', serif; font-size: 13px; font-weight: 600; margin-bottom: 2px; }
-.upcoming-mini-date { font-size: 11px; color: var(--sumi-light); }
-.upcoming-mini-badge {
-  font-size: 10px;
-  padding: 3px 9px;
-  border-radius: 20px;
-  font-weight: 700;
-  background: var(--hina-1);
-  color: var(--sky);
-  border: 1px solid var(--hina-2);
-  white-space: nowrap;
-  font-family: 'Noto Serif JP', serif;
-}
-.upcoming-mini-badge.event-badge {
-  background: rgba(90,122,90,0.1);
-  color: var(--matcha);
-  border-color: rgba(90,122,90,0.3);
-}
-
-/* ═══════════════════════════════════════
-   LOGIN SCREEN
-   ═══════════════════════════════════════ */
-#login-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 400;
-  display: none;
-  overflow: hidden;
-  /* 全体タップで閉じる */
-  cursor: pointer;
-}
-#login-screen.active {
-  display: block;
-}
-#login-screen.closing {
-  animation: loginClose 0.55s cubic-bezier(.4,0,.6,1) forwards;
-}
-@keyframes loginClose {
-  to { opacity: 0; transform: scale(1.05); }
-}
-
-/* ── 背景グラデーション ── */
-#login-bg {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(160deg,
-    #c8e8fc 0%,
-    #e4f4ff 35%,
-    #fdf4d0 70%,
-    #fff8e8 100%);
-  animation: loginBgIn 0.4s ease both;
-}
-@keyframes loginBgIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-/* キラキラ装飾 */
-.login-sparkle {
-  position: absolute;
+.hero-sun-core {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 80px; height: 80px;
   border-radius: 50%;
-  pointer-events: none;
-  animation: sparklePulse 2.5s ease-in-out infinite;
+  background: radial-gradient(circle, #fff8d0 0%, #ffe878 40%, #ffd040 70%, transparent 100%);
+  box-shadow: 0 0 60px 20px rgba(255,220,60,0.6), 0 0 120px 50px rgba(255,200,20,0.3);
+  animation: sunPulse 4s ease-in-out infinite;
 }
-@keyframes sparklePulse {
-  0%,100% { transform: scale(1);   opacity: .5; }
-  50%      { transform: scale(1.3); opacity: .9; }
-}
-
-/* ── メンバー写真エリア ── */
-#login-member-wrap {
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  height: 80vh;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  pointer-events: none;
-}
-#login-member-img {
-  height: 100%;
-  max-width: 100vw;
-  object-fit: contain;
-  object-position: bottom center;
-  opacity: 0;
-  transform: translateY(50px);
-  transition: opacity .5s ease, transform .5s cubic-bezier(.22,.9,.36,1);
-  filter: drop-shadow(0 16px 48px rgba(0,80,160,.18));
-}
-#login-member-img.show {
-  opacity: 1;
-  transform: translateY(0);
+@keyframes sunPulse {
+  0%,100%{ transform:translate(-50%,-50%) scale(1); opacity:0.9; }
+  50%    { transform:translate(-50%,-50%) scale(1.08); opacity:1; }
 }
 
-/* ── 吹き出し ── */
-#login-bubble {
-  position: fixed;
-  top: clamp(16px, 8vh, 60px);
-  right: clamp(12px, 5vw, 40px);
-  max-width: min(60vw, 240px);
-  background: rgba(255,255,255,.97);
-  border: 2.5px solid var(--sky, #48b4e0);
-  border-radius: 24px 24px 6px 24px;
-  padding: 14px 18px 13px;
-  box-shadow:
-    0 8px 32px rgba(72,180,224,.22),
-    0 2px 8px rgba(0,0,0,.08);
-  opacity: 0;
-  transform: scale(.6);
-  transition: opacity .4s .28s ease, transform .4s .28s cubic-bezier(.34,1.56,.64,1);
-  pointer-events: none;
+/* 光芒（放射線） */
+.hero-rays {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 600px; height: 600px;
+  animation: raysRotate 24s linear infinite;
 }
-#login-bubble.show {
-  opacity: 1;
-  transform: scale(1);
+@keyframes raysRotate { to { transform: translate(-50%,-50%) rotate(360deg); } }
+.hero-ray {
+  position: absolute; top: 50%; left: 50%;
+  width: 300px; height: 3px;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, rgba(255,240,100,0.7) 0%, rgba(255,220,60,0.15) 60%, transparent 100%);
+  border-radius: 2px;
 }
-/* しっぽ（右下向き） */
-#login-bubble::before {
-  content: '';
+
+/* 空気感グロー */
+.hero-atmosphere {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% -20%, rgba(255,230,80,0.35) 0%, rgba(255,200,40,0.08) 50%, transparent 80%);
+  animation: atmoPulse 6s ease-in-out infinite;
+}
+@keyframes atmoPulse {
+  0%,100%{ opacity:0.7; }
+  50%    { opacity:1; }
+}
+
+/* 光のさざ波（水面反射感） */
+.hero-shimmer {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0px,
+    transparent 40px,
+    rgba(255,255,255,0.04) 40px,
+    rgba(255,255,255,0.04) 41px
+  );
+  animation: shimmerMove 8s linear infinite;
+}
+@keyframes shimmerMove { to { background-position: 100px 100px; } }
+
+/* テキストオーバーレイ */
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(10,30,60,0.55) 0%, transparent 60%);
+}
+.hero-content {
   position: absolute;
-  bottom: -17px;
-  right: 26px;
-  border: 9px solid transparent;
-  border-top-color: var(--sky, #48b4e0);
+  bottom: 24px; left: 24px; right: 24px;
 }
-#login-bubble::after {
-  content: '';
-  position: absolute;
-  bottom: -13px;
-  right: 28px;
-  border: 7px solid transparent;
-  border-top-color: rgba(255,255,255,.97);
+.hero-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 32px; font-weight: 800; color: white;
+  letter-spacing: 0.12em; text-shadow: 0 2px 20px rgba(0,0,30,0.4);
+  margin-bottom: 4px;
 }
-
-.login-bubble-name {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--sky, #48b4e0);
-  letter-spacing: .1em;
-  margin-bottom: 6px;
-  font-family: 'Noto Serif JP', serif;
-}
-.login-bubble-text {
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.6;
-  color: #1a2a3a;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+.hero-sub {
+  font-family: 'Noto Serif JP', serif; font-size: 11px;
+  color: rgba(255,255,255,0.82); letter-spacing: 0.22em;
 }
 
-/* ── タイトル帯（右上） ── */
-#login-title-badge {
-  position: fixed;
-  top: clamp(16px, 8vh, 60px);
-  left: clamp(12px, 5vw, 40px);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  pointer-events: none;
-  opacity: 0;
-  animation: titleBadgeIn .5s .1s ease forwards;
+/* 壁紙変更ボタン */
+.hero-wallpaper-btn {
+  position: absolute; top: 14px; right: 14px;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.22); border: 1.5px solid rgba(255,255,255,0.5);
+  color: white; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: manipulation; backdrop-filter: blur(8px);
+  transition: background 0.15s;
 }
-@keyframes titleBadgeIn {
-  from { opacity:0; transform:translateX(-14px); }
-  to   { opacity:1; transform:translateX(0); }
-}
-.login-title-main {
-  font-size: clamp(22px, 5.5vw, 30px);
-  font-weight: 900;
-  color: var(--sky, #48b4e0);
-  font-family: 'Noto Serif JP', serif;
-  text-shadow: 0 2px 12px rgba(72,180,224,.35);
-  letter-spacing: .06em;
-}
-.login-title-sub {
-  font-size: 11px;
-  color: #4a7090;
-  letter-spacing: .18em;
-  font-family: 'Noto Serif JP', serif;
-}
+.hero-wallpaper-btn:active { background: rgba(255,255,255,0.35); }
 
-/* ── タップヒント ── */
-#login-tap-hint {
-  position: fixed;
-  bottom: clamp(24px, 5vh, 44px);
-  left: 0; right: 0;
-  text-align: center;
-  font-size: 11.5px;
-  color: rgba(40,90,140,.5);
-  letter-spacing: .2em;
-  font-family: 'Noto Serif JP', serif;
-  animation: tapHintPulse 2s ease-in-out infinite;
-  pointer-events: none;
-}
-@keyframes tapHintPulse {
-  0%,100% { opacity: .4; }
-  50%      { opacity: .9; }
-}
+/* ━━━ QUICK GRID ━━━ */
+.quick-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:13px; margin:0 18px 24px; }
+.quick-card { background:rgba(255,255,255,0.82); backdrop-filter:blur(10px); border-radius:22px; border:1.5px solid var(--hina-2); padding:22px 16px; text-align:center; text-decoration:none; color:var(--sumi); box-shadow:var(--shadow-hina); transition:transform 0.18s; display:flex; flex-direction:column; align-items:center; gap:8px; position:relative; overflow:hidden; }
+.quick-card::before { content:'✿'; position:absolute; bottom:-6px; right:-4px; font-size:44px; color:var(--hina-2); opacity:0.55; pointer-events:none; }
+.quick-card:active { transform:scale(0.96); }
+.quick-card-icon { font-size:32px; }
+.quick-card-label { font-family:'Shippori Mincho',serif; font-size:14px; font-weight:700; color:var(--sky); letter-spacing:0.08em; }
+.quick-card-sub { font-size:10px; color:var(--sumi-light); letter-spacing:0.06em; }
 
+/* ━━━ TODAY STRIP ━━━ */
+.today-strip { margin:0 18px 24px; background:rgba(255,255,255,0.82); backdrop-filter:blur(10px); border-radius:20px; border:1.5px solid var(--hina-2); padding:18px 20px; box-shadow:var(--shadow-hina); }
+.today-strip-label { font-family:'Noto Serif JP',serif; font-size:10px; color:var(--hina-4); letter-spacing:0.22em; text-transform:uppercase; margin-bottom:10px; }
+.today-strip-date { font-family:'Shippori Mincho',serif; font-size:26px; font-weight:800; color:var(--sky); letter-spacing:0.06em; margin-bottom:2px; }
+.today-strip-reki { font-family:'Noto Serif JP',serif; font-size:11px; color:var(--sumi-light); letter-spacing:0.12em; }
+.today-strip-clock { font-family:'M PLUS Rounded 1c',sans-serif; font-size:36px; font-weight:800; color:var(--sky); letter-spacing:0.05em; margin-top:10px; display:flex; align-items:baseline; gap:4px; }
+.today-strip-clock-colon { animation:clockBlink 1s step-end infinite; }
+@keyframes clockBlink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.today-strip-clock-sec { font-size:18px; color:var(--hina-4); font-weight:700; margin-left:2px; align-self:flex-end; padding-bottom:3px; }
 
-/* ── X TIMELINE ── */
-.x-timeline-wrap {
-  margin: 0 0 24px;
-  background: rgba(255,255,255,0.82);
-  backdrop-filter: blur(10px);
-  border-radius: 24px;
-  border: 1.5px solid var(--hina-2);
-  box-shadow: var(--shadow-hina);
-  overflow: hidden;
+/* ━━━ UPCOMING ━━━ */
+.upcoming-mini { margin:0 18px 100px; }
+.upcoming-mini-item { display:flex; align-items:center; gap:14px; padding:13px 16px; background:rgba(255,255,255,0.78); border-radius:16px; border:1.5px solid var(--hina-2); margin-bottom:9px; box-shadow:var(--shadow-hina); cursor:pointer; transition:transform 0.15s; text-decoration:none; color:var(--sumi); }
+.upcoming-mini-item:active { transform:scale(0.98); }
+.upcoming-mini-icon { font-size:22px; flex-shrink:0; }
+.upcoming-mini-info { flex:1; }
+.upcoming-mini-name { font-family:'Noto Serif JP',serif; font-size:13px; font-weight:600; margin-bottom:2px; }
+.upcoming-mini-date { font-size:11px; color:var(--sumi-light); }
+.upcoming-mini-badge { font-size:10px; padding:3px 9px; border-radius:20px; font-weight:700; background:var(--hina-1); color:var(--sky); border:1px solid var(--hina-2); white-space:nowrap; font-family:'Noto Serif JP',serif; }
+.upcoming-mini-badge.event-badge { background:rgba(90,122,90,0.1); color:var(--matcha); border-color:rgba(90,122,90,0.3); }
+
+/* ━━━ 公式X（埋め込み代替） ━━━ */
+.x-section {
+  margin: 0 18px 24px;
+  background: rgba(255,255,255,0.85); backdrop-filter: blur(10px);
+  border-radius: 24px; border: 1.5px solid var(--hina-2);
+  box-shadow: var(--shadow-hina); overflow: hidden;
 }
-.x-timeline-inner {
-  padding: 0 0 4px;
-  min-height: 200px;
+.x-section-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--hina-1);
 }
-.x-timeline-footer {
-  padding: 10px 16px 14px;
-  border-top: 1px solid var(--hina-2);
-  text-align: center;
+.x-section-icon { font-size: 20px; }
+.x-section-title { font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 14px; font-weight: 800; color: var(--sumi); }
+.x-section-handle { font-size: 11px; color: var(--sumi-light); font-family: 'Noto Serif JP', serif; }
+.x-open-link {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+  color: white; text-decoration: none;
+  font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 14px; font-weight: 700;
+  letter-spacing: 0.08em; transition: opacity 0.15s; touch-action: manipulation;
 }
-.x-open-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 9px 22px;
-  background: var(--sky); color: white;
-  border-radius: 20px; text-decoration: none;
-  font-family: 'M PLUS Rounded 1c', sans-serif;
-  font-size: 12px; font-weight: 700;
-  letter-spacing: 0.06em;
-  transition: transform 0.15s;
+.x-open-link:active { opacity: 0.85; }
+.x-open-link-icon { font-size: 18px; }
+
+/* 最新ツイート風カード（静的） */
+.x-tweet-card {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--hina-1);
+  display: flex; gap: 12px; align-items: flex-start;
 }
-.x-open-btn:active { transform: scale(0.95); }
+.x-tweet-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, #2878c8, #1a5a9a);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0; color: white; font-weight: 900;
+}
+.x-tweet-body { flex: 1; }
+.x-tweet-name { font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 13px; font-weight: 800; color: var(--sumi); }
+.x-tweet-handle { font-size: 10px; color: var(--sumi-light); margin-bottom: 6px; }
+.x-tweet-text { font-family: 'Noto Serif JP', serif; font-size: 12px; color: var(--sumi); line-height: 1.7; }
 
 /* アカウントCTA */
-.account-cta-card {
-  display: flex; align-items: center; gap: 14px;
-  padding: 18px 18px;
-  background: linear-gradient(135deg, rgba(21,101,160,0.08) 0%, rgba(114,188,232,0.12) 100%);
-  border-radius: 20px; border: 1.5px solid var(--hina-2);
-  text-decoration: none; color: var(--sumi);
-  box-shadow: var(--shadow-hina);
-  transition: transform 0.15s;
+.account-cta-card { display:flex; align-items:center; gap:14px; padding:18px; background:linear-gradient(135deg,rgba(21,101,160,0.08) 0%,rgba(114,188,232,0.12) 100%); border-radius:20px; border:1.5px solid var(--hina-2); text-decoration:none; color:var(--sumi); box-shadow:var(--shadow-hina); transition:transform 0.15s; }
+.account-cta-card:active { transform:scale(0.97); }
+.account-cta-icon { font-size:32px; flex-shrink:0; }
+.account-cta-info { flex:1; }
+.account-cta-title { font-family:'Shippori Mincho',serif; font-size:15px; font-weight:700; color:var(--sky); margin-bottom:3px; }
+.account-cta-sub { font-size:11px; color:var(--sumi-light); font-family:'Noto Serif JP',serif; }
+
+/* ━━━ LOGIN SCREEN ━━━ */
+#login-screen { position:fixed; inset:0; z-index:400; display:none; overflow:hidden; cursor:pointer; }
+#login-screen.active { display:block; }
+#login-screen.closing { animation:loginClose 0.55s cubic-bezier(.4,0,.6,1) forwards; }
+@keyframes loginClose { to{opacity:0;transform:scale(1.05)} }
+#login-bg { position:absolute; inset:0; background:linear-gradient(160deg,#c8e8fc 0%,#e4f4ff 35%,#fdf4d0 70%,#fff8e8 100%); animation:loginBgIn 0.4s ease both; }
+@keyframes loginBgIn { from{opacity:0} to{opacity:1} }
+.login-sparkle { position:absolute; border-radius:50%; pointer-events:none; animation:sparklePulse 2.5s ease-in-out infinite; }
+@keyframes sparklePulse { 0%,100%{transform:scale(1);opacity:.5} 50%{transform:scale(1.3);opacity:.9} }
+/* ログイン画面のメンバー写真は廃止 → 陽差しアニメに変更 */
+.login-sun-bg {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
 }
-.account-cta-card:active { transform: scale(0.97); }
-.account-cta-icon { font-size: 32px; flex-shrink: 0; }
-.account-cta-info { flex: 1; }
-.account-cta-title { font-family: 'Shippori Mincho', serif; font-size: 15px; font-weight: 700; color: var(--sky); margin-bottom: 3px; }
-.account-cta-sub   { font-size: 11px; color: var(--sumi-light); font-family: 'Noto Serif JP', serif; }
+.login-sun-anim {
+  width: 280px; height: 280px; border-radius: 50%;
+  background: radial-gradient(circle, #fff8c0 0%, #ffe060 30%, #ffc820 60%, transparent 85%);
+  box-shadow: 0 0 120px 60px rgba(255,210,20,0.5), 0 0 240px 120px rgba(255,200,0,0.2);
+  animation: loginSunAppear 1.2s cubic-bezier(0.22,1,0.36,1) both, sunPulse 4s 1.2s ease-in-out infinite;
+}
+@keyframes loginSunAppear {
+  from { opacity:0; transform:scale(0.3); }
+  to   { opacity:1; transform:scale(1); }
+}
+/* 放射線 */
+.login-rays-wrap {
+  position: absolute; top: 50%; left: 50%;
+  width: 900px; height: 900px;
+  transform: translate(-50%,-50%);
+  animation: raysRotate 18s linear infinite;
+  pointer-events: none;
+}
+.login-ray {
+  position: absolute; top: 50%; left: 50%;
+  width: 450px; height: 4px;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, rgba(255,240,80,0.5) 0%, rgba(255,220,40,0.12) 50%, transparent 100%);
+  border-radius: 3px;
+}
+#login-title-badge { position:fixed; top:clamp(16px,8vh,60px); left:clamp(12px,5vw,40px); display:flex; flex-direction:column; gap:2px; pointer-events:none; opacity:0; animation:titleBadgeIn .5s .1s ease forwards; }
+@keyframes titleBadgeIn { from{opacity:0;transform:translateX(-14px)} to{opacity:1;transform:translateX(0)} }
+.login-title-main { font-size:clamp(22px,5.5vw,30px); font-weight:900; color:var(--sky); font-family:'Noto Serif JP',serif; text-shadow:0 2px 12px rgba(72,180,224,.35); letter-spacing:.06em; }
+.login-title-sub { font-size:11px; color:#4a7090; letter-spacing:.18em; font-family:'Noto Serif JP',serif; }
+#login-bubble { position:fixed; top:clamp(16px,8vh,60px); right:clamp(12px,5vw,40px); max-width:min(60vw,240px); background:rgba(255,255,255,.97); border:2.5px solid var(--sky,#48b4e0); border-radius:24px 24px 6px 24px; padding:14px 18px 13px; box-shadow:0 8px 32px rgba(72,180,224,.22),0 2px 8px rgba(0,0,0,.08); opacity:0; transform:scale(.6); transition:opacity .4s .28s ease,transform .4s .28s cubic-bezier(.34,1.56,.64,1); pointer-events:none; }
+#login-bubble.show { opacity:1; transform:scale(1); }
+#login-bubble::before { content:''; position:absolute; bottom:-17px; right:26px; border:9px solid transparent; border-top-color:var(--sky,#48b4e0); }
+#login-bubble::after  { content:''; position:absolute; bottom:-13px; right:28px; border:7px solid transparent; border-top-color:rgba(255,255,255,.97); }
+.login-bubble-name { font-size:11px; font-weight:700; color:var(--sky); letter-spacing:.1em; margin-bottom:6px; font-family:'Noto Serif JP',serif; }
+.login-bubble-text { font-size:15px; font-weight:700; line-height:1.6; color:#1a2a3a; font-family:'Shippori Mincho','Noto Serif JP',serif; }
+#login-tap-hint { position:fixed; bottom:clamp(24px,5vh,44px); left:0; right:0; text-align:center; font-size:11.5px; color:rgba(40,90,140,.5); letter-spacing:.2em; font-family:'Noto Serif JP',serif; animation:tapHintPulse 2s ease-in-out infinite; pointer-events:none; }
+@keyframes tapHintPulse { 0%,100%{opacity:.4} 50%{opacity:.9} }
 </style>
 </head>
 <body>
-
 <canvas id="petals-canvas"></canvas>
 
-<!-- SPLASH SCREEN -->
+<!-- SPLASH -->
 <div id="splash">
   <canvas class="splash-petals" id="splashCanvas"></canvas>
-
   <div class="splash-crest">☀️</div>
   <div class="splash-title">日向坂46</div>
   <div class="splash-subtitle">✿ ひなたカレンダー ✿</div>
-  <div class="splash-divider">
-    <span class="splash-divider-mark">✿ ✿ ✿</span>
-  </div>
-  <button class="splash-start-btn" onclick="startApp()">
-    はじめる
-  </button>
-  <div class="splash-ver">Hinata Calendar · ver 1.0</div>
+  <div class="splash-divider"><span class="splash-divider-mark">✿ ✿ ✿</span></div>
+  <button class="splash-start-btn" id="splashBtn">はじめる</button>
+  <div class="splash-ver">Hinata Calendar · ver 2.0</div>
 </div>
 
 <!-- MAIN APP -->
 <div id="main">
   <div id="app">
     <div id="headerMount"></div>
-    <div class="page-content page-enter">
+    <div class="page-content page-enter" style="padding:0">
 
-      <!-- HERO -->
+      <!-- ━━━ HERO：陽差しアニメ＋壁紙 ━━━ -->
       <div class="home-hero">
-        <div class="home-hero-crest">☀️</div>
-        <div class="home-hero-title">日向坂46</div>
-        <div class="home-hero-sub">✿ ひなたカレンダー ✿</div>
-      </div>
+        <!-- 壁紙（背景写真またはグラデーション） -->
+        <div class="hero-wallpaper" id="heroWallpaper"></div>
 
-      <!-- TODAY -->
-      <div class="today-strip">
-        <div class="today-strip-label">✿ TODAY</div>
-        <div class="today-strip-date" id="todayDate"></div>
-        <div class="today-strip-reki" id="todayReki"></div>
-        <div class="today-strip-clock">
-          <span id="clockH">--</span><span class="today-strip-clock-colon">:</span><span id="clockM">--</span><span class="today-strip-clock-colon">:</span><span id="clockS" class="today-strip-clock-sec">--</span>
+        <!-- 陽差しアニメーション -->
+        <div class="hero-sun">
+          <!-- 光芒 -->
+          <div class="hero-rays" id="heroRays"></div>
+          <!-- 太陽本体 -->
+          <div class="hero-sun-core"></div>
         </div>
-      </div>
 
-      <!-- QUICK ACCESS -->
-      <div class="section-kamon"><span class="section-kamon-text">✿ メニュー ✿</span></div>
-      <div class="quick-grid">
-        <a class="quick-card" href="calendar.html">
-          <div class="quick-card-icon">📅</div>
-          <div class="quick-card-label">日向坂46</div>
-          <div class="quick-card-sub">カレンダー</div>
-        </a>
-        <a class="quick-card" href="members.html">
-          <div class="quick-card-icon">🌻</div>
-          <div class="quick-card-label">推しメン</div>
-          <div class="quick-card-sub">メンバー一覧</div>
-        </a>
-        <a class="quick-card" href="events.html">
-          <div class="quick-card-icon">✿</div>
-          <div class="quick-card-label">行事帳</div>
-          <div class="quick-card-sub">イベント管理</div>
-        </a>
-        <a class="quick-card" href="gallery.html">
-          <div class="quick-card-icon">📷</div>
-          <div class="quick-card-label">ギャラリー</div>
-          <div class="quick-card-sub">フォトコレクション</div>
-        </a>
-        <a class="quick-card" href="venue.html">
-          <div class="quick-card-icon">🏟️</div>
-          <div class="quick-card-label">ライブ会場</div>
-          <div class="quick-card-sub">会場一覧</div>
-        </a>
-        <a class="quick-card" href="flower.html">
-          <div class="quick-card-icon">💐</div>
-          <div class="quick-card-label">祝花申し込み</div>
-          <div class="quick-card-sub">推しメンに贈ろう</div>
-        </a>
-        <a class="quick-card" href="poster.html">
-          <div class="quick-card-icon">🎨</div>
-          <div class="quick-card-label">ポスター案</div>
-          <div class="quick-card-sub">イラスト共有</div>
-        </a>
-        <a class="quick-card" href="train.html">
-          <div class="quick-card-icon">🚃</div>
-          <div class="quick-card-label">電車検索</div>
-          <div class="quick-card-sub">乗り換え案内</div>
-        </a>
-      </div>
+        <!-- 空気感 -->
+        <div class="hero-atmosphere"></div>
+        <div class="hero-shimmer"></div>
 
-      <!-- UPCOMING -->
-      <div class="section-kamon"><span class="section-kamon-text">✿ COMING UP ✿</span></div>
-      <div class="upcoming-mini" id="upcomingMini"></div>
-
-      <!-- X (Twitter) 公式タイムライン -->
-      <div class="section-kamon" style="margin-top:8px"><span class="section-kamon-text">✿ 公式X ✿</span></div>
-      <div class="x-timeline-wrap" id="xTimelineWrap">
-        <div class="x-timeline-inner">
-          <a class="twitter-timeline"
-            data-lang="ja"
-            data-height="500"
-            data-theme="light"
-            data-chrome="noheader nofooter noborders"
-            data-tweet-limit="5"
-            href="https://twitter.com/hinatazaka46">
-            @hinatazaka46 のツイートを読み込み中…
-          </a>
+        <!-- テキストオーバーレイ -->
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <div class="hero-title">日向坂46</div>
+          <div class="hero-sub">✿ ひなたカレンダー ✿</div>
         </div>
-        <div class="x-timeline-footer">
-          <a href="https://twitter.com/hinatazaka46" target="_blank" rel="noopener" class="x-open-btn">
-            𝕏 @hinatazaka46 を開く
-          </a>
-        </div>
+
+        <!-- 壁紙変更ボタン -->
+        <button class="hero-wallpaper-btn" id="wallpaperBtn" title="壁紙を変更">🖼</button>
+        <input type="file" id="wallpaperFileInput" accept="image/*" style="display:none">
       </div>
 
-      <!-- アカウント設定へのCTA（未ログイン時） -->
-      <div id="accountCta" style="display:none;margin-bottom:100px">
-        <div class="section-kamon" style="margin-top:4px"><span class="section-kamon-text">✿ アカウント ✿</span></div>
-        <a href="profile.html" class="account-cta-card">
-          <div class="account-cta-icon">👤</div>
-          <div class="account-cta-info">
-            <div class="account-cta-title">アカウントを設定する</div>
-            <div class="account-cta-sub">イベント・写真の共有機能が使えるようになります</div>
+      <div style="padding:0 18px">
+
+        <!-- TODAY -->
+        <div class="today-strip" style="margin:20px 0 24px">
+          <div class="today-strip-label">✿ TODAY</div>
+          <div class="today-strip-date" id="todayDate"></div>
+          <div class="today-strip-reki" id="todayReki"></div>
+          <div class="today-strip-clock">
+            <span id="clockH">--</span><span class="today-strip-clock-colon">:</span><span id="clockM">--</span><span class="today-strip-clock-colon">:</span><span id="clockS" class="today-strip-clock-sec">--</span>
           </div>
-          <div style="font-size:18px;color:var(--sky)">→</div>
-        </a>
+        </div>
+
+        <!-- QUICK ACCESS -->
+        <div class="section-kamon"><span class="section-kamon-text">✿ メニュー ✿</span></div>
+        <div class="quick-grid" style="margin:0 0 24px">
+          <a class="quick-card" href="calendar.html"><div class="quick-card-icon">📅</div><div class="quick-card-label">日向坂46</div><div class="quick-card-sub">カレンダー</div></a>
+          <a class="quick-card" href="members.html"><div class="quick-card-icon">🌻</div><div class="quick-card-label">推しメン</div><div class="quick-card-sub">メンバー一覧</div></a>
+          <a class="quick-card" href="events.html"><div class="quick-card-icon">✿</div><div class="quick-card-label">行事帳</div><div class="quick-card-sub">イベント管理</div></a>
+          <a class="quick-card" href="gallery.html"><div class="quick-card-icon">📷</div><div class="quick-card-label">ギャラリー</div><div class="quick-card-sub">フォトコレクション</div></a>
+          <a class="quick-card" href="venue.html"><div class="quick-card-icon">🏟️</div><div class="quick-card-label">ライブ会場</div><div class="quick-card-sub">会場一覧</div></a>
+          <a class="quick-card" href="schedule.html"><div class="quick-card-icon">📋</div><div class="quick-card-label">スケジュール</div><div class="quick-card-sub">進捗管理</div></a>
+          <a class="quick-card" href="flower.html"><div class="quick-card-icon">💐</div><div class="quick-card-label">祝花申し込み</div><div class="quick-card-sub">推しメンに贈ろう</div></a>
+          <a class="quick-card" href="poster.html"><div class="quick-card-icon">🎨</div><div class="quick-card-label">ポスター案</div><div class="quick-card-sub">イラスト共有</div></a>
+          <a class="quick-card" href="train.html"><div class="quick-card-icon">🚃</div><div class="quick-card-label">電車検索</div><div class="quick-card-sub">乗り換え案内</div></a>
+        </div>
+
+        <!-- UPCOMING -->
+        <div class="section-kamon"><span class="section-kamon-text">✿ COMING UP ✿</span></div>
+        <div class="upcoming-mini" id="upcomingMini" style="margin:0 0 24px"></div>
+
+        <!-- 公式X（埋め込みが機能しない場合の代替デザイン） -->
+        <div class="section-kamon" style="margin-top:0"><span class="section-kamon-text">✿ 公式X ✿</span></div>
+        <div class="x-section">
+          <div class="x-section-header">
+            <div class="x-tweet-avatar">𝕏</div>
+            <div>
+              <div class="x-tweet-name">日向坂46</div>
+              <div class="x-tweet-handle">@hinatazaka46</div>
+            </div>
+          </div>
+          <!-- Twitter公式ウィジェット（読み込めた場合に表示） -->
+          <div id="xWidgetWrap" style="min-height:80px;overflow:hidden">
+            <a class="twitter-timeline"
+              data-lang="ja"
+              data-height="400"
+              data-theme="light"
+              data-chrome="noheader nofooter noborders transparent"
+              data-tweet-limit="4"
+              href="https://twitter.com/hinatazaka46">
+            </a>
+          </div>
+          <!-- フォールバック：Xへのリンクボタン -->
+          <a href="https://twitter.com/hinatazaka46" target="_blank" rel="noopener" class="x-open-link">
+            <span class="x-open-link-icon">𝕏</span>
+            @hinatazaka46 の最新ツイートを見る
+          </a>
+        </div>
+
+        <!-- アカウント設定CTA（未ログイン時） -->
+        <div id="accountCta" style="display:none;margin:16px 0 100px">
+          <a href="profile.html" class="account-cta-card">
+            <div class="account-cta-icon">👤</div>
+            <div class="account-cta-info">
+              <div class="account-cta-title">アカウントを設定する</div>
+              <div class="account-cta-sub">イベント・写真の共有機能が使えるようになります</div>
+            </div>
+            <div style="font-size:18px;color:var(--sky)">→</div>
+          </a>
+        </div>
+        <div style="height:100px"></div>
       </div>
 
     </div>
   </div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div id="login-bg"></div>
+  <div class="login-sparkle" style="width:260px;height:260px;top:-60px;right:-50px;background:radial-gradient(circle,rgba(255,220,80,.4) 0%,transparent 70%);animation-delay:0s"></div>
+  <div class="login-sparkle" style="width:180px;height:180px;bottom:25%;left:-30px;background:radial-gradient(circle,rgba(80,200,255,.3) 0%,transparent 70%);animation-delay:.8s"></div>
+
+  <!-- 陽差しアニメ（メンバー写真の代わり） -->
+  <div class="login-sun-bg">
+    <div class="login-rays-wrap" id="loginRaysWrap"></div>
+    <div class="login-sun-anim"></div>
+  </div>
+
+  <div id="login-title-badge">
+    <div class="login-title-main">日向坂46</div>
+    <div class="login-title-sub">✿ ひなたカレンダー ✿</div>
+  </div>
+  <div id="login-bubble">
+    <div class="login-bubble-name" id="login-member-name">おひさまへ</div>
+    <div class="login-bubble-text" id="login-bubble-text"></div>
+  </div>
+  <div id="login-tap-hint">✦ タップして続ける ✦</div>
 </div>
 
 <script src="data.js"></script>
@@ -707,20 +447,70 @@
 <script src="sakura.js"></script>
 <script src="notify.js"></script>
 <script>
-// ── SPLASH ──────────────────────────
-// Splash canvas big petals
+// ━━━ 放射線を動的生成 ━━━
+(function() {
+  // ヒーロー用
+  const heroRays = document.getElementById('heroRays');
+  if (heroRays) {
+    for (let i = 0; i < 16; i++) {
+      const ray = document.createElement('div');
+      ray.className = 'hero-ray';
+      ray.style.transform = `rotate(${i * 22.5}deg)`;
+      heroRays.appendChild(ray);
+    }
+  }
+  // ログイン画面用
+  const loginRays = document.getElementById('loginRaysWrap');
+  if (loginRays) {
+    for (let i = 0; i < 20; i++) {
+      const ray = document.createElement('div');
+      ray.className = 'login-ray';
+      ray.style.transform = `rotate(${i * 18}deg)`;
+      loginRays.appendChild(ray);
+    }
+  }
+})();
+
+// ━━━ 壁紙（ヒーロー背景写真） ━━━
+(function() {
+  const WALLPAPER_KEY = 'hinata_hero_wallpaper';
+  const heroWallpaper = document.getElementById('heroWallpaper');
+  const wallpaperBtn  = document.getElementById('wallpaperBtn');
+  const fileInput     = document.getElementById('wallpaperFileInput');
+
+  // 保存済み壁紙を復元
+  try {
+    const saved = localStorage.getItem(WALLPAPER_KEY);
+    if (saved) heroWallpaper.style.backgroundImage = `url(${saved})`;
+  } catch {}
+
+  wallpaperBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target.result;
+      heroWallpaper.style.backgroundImage = `url(${dataUrl})`;
+      try { localStorage.setItem(WALLPAPER_KEY, dataUrl); } catch {}
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+})();
+
+// ━━━ SPLASH ━━━
 (function() {
   const c = document.getElementById('splashCanvas');
-  c.width  = window.innerWidth;
-  c.height = window.innerHeight;
+  c.width = window.innerWidth; c.height = window.innerHeight;
   const ctx = c.getContext('2d');
   const COLORS = ['#f5b800','#72bce8','#fde87a','#b3dcf5','#ffffff'];
   const items = Array.from({length:18}, () => ({
-    x: Math.random()*c.width, y: Math.random()*c.height,
-    r: 10+Math.random()*14, rot: Math.random()*Math.PI*2,
-    rs: (Math.random()-.5)*.02, sp: .5+Math.random()*.8,
-    dr: (Math.random()-.5)*.4, wb: Math.random()*Math.PI*2, wbs:.01+Math.random()*.015,
-    col: COLORS[~~(Math.random()*COLORS.length)], op: .25+Math.random()*.4,
+    x:Math.random()*c.width, y:Math.random()*c.height,
+    r:10+Math.random()*14, rot:Math.random()*Math.PI*2,
+    rs:(Math.random()-.5)*.02, sp:.5+Math.random()*.8,
+    dr:(Math.random()-.5)*.4, wb:Math.random()*Math.PI*2, wbs:.01+Math.random()*.015,
+    col:COLORS[~~(Math.random()*COLORS.length)], op:.25+Math.random()*.4,
   }));
   function draw(p) {
     ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
@@ -738,18 +528,14 @@
   let raf;
   function tick(){
     ctx.clearRect(0,0,c.width,c.height);
-    items.forEach(p=>{
-      p.wb+=p.wbs; p.x+=p.dr+Math.sin(p.wb)*.5; p.y+=p.sp; p.rot+=p.rs;
-      if(p.y>c.height+20){p.y=-20;p.x=Math.random()*c.width;}
-      draw(p);
-    });
+    items.forEach(p=>{ p.wb+=p.wbs; p.x+=p.dr+Math.sin(p.wb)*.5; p.y+=p.sp; p.rot+=p.rs; if(p.y>c.height+20){p.y=-20;p.x=Math.random()*c.width;} draw(p); });
     raf=requestAnimationFrame(tick);
   }
   tick();
-  window._stopSplashPetals = ()=>cancelAnimationFrame(raf);
+  window._stopSplashPetals = () => cancelAnimationFrame(raf);
 })();
 
-// ─── ログインセリフ ───────────────────────
+// ━━━ ログインセリフ ━━━
 const LOGIN_LINES = [
   'おはよう！今日も一緒に頑張ろうね☀️',
   'きた〜！嬉しい！ずっと待ってたよ♪',
@@ -761,95 +547,51 @@ const LOGIN_LINES = [
   '来てくれた！やった〜♪',
   '毎日来てくれてありがとう！',
   'ねえ、今日の予定は決まった？',
-  '一緒にいると楽しいな〜！',
   '今日のカレンダー、確認した？',
   'また明日も来てね、約束だよ！',
-  '好きな曲、最近聞いた？',
   '今日もよい一日になりますように🌸',
 ];
 
 function showLoginScreen(onDone) {
-  const candidates = (typeof ACTIVE_MEMBERS !== 'undefined')
-    ? ACTIVE_MEMBERS.filter(m => m.enabled !== false)
-    : [];
-
-  const screen  = document.getElementById('login-screen');
-  const imgEl   = document.getElementById('login-member-img');
-  const nameEl  = document.getElementById('login-member-name');
-  const textEl  = document.getElementById('login-bubble-text');
-  const bubble  = document.getElementById('login-bubble');
-
-  // セリフをセット
-  const line = LOGIN_LINES[Math.floor(Math.random() * LOGIN_LINES.length)];
-  textEl.textContent = line;
-
-  // メンバーをランダム選択
-  let memberName = '日向坂46';
-  let imgSrc = '';
-  if (candidates.length) {
-    // login_memberフォルダに画像があるメンバーを優先
-    // → 実際には読み込んでみてエラーなら非表示にする
-    const m = candidates[Math.floor(Math.random() * candidates.length)];
-    memberName = m.name;
-    const base = m.avatar ? m.avatar.split('/').pop() : '';
-    if (base) imgSrc = 'login_member/' + base;
-  }
-  nameEl.textContent = memberName;
-
-  // 画面表示
+  const screen = document.getElementById('login-screen');
+  const textEl = document.getElementById('login-bubble-text');
+  const bubble = document.getElementById('login-bubble');
+  textEl.textContent = LOGIN_LINES[Math.floor(Math.random() * LOGIN_LINES.length)];
   screen.classList.add('active');
-
-  // 画像読み込み
-  if (imgSrc) {
-    imgEl.onload  = () => { imgEl.classList.add('show'); bubble.classList.add('show'); };
-    imgEl.onerror = () => { bubble.classList.add('show'); };
-    imgEl.src = imgSrc;
-  } else {
-    bubble.classList.add('show');
-  }
-
-  // タップで次へ
+  setTimeout(() => bubble.classList.add('show'), 600);
   function proceed() {
     screen.removeEventListener('click', proceed);
     screen.classList.add('closing');
-    setTimeout(() => {
-      screen.classList.remove('active', 'closing');
-      onDone();
-    }, 550);
+    setTimeout(() => { screen.classList.remove('active','closing'); onDone(); }, 550);
   }
-  // 少し待ってからタップ受付（誤タップ防止）
   setTimeout(() => screen.addEventListener('click', proceed), 400);
 }
 
 function startApp() {
-  if(window._stopSplashPetals) window._stopSplashPetals();
+  if (window._stopSplashPetals) window._stopSplashPetals();
   const splash = document.getElementById('splash');
-  const main   = document.getElementById('main');
   splash.classList.add('fade-out');
   setTimeout(() => {
     splash.style.display = 'none';
-    // ログイン演出 → メイン表示
-    showLoginScreen(() => {
-      main.classList.add('visible');
-    });
+    showLoginScreen(() => { document.getElementById('main').classList.add('visible'); });
   }, 750);
 }
+document.getElementById('splashBtn').addEventListener('click', startApp);
 
-// ── HEADER ──────────────────────────
+// ━━━ HEADER ━━━
 document.getElementById('headerMount').outerHTML = headerHTML('日向坂46','🌻 ひなたカレンダー 🌻');
 initNotifications();
 injectNav('index.html');
 
-// ── TODAY ──────────────────────────
+// ━━━ TODAY ━━━
 (function() {
   const now = new Date();
   const DOW = ['日','月','火','水','木','金','土'];
-  const dateStr = `${now.getFullYear()}年 ${now.getMonth()+1}月${now.getDate()}日（${DOW[now.getDay()]}）`;
-  document.getElementById('todayDate').textContent = dateStr;
+  document.getElementById('todayDate').textContent = `${now.getFullYear()}年 ${now.getMonth()+1}月${now.getDate()}日（${DOW[now.getDay()]}）`;
   document.getElementById('todayReki').textContent = `${MONTHS_JP[now.getMonth()]} 🌻 ${MONTHS_EN[now.getMonth()]}`;
 })();
 
-// ── LIVE CLOCK ──────────────────────
+// ━━━ LIVE CLOCK ━━━
 (function() {
   function pad(n) { return String(n).padStart(2,'0'); }
   function tick() {
@@ -858,15 +600,13 @@ injectNav('index.html');
     document.getElementById('clockM').textContent = pad(t.getMinutes());
     document.getElementById('clockS').textContent = pad(t.getSeconds());
   }
-  tick();
-  setInterval(tick, 1000);
+  tick(); setInterval(tick, 1000);
 })();
 
-// ── UPCOMING ──────────────────────
+// ━━━ UPCOMING ━━━
 (function() {
   const today = new Date(); today.setHours(0,0,0,0);
   const items = [];
-
   ACTIVE_MEMBERS.forEach(m => {
     const diff = daysUntilBirthday(m.birthday);
     if (diff <= 30) {
@@ -874,23 +614,17 @@ injectNav('index.html');
       items.push({ icon:m.avatar, name:`${m.name}の誕生日`, dateStr:`${mm}月${dd}日`, diff, href:`member-detail.html?id=${m.id}`, type:'bday' });
     }
   });
-
   loadEvents().forEach(e => {
     const d = new Date(e.date+'T00:00:00');
-    const diff = Math.round((d - today)/86400000);
-    if (diff >= 0 && diff <= 30) {
-      items.push({ icon:e.emoji, name:e.name, dateStr:`${d.getMonth()+1}月${d.getDate()}日`, diff, href:'events.html', type:'event' });
-    }
+    const diff = Math.round((d-today)/86400000);
+    if (diff >= 0 && diff <= 30) items.push({ icon:e.emoji, name:e.name, dateStr:`${d.getMonth()+1}月${d.getDate()}日`, diff, href:'events.html', type:'event' });
   });
-
   items.sort((a,b)=>a.diff-b.diff);
   const el = document.getElementById('upcomingMini');
-
   if (!items.length) {
     el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✿</div><div class="empty-state-text">近日の行事はありません</div></div>`;
     return;
   }
-
   el.innerHTML = items.slice(0,5).map(u => {
     const diffStr = u.diff===0?'今日':u.diff===1?'明日':`あと${u.diff}日`;
     const isImg = u.icon && /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(u.icon);
@@ -899,58 +633,36 @@ injectNav('index.html');
       : `<span style="font-size:22px">${u.icon}</span>`;
     return `<a class="upcoming-mini-item" href="${u.href}">
       <div class="upcoming-mini-icon">${iconHTML}</div>
-      <div class="upcoming-mini-info">
-        <div class="upcoming-mini-name">${u.name}</div>
-        <div class="upcoming-mini-date">${u.dateStr}</div>
-      </div>
-      <span class="upcoming-mini-badge ${u.type==='event'?'event-badge':''}">${diffStr}</span>
+      <div class="upcoming-mini-info"><div class="upcoming-mini-name">${u.name}</div><div class="upcoming-mini-date">${u.dateStr}</div></div>
+      <span class="upcoming-mini-badge${u.type==='event'?' event-badge':''}">${diffStr}</span>
     </a>`;
   }).join('');
+})();
+
+// ━━━ アカウントCTA ━━━
+if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
+  document.getElementById('accountCta').style.display = 'block';
+}
+</script>
+
+<!-- Twitter公式ウィジェットスクリプト（読み込めれば表示、できなければリンクのみ） -->
+<script>
+(function() {
+  const script = document.createElement('script');
+  script.async = true;
+  script.charset = 'utf-8';
+  script.src = 'https://platform.twitter.com/widgets.js';
+  script.onerror = function() {
+    // ウィジェット読み込み失敗時はエリアを非表示
+    const wrap = document.getElementById('xWidgetWrap');
+    if (wrap) wrap.style.display = 'none';
+  };
+  document.body.appendChild(script);
 })();
 </script>
 <script>
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js');
-  });
-}
-</script>
-
-<!-- ═══════ LOGIN SCREEN ═══════ -->
-<div id="login-screen">
-  <div id="login-bg"></div>
-
-  <!-- キラキラ -->
-  <div class="login-sparkle" style="width:260px;height:260px;top:-60px;right:-50px;background:radial-gradient(circle,rgba(255,220,80,.4) 0%,transparent 70%);animation-delay:0s"></div>
-  <div class="login-sparkle" style="width:180px;height:180px;bottom:25%;left:-30px;background:radial-gradient(circle,rgba(80,200,255,.3) 0%,transparent 70%);animation-delay:.8s"></div>
-  <div class="login-sparkle" style="width:120px;height:120px;bottom:10%;right:15%;background:radial-gradient(circle,rgba(255,180,200,.4) 0%,transparent 70%);animation-delay:1.5s"></div>
-
-  <!-- タイトル -->
-  <div id="login-title-badge">
-    <div class="login-title-main">日向坂46</div>
-    <div class="login-title-sub">✿ ひなたカレンダー ✿</div>
-  </div>
-
-  <!-- 吹き出し -->
-  <div id="login-bubble">
-    <div class="login-bubble-name" id="login-member-name"></div>
-    <div class="login-bubble-text" id="login-bubble-text"></div>
-  </div>
-
-  <!-- メンバー写真 -->
-  <div id="login-member-wrap">
-    <img id="login-member-img" src="" alt="">
-  </div>
-
-  <!-- タップヒント -->
-  <div id="login-tap-hint">✦ タップして続ける ✦</div>
-</div>
-
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-<script>
-// アカウントCTA: 未ログイン時のみ表示
-if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
-  document.getElementById('accountCta').style.display = 'block';
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
 }
 </script>
 </body>

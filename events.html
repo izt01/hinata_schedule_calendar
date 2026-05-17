@@ -13,152 +13,61 @@
 <link rel="stylesheet" href="style.css">
 <style>
 #petals-canvas { pointer-events: none; }
-.events-header {
-  display: flex; align-items: center;
-  justify-content: space-between; margin-bottom: 18px;
-}
-.events-title {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 28px; font-weight: 800;
-  color: var(--sky); letter-spacing: 0.08em;
-}
-.event-list { display: flex; flex-direction: column; gap: 11px; }
+.events-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.events-title { font-family:'Shippori Mincho',serif; font-size:28px; font-weight:800; color:var(--sky); letter-spacing:0.08em; }
+.event-list { display:flex; flex-direction:column; gap:11px; }
 .event-item {
-  background: rgba(255,255,255,0.8); backdrop-filter: blur(8px);
-  border-radius: 18px; border: 1.5px solid var(--hina-2);
-  padding: 14px 16px; box-shadow: var(--shadow-hina);
-  display: flex; gap: 13px; align-items: flex-start;
-  position: relative; animation: pageEnter 0.3s ease both;
+  background:rgba(255,255,255,0.8); backdrop-filter:blur(8px);
+  border-radius:18px; border:1.5px solid var(--hina-2);
+  padding:14px 16px; box-shadow:var(--shadow-hina);
+  display:flex; gap:13px; align-items:flex-start;
+  position:relative; animation:pageEnter 0.3s ease both;
 }
-.event-item-left {
-  border-right: 1px solid var(--hina-2); padding-right: 13px;
-  min-width: 52px; text-align: center; flex-shrink: 0;
-}
-.event-date-month { font-family: 'Noto Serif JP', serif; font-size: 10px; color: var(--hina-4); font-weight: 600; letter-spacing: 0.06em; }
-.event-date-day   { font-family: 'Shippori Mincho', serif; font-size: 28px; font-weight: 800; color: var(--sumi); line-height: 1.1; }
-.event-date-dow   { font-family: 'Noto Serif JP', serif; font-size: 10px; color: var(--sumi-light); }
-.event-date-time  { font-family: 'Shippori Mincho', serif; font-size: 11px; font-weight: 600; color: var(--sky); margin-top: 2px; letter-spacing: 0.04em; }
-.event-info { flex: 1; min-width: 0; }
-.event-info-name { font-family: 'Noto Serif JP', serif; font-size: 14px; font-weight: 600; margin-bottom: 3px; color: var(--sumi); }
-.event-info-note { font-size: 11px; color: var(--sumi-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.event-info-countdown {
-  display: inline-block; margin-top: 5px; font-size: 10px;
-  padding: 2px 8px; border-radius: 10px;
-  background: var(--hina-1); color: var(--sky);
-  border: 1px solid var(--hina-2);
-  font-family: 'Noto Serif JP', serif; font-weight: 600;
-}
-.event-info-countdown.past { background: #f0f0f0; color: #999; border-color: #e0e0e0; }
-.event-emoji   { font-size: 24px; flex-shrink: 0; align-self: center; }
-.event-delete  {
-  position: absolute; right: 10px; top: 10px;
-  background: none; border: none; font-size: 13px;
-  cursor: pointer; opacity: 0.3; padding: 5px; color: var(--sumi);
-  transition: opacity 0.2s; border-radius: 50%;
-}
-.event-delete:hover { opacity: 0.8; background: var(--hina-1); }
+.event-item-left { border-right:1px solid var(--hina-2); padding-right:13px; min-width:52px; text-align:center; flex-shrink:0; }
+.event-date-month { font-family:'Noto Serif JP',serif; font-size:10px; color:var(--hina-4); font-weight:600; }
+.event-date-day   { font-family:'Shippori Mincho',serif; font-size:28px; font-weight:800; color:var(--sumi); line-height:1.1; }
+.event-date-dow   { font-family:'Noto Serif JP',serif; font-size:10px; color:var(--sumi-light); }
+.event-date-time  { font-family:'Shippori Mincho',serif; font-size:11px; font-weight:600; color:var(--sky); margin-top:2px; }
+.event-info { flex:1; min-width:0; }
+.event-info-name { font-family:'Noto Serif JP',serif; font-size:14px; font-weight:600; margin-bottom:3px; color:var(--sumi); }
+.event-info-note { font-size:11px; color:var(--sumi-light); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.event-info-countdown { display:inline-block; margin-top:5px; font-size:10px; padding:2px 8px; border-radius:10px; background:var(--hina-1); color:var(--sky); border:1px solid var(--hina-2); font-family:'Noto Serif JP',serif; font-weight:600; }
+.event-info-countdown.past { background:#f0f0f0; color:#999; border-color:#e0e0e0; }
+.event-emoji { font-size:24px; flex-shrink:0; align-self:center; }
+.event-delete { position:absolute; right:8px; top:8px; background:none; border:none; font-size:14px; padding:8px; color:var(--sumi); opacity:0.3; border-radius:50%; touch-action:manipulation; cursor:pointer; }
+.event-delete:active { opacity:0.9; background:var(--hina-1); }
 
-/* タブ */
-.event-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-.event-tab {
-  flex: 1; padding: 9px 4px; border-radius: 22px;
-  border: 1.5px solid var(--hina-2); background: rgba(255,255,255,0.75);
-  font-family: 'Noto Serif JP', serif; font-size: 11px; font-weight: 600;
-  color: var(--sumi-light); cursor: pointer; text-align: center; transition: all 0.2s;
-}
-.event-tab.active {
-  background: var(--sky); border-color: var(--sky); color: white;
-  box-shadow: 0 3px 14px rgba(139,34,82,0.28);
-}
-.event-tab:active { transform: scale(0.95); }
+.event-tabs { display:flex; gap:8px; margin-bottom:16px; }
+.event-tab { flex:1; padding:9px 4px; border-radius:22px; border:1.5px solid var(--hina-2); background:rgba(255,255,255,0.75); font-family:'Noto Serif JP',serif; font-size:11px; font-weight:600; color:var(--sumi-light); cursor:pointer; text-align:center; touch-action:manipulation; }
+.event-tab.active { background:var(--sky); border-color:var(--sky); color:white; }
 
-/* 共有タブ（モーダル内）*/
-.share-tabs {
-  display: flex; gap: 0; margin-bottom: 18px;
-  border: 1.5px solid var(--hina-2); border-radius: 16px;
-  overflow: hidden; background: rgba(255,255,255,0.5);
-}
-.share-tab {
-  flex: 1; padding: 11px 8px; text-align: center;
-  font-family: 'Noto Serif JP', serif; font-size: 12px; font-weight: 600;
-  color: var(--sumi-light); cursor: pointer; transition: all 0.18s;
-  border: none; background: none;
-}
-.share-tab.active { background: var(--sky); color: white; font-weight: 700; }
+/* ━━━ iOS対応モーダル ━━━ */
+.ev-modal-wrap { display:none; position:fixed; inset:0; z-index:300; align-items:flex-end; justify-content:center; }
+.ev-modal-wrap.open { display:flex; }
+.ev-modal-bg { position:absolute; inset:0; background:rgba(10,30,60,0.5); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+.ev-modal-box { position:relative; width:100%; max-width:430px; background:var(--white-bg); border-radius:32px 32px 0 0; padding:12px 22px 52px; max-height:92vh; overflow-y:auto; -webkit-overflow-scrolling:touch; border-top:1.5px solid var(--hina-2); z-index:1; }
 
-/* 共有先選択 */
-.share-scope-row {
-  display: flex; gap: 8px; margin-bottom: 14px;
-}
-.share-scope-btn {
-  flex: 1; padding: 10px 8px;
-  border-radius: 14px; border: 1.5px solid var(--hina-2);
-  background: rgba(255,255,255,0.75);
-  font-family: 'Noto Serif JP', serif;
-  font-size: 11px; font-weight: 600; color: var(--sumi-light);
-  cursor: pointer; text-align: center; transition: all 0.18s;
-}
-.share-scope-btn.active {
-  background: var(--hina-1); border-color: var(--hina-3); color: var(--sky);
-}
+.share-tabs { display:flex; margin-bottom:16px; border:1.5px solid var(--hina-2); border-radius:16px; overflow:hidden; background:rgba(255,255,255,0.5); }
+.share-tab { flex:1; padding:11px 8px; text-align:center; font-family:'Noto Serif JP',serif; font-size:12px; font-weight:600; color:var(--sumi-light); border:none; background:none; touch-action:manipulation; cursor:pointer; }
+.share-tab.active { background:var(--sky); color:white; font-weight:700; }
+.share-scope-row { display:flex; gap:8px; margin-bottom:14px; }
+.share-scope-btn { flex:1; padding:10px 8px; border-radius:14px; border:1.5px solid var(--hina-2); background:rgba(255,255,255,0.75); font-family:'Noto Serif JP',serif; font-size:11px; font-weight:600; color:var(--sumi-light); cursor:pointer; text-align:center; touch-action:manipulation; }
+.share-scope-btn.active { background:var(--hina-1); border-color:var(--hina-3); color:var(--sky); }
+.user-select-list { display:flex; flex-direction:column; gap:6px; max-height:160px; overflow-y:auto; border:1.5px solid var(--hina-2); border-radius:14px; padding:8px; background:rgba(255,255,255,0.5); }
+.user-select-item { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:10px; cursor:pointer; }
+.user-select-item.selected { background:var(--hina-1); }
+.user-select-name { font-family:'Noto Serif JP',serif; font-size:13px; font-weight:600; color:var(--sumi); flex:1; }
 
-/* 特定ユーザー選択 */
-.user-select-list {
-  display: flex; flex-direction: column; gap: 6px;
-  max-height: 180px; overflow-y: auto;
-  border: 1.5px solid var(--hina-2); border-radius: 14px; padding: 8px;
-  background: rgba(255,255,255,0.5);
-}
-.user-select-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 10px; border-radius: 10px; cursor: pointer;
-  transition: background 0.15s;
-}
-.user-select-item:hover { background: var(--hina-1); }
-.user-select-item.selected { background: var(--hina-1); }
-.user-select-item input[type=checkbox] { width:16px; height:16px; cursor:pointer; accent-color: var(--sky); }
-.user-select-avatar {
-  width: 32px; height: 32px; border-radius: 50%;
-  object-fit: cover; border: 1.5px solid var(--hina-2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; background: var(--hina-1); flex-shrink: 0;
-}
-.user-select-name {
-  font-family: 'Noto Serif JP', serif; font-size: 13px; font-weight: 600;
-  color: var(--sumi); flex: 1;
-}
+.notif-toggle-btn { padding:7px 13px; border-radius:20px; border:1.5px solid var(--hina-2); background:rgba(255,255,255,0.8); font-family:'Noto Serif JP',serif; font-size:11px; font-weight:600; color:var(--sumi-light); cursor:pointer; white-space:nowrap; touch-action:manipulation; }
+.notif-toggle-btn.notif-on { background:var(--hina-1); border-color:var(--hina-3); color:var(--sky); }
 
-/* 通知ボタン */
-.notif-toggle-btn {
-  padding: 7px 13px; border-radius: 20px; border: 1.5px solid var(--hina-2);
-  background: rgba(255,255,255,0.8);
-  font-family: 'Noto Serif JP', serif; font-size: 11px; font-weight: 600;
-  color: var(--sumi-light); cursor: pointer; white-space: nowrap; transition: all 0.2s; line-height: 1;
-}
-.notif-toggle-btn.notif-on { background: var(--hina-1); border-color: var(--hina-3); color: var(--sky); }
-.notif-toggle-btn:disabled { opacity: 0.55; cursor: default; }
-
-/* 他ユーザーのイベント（薄いボーダー） */
-.event-item.shared-event { border-color: rgba(21,101,160,0.25); background: rgba(200,230,255,0.35); }
-.event-owner-tag {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: 9px; color: var(--hina-4); font-family: 'Noto Serif JP', serif;
-  margin-bottom: 3px;
-}
-.event-owner-avatar {
-  width: 14px; height: 14px; border-radius: 50%;
-  object-fit: cover; border: 1px solid var(--hina-2);
-}
-
-/* vis バッジ */
-.vis-badge {
-  display: inline-block; padding: 1px 7px; border-radius: 9px;
-  font-size: 9px; font-weight: 700;
-  font-family: 'Noto Serif JP', serif; margin-left: 4px;
-}
-.vis-private  { background: rgba(100,100,100,0.08); color: #777; border: 1px solid #ddd; }
-.vis-public   { background: rgba(21,101,160,0.08);  color: var(--sky); border: 1px solid var(--hina-2); }
-.vis-specific { background: rgba(80,160,80,0.1);    color: #3a7a3a; border: 1px solid rgba(80,160,80,0.3); }
+.event-item.shared-event { border-color:rgba(21,101,160,0.25); background:rgba(200,230,255,0.35); }
+.event-owner-tag { display:inline-flex; align-items:center; gap:4px; font-size:9px; color:var(--hina-4); font-family:'Noto Serif JP',serif; margin-bottom:3px; }
+.event-owner-avatar { width:14px; height:14px; border-radius:50%; object-fit:cover; }
+.vis-badge { display:inline-block; padding:1px 7px; border-radius:9px; font-size:9px; font-weight:700; font-family:'Noto Serif JP',serif; margin-left:4px; }
+.vis-private  { background:rgba(100,100,100,0.08); color:#777; border:1px solid #ddd; }
+.vis-public   { background:rgba(21,101,160,0.08); color:var(--sky); border:1px solid var(--hina-2); }
+.vis-specific { background:rgba(80,160,80,0.1); color:#3a7a3a; border:1px solid rgba(80,160,80,0.3); }
 </style>
 </head>
 <body>
@@ -169,76 +78,66 @@
     <div class="events-header">
       <div class="events-title">行事帳</div>
       <div style="display:flex;gap:8px;align-items:center">
-        <button id="notifToggleBtn" class="notif-toggle-btn">🔔 通知を許可する</button>
-        <button class="btn-icon" onclick="openModal()" aria-label="行事を追加" style="cursor:pointer;-webkit-appearance:none;touch-action:manipulation">＋</button>
+        <button id="notifToggleBtn" class="notif-toggle-btn">🔔 通知</button>
+        <button class="btn-icon" id="addBtn" aria-label="行事を追加">＋</button>
       </div>
     </div>
-
-    <!-- タブ -->
     <div class="event-tabs">
-      <button class="event-tab active" onclick="setTab('upcoming',this)">これから</button>
-      <button class="event-tab"        onclick="setTab('past',this)">過去</button>
-      <button class="event-tab"        onclick="setTab('all',this)">全て</button>
+      <button class="event-tab active" id="tabUpcoming">これから</button>
+      <button class="event-tab" id="tabPast">過去</button>
+      <button class="event-tab" id="tabAll">全て</button>
     </div>
-
     <div class="event-list" id="eventList"></div>
   </div>
 </div>
 
-<!-- 行事追加モーダル -->
-<div class="modal-overlay" id="eventModal" onclick="closeModal(event)">
-  <div class="modal">
+<!-- iOS対応モーダル：overlayのonclickを使わない -->
+<div class="ev-modal-wrap" id="eventModal">
+  <div class="ev-modal-bg" id="evModalBg"></div>
+  <div class="ev-modal-box">
     <div class="modal-handle"></div>
-    <button class="modal-close-btn" onclick="document.getElementById('eventModal').classList.remove('open')" aria-label="閉じる">✕</button>
+    <button class="modal-close-btn" id="evCloseBtn">✕</button>
     <div class="modal-title">行事を記す ☀</div>
 
-    <!-- ①プライベート / 共有タブ -->
     <div class="share-tabs" id="shareTabs">
-      <button class="share-tab active" onclick="setShareTab('private',this)">🔒 プライベート</button>
-      <button class="share-tab"        onclick="setShareTab('shared',this)">🌐 共 有</button>
+      <button class="share-tab active" id="shareTabPrivate">🔒 プライベート</button>
+      <button class="share-tab" id="shareTabShared">🌐 共 有</button>
     </div>
-
-    <!-- 共有設定パネル（共有タブ選択時に表示）-->
     <div id="shareSettingsPanel" style="display:none;margin-bottom:14px">
       <div class="share-scope-row">
-        <button class="share-scope-btn active" onclick="setShareScope('public',this)">🌐 全 体</button>
-        <button class="share-scope-btn"        onclick="setShareScope('specific',this)">👥 特 定</button>
+        <button class="share-scope-btn active" id="scopePublic">🌐 全 体</button>
+        <button class="share-scope-btn" id="scopeSpecific">👥 特 定</button>
       </div>
-      <!-- 特定ユーザー選択 -->
       <div id="specificUsersPanel" style="display:none">
-        <div style="font-family:'Noto Serif JP',serif;font-size:11px;color:var(--sumi-light);margin-bottom:6px">共有するユーザーを選択（複数可）</div>
-        <div class="user-select-list" id="userSelectList">
-          <div style="padding:12px;text-align:center;font-size:12px;color:var(--sumi-light);font-family:'Noto Serif JP',serif">読み込み中…</div>
-        </div>
+        <div style="font-family:'Noto Serif JP',serif;font-size:11px;color:var(--sumi-light);margin-bottom:6px">共有するユーザーを選択</div>
+        <div class="user-select-list" id="userSelectList"></div>
       </div>
     </div>
 
-    <!-- イベント詳細フォーム -->
     <div class="form-group">
-      <label class="form-label">行事の名前</label>
-      <input class="form-input" id="evName" placeholder="例：コンサート、握手会…" type="text">
+      <label class="form-label">行事の名前 <span style="color:var(--sky)">*</span></label>
+      <input class="form-input" id="evName" placeholder="例：コンサート、握手会…" type="text" autocomplete="off">
     </div>
     <div class="form-group">
-      <label class="form-label">日付</label>
+      <label class="form-label">日付 <span style="color:var(--sky)">*</span></label>
       <input class="form-input" id="evDate" type="date">
     </div>
     <div class="form-group">
       <label class="form-label">時間（任意）</label>
       <div style="display:flex;gap:8px;align-items:center">
         <input class="form-input" id="evTime" type="time" style="flex:1">
-        <button type="button" onclick="clearTime()" style="padding:11px 14px;border-radius:13px;border:1.5px solid var(--hina-2);background:rgba(255,255,255,0.8);font-family:'Noto Sans JP',sans-serif;font-size:12px;color:var(--sumi-light);cursor:pointer;white-space:nowrap">時間なし</button>
+        <button type="button" id="clearTimeBtn" style="padding:11px 14px;border-radius:13px;border:1.5px solid var(--hina-2);background:rgba(255,255,255,0.8);font-size:12px;color:var(--sumi-light);cursor:pointer;white-space:nowrap;touch-action:manipulation;font-family:'Noto Sans JP',sans-serif">時間なし</button>
       </div>
-      <div style="font-size:10px;color:var(--sumi-light);margin-top:5px;font-family:'Noto Serif JP',serif;letter-spacing:0.04em">✿ 時間を設定すると、その時刻を基準に通知が届きます</div>
     </div>
     <div class="form-group">
       <label class="form-label">覚え書き</label>
-      <input class="form-input" id="evNote" placeholder="場所・詳細など" type="text">
+      <input class="form-input" id="evNote" placeholder="場所・詳細など" type="text" autocomplete="off">
     </div>
     <div class="form-group">
       <label class="form-label">絵文字</label>
       <div class="emoji-picker" id="emojiPicker"></div>
     </div>
-    <button class="btn-primary" style="width:100%;margin-top:8px;justify-content:center" onclick="addEvent()">記 す</button>
+    <button class="btn-primary" id="evSaveBtn" style="width:100%;margin-top:8px;justify-content:center">記 す</button>
   </div>
 </div>
 
@@ -255,36 +154,46 @@ injectNav('events.html');
 const EMOJIS = ['🎪','🎤','🎸','💿','🎟️','🌸','💖','🎀','📸','✈️','🎁','🏆','🎂','🎵','📱','🎭'];
 let selectedEmoji = '🎪';
 let curTab = 'upcoming';
-let curShareMode = 'private';  // 'private' | 'public' | 'specific'
+let curShareMode = 'private';
 let selectedUserIds = new Set();
 let allUsers = [];
-
 const DOW = ['日','月','火','水','木','金','土'];
 
-// ── タブ ──────────────────────────────────
+// ━━━ 全ボタンをaddEventListenerで設定（onclickを使わない）━━━
+window.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('addBtn').addEventListener('click', openModal);
+  document.getElementById('evModalBg').addEventListener('click', closeModal);
+  document.getElementById('evCloseBtn').addEventListener('click', closeModal);
+  document.getElementById('evSaveBtn').addEventListener('click', addEvent);
+  document.getElementById('clearTimeBtn').addEventListener('click', function() { document.getElementById('evTime').value = ''; });
+  document.getElementById('tabUpcoming').addEventListener('click', function() { setTab('upcoming', this); });
+  document.getElementById('tabPast').addEventListener('click',     function() { setTab('past', this); });
+  document.getElementById('tabAll').addEventListener('click',      function() { setTab('all', this); });
+  document.getElementById('shareTabPrivate').addEventListener('click', function() { setShareTab('private', this); });
+  document.getElementById('shareTabShared').addEventListener('click',  function() { setShareTab('shared', this); });
+  document.getElementById('scopePublic').addEventListener('click',   function() { setShareScope('public', this); });
+  document.getElementById('scopeSpecific').addEventListener('click', function() { setShareScope('specific', this); });
+});
+
 function setTab(mode, btn) {
   curTab = mode;
   document.querySelectorAll('.event-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  initNotifications();
   renderEvents();
 }
 
-// ── イベント一覧描画 ──────────────────────
 async function renderEvents() {
-  const today = new Date(); today.setHours(0,0,0,0);
   const el = document.getElementById('eventList');
   el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✿</div><div class="empty-state-text">読み込み中…</div></div>';
-
   let events = [];
   try {
     const raw = await EventAPI.list();
     events = (raw || []).map(e => normalizeEvent(e));
   } catch { events = loadLocalEvents(); }
 
-  events = events.sort((a, b) => new Date(a.date) - new Date(b.date));
-  if (curTab === 'upcoming') events = events.filter(e => new Date((e.date + 'T' + (e.time || '00:00') + ':00')) >= new Date());
-  if (curTab === 'past')     events = events.filter(e => new Date((e.date + 'T' + (e.time || '23:59') + ':00')) < new Date());
+  events.sort((a, b) => new Date(a.date) - new Date(b.date));
+  if (curTab === 'upcoming') events = events.filter(e => new Date(e.date + 'T' + (e.time||'00:00') + ':00') >= new Date());
+  if (curTab === 'past')     events = events.filter(e => new Date(e.date + 'T' + (e.time||'23:59') + ':00') < new Date());
 
   if (!events.length) {
     const msg = curTab === 'past' ? '過去の行事はありません' : '行事がまだ記されていません\n＋ ボタンから追加しましょう';
@@ -293,28 +202,17 @@ async function renderEvents() {
   }
 
   el.innerHTML = events.map(e => {
-    const d      = new Date(e.date + 'T' + (e.time || '00:00') + ':00');
-    const mo     = MONTHS_JP[d.getMonth()];
-    const now2   = new Date();
-    const diff   = Math.round((d - now2) / 86400000);
+    const d = new Date(e.date + 'T' + (e.time||'00:00') + ':00');
+    const diff = Math.round((d - new Date()) / 86400000);
     const diffStr = diff === 0 ? (e.time ? `今日 ${e.time}` : '今日！') : diff > 0 ? `あと${diff}日` : `${Math.abs(diff)}日前`;
-    const isPast  = diff < 0;
-    const isOwn   = e.isOwn !== false;
-    const isShared = !isOwn;
-
-    // オーナー情報
-    const ownerTag = (isShared && e.ownerNickname)
-      ? `<div class="event-owner-tag">${
-          e.ownerAvatar ? `<img class="event-owner-avatar" src="${e.ownerAvatar}">` : '👤'
-        } ${e.ownerNickname}</div>`
-      : '';
-
-    // 共有バッジ
+    const isPast = diff < 0;
+    const isOwn  = e.isOwn !== false;
+    const ownerTag = (!isOwn && e.ownerNickname)
+      ? `<div class="event-owner-tag">${e.ownerAvatar ? `<img class="event-owner-avatar" src="${e.ownerAvatar}">` : '👤'} ${e.ownerNickname}</div>` : '';
     const visBadge = isLoggedIn() ? visibilityBadge(e.visibility, isOwn) : '';
-
-    return `<div class="event-item${isShared ? ' shared-event' : ''}">
+    return `<div class="event-item${!isOwn?' shared-event':''}">
       <div class="event-item-left">
-        <div class="event-date-month">${mo}</div>
+        <div class="event-date-month">${MONTHS_JP[d.getMonth()]}</div>
         <div class="event-date-day">${d.getDate()}</div>
         <div class="event-date-dow">${DOW[d.getDay()]}</div>
         ${e.time ? `<div class="event-date-time">${e.time}</div>` : ''}
@@ -323,71 +221,64 @@ async function renderEvents() {
         ${ownerTag}
         <div class="event-info-name">${e.name}${visBadge}</div>
         <div class="event-info-note">${e.note || '覚え書きなし'}</div>
-        <span class="event-info-countdown${isPast?' past':''}"">${diffStr}</span>
+        <span class="event-info-countdown${isPast?' past':''}">${diffStr}</span>
       </div>
       <div class="event-emoji">${e.emoji}</div>
-      ${isOwn ? `<button class="event-delete" onclick="deleteEvent('${e.id}')" title="削除">✕</button>` : ''}
+      ${isOwn ? `<button class="event-delete" data-id="${e.id}">✕</button>` : ''}
     </div>`;
   }).join('');
+
+  // 削除ボタンもaddEventListenerで（onclickを避ける）
+  el.querySelectorAll('.event-delete').forEach(btn => {
+    btn.addEventListener('click', function(ev) {
+      ev.stopPropagation();
+      deleteEvent(this.dataset.id);
+    });
+  });
 }
 
 async function deleteEvent(id) {
   if (!confirm('このイベントを削除しますか？')) return;
-  try {
-    await EventAPI.delete(id);
-    renderEvents();
-    updateNotifBtn();
-  } catch (err) { alert('削除エラー: ' + err.message); }
+  try { await EventAPI.delete(id); renderEvents(); } catch (err) { alert('削除エラー: ' + err.message); }
 }
 
-// ── モーダル ──────────────────────────────
-// iPhoneのonclick対応：同期ラッパー経由でasync関数を呼ぶ
 function openModal() {
-  _openModal().catch(err => console.error(err));
-}
-
-async function _openModal() {
-  if (!isLoggedIn()) {
-    document.getElementById('shareTabs').style.display = 'none';
-    document.getElementById('shareSettingsPanel').style.display = 'none';
-  } else {
-    document.getElementById('shareTabs').style.display = '';
-    // ユーザー一覧をロード
-    try { allUsers = await UserAPI.list() || []; } catch { allUsers = []; }
-  }
-
-  document.getElementById('evDate').value  = new Date().toISOString().split('T')[0];
-  document.getElementById('evTime').value  = '';
-  document.getElementById('evName').value  = '';
-  document.getElementById('evNote').value  = '';
+  document.getElementById('evName').value = '';
+  document.getElementById('evDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('evTime').value = '';
+  document.getElementById('evNote').value = '';
   selectedEmoji = '🎪';
   curShareMode  = 'private';
   selectedUserIds.clear();
-
-  // 共有タブをプライベートにリセット
-  document.querySelectorAll('.share-tab').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.getElementById('shareTabPrivate').classList.add('active');
+  document.getElementById('shareTabShared').classList.remove('active');
   document.getElementById('shareSettingsPanel').style.display = 'none';
+  document.getElementById('shareTabs').style.display = isLoggedIn() ? '' : 'none';
 
-  document.getElementById('emojiPicker').innerHTML = EMOJIS.map(e =>
-    `<div class="emoji-opt${e===selectedEmoji?' selected':''}" onclick="pickEmoji('${e}',this)">${e}</div>`
+  // 絵文字ピッカー（addEventListener）
+  const picker = document.getElementById('emojiPicker');
+  picker.innerHTML = EMOJIS.map(em =>
+    `<div class="emoji-opt${em===selectedEmoji?' selected':''}" data-emoji="${em}">${em}</div>`
   ).join('');
+  picker.querySelectorAll('.emoji-opt').forEach(el => {
+    el.addEventListener('click', function() {
+      selectedEmoji = this.dataset.emoji;
+      picker.querySelectorAll('.emoji-opt').forEach(x => x.classList.remove('selected'));
+      this.classList.add('selected');
+    });
+  });
+
+  if (isLoggedIn()) UserAPI.list().then(u => { allUsers = u||[]; }).catch(()=>{});
 
   document.getElementById('eventModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
-function closeModal(e) {
-  if (e && e.target !== document.getElementById('eventModal')) return;
+function closeModal() {
   document.getElementById('eventModal').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
-function pickEmoji(emoji, el) {
-  selectedEmoji = emoji;
-  document.querySelectorAll('.emoji-opt').forEach(x => x.classList.remove('selected'));
-  el.classList.add('selected');
-}
-function clearTime() { document.getElementById('evTime').value = ''; }
-
-// ── 共有タブ ──────────────────────────────
 function setShareTab(mode, btn) {
   document.querySelectorAll('.share-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -395,10 +286,10 @@ function setShareTab(mode, btn) {
     curShareMode = 'private';
     document.getElementById('shareSettingsPanel').style.display = 'none';
   } else {
-    curShareMode = 'public'; // デフォルト
+    curShareMode = 'public';
     document.getElementById('shareSettingsPanel').style.display = 'block';
-    // 全体を選択状態に
-    document.querySelectorAll('.share-scope-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+    document.getElementById('scopePublic').classList.add('active');
+    document.getElementById('scopeSpecific').classList.remove('active');
     document.getElementById('specificUsersPanel').style.display = 'none';
   }
 }
@@ -419,53 +310,47 @@ function setShareScope(scope, btn) {
 function buildUserSelectList() {
   const myId = getUser()?.id;
   const others = allUsers.filter(u => u.id !== myId);
+  const list = document.getElementById('userSelectList');
   if (!others.length) {
-    document.getElementById('userSelectList').innerHTML =
-      '<div style="padding:12px;text-align:center;font-size:12px;color:var(--sumi-light);font-family:\'Noto Serif JP\',serif">他のユーザーがいません</div>';
+    list.innerHTML = '<div style="padding:12px;text-align:center;font-size:12px;color:var(--sumi-light)">他のユーザーがいません</div>';
     return;
   }
-  document.getElementById('userSelectList').innerHTML = others.map(u => {
-    const checked = selectedUserIds.has(u.id);
+  list.innerHTML = others.map(u => {
     const av = u.avatar_url
-      ? `<img src="${u.avatar_url}" class="user-select-avatar" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`
-      : `<div class="user-select-avatar">👤</div>`;
-    return `<label class="user-select-item${checked?' selected':''}" for="uu_${u.id}">
-      <input type="checkbox" id="uu_${u.id}" ${checked?'checked':''} onchange="toggleUser('${u.id}',this)">
+      ? `<img src="${u.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`
+      : `<div style="width:32px;height:32px;border-radius:50%;background:var(--hina-1);display:flex;align-items:center;justify-content:center;font-size:16px">👤</div>`;
+    return `<label class="user-select-item" for="uu_${u.id}">
+      <input type="checkbox" id="uu_${u.id}" style="width:18px;height:18px;accent-color:var(--sky);flex-shrink:0" onchange="toggleUser('${u.id}',this)">
       ${av}
       <span class="user-select-name">${u.nickname}</span>
     </label>`;
   }).join('');
 }
 
-function toggleUser(id, checkbox) {
-  if (checkbox.checked) selectedUserIds.add(id);
+function toggleUser(id, cb) {
+  if (cb.checked) selectedUserIds.add(id);
   else selectedUserIds.delete(id);
-  const label = checkbox.closest('.user-select-item');
-  if (label) label.classList.toggle('selected', checkbox.checked);
+  cb.closest('.user-select-item')?.classList.toggle('selected', cb.checked);
 }
 
-// ── イベント追加 ──────────────────────────
 async function addEvent() {
   const name = document.getElementById('evName').value.trim();
   const date = document.getElementById('evDate').value;
-  const note = document.getElementById('evNote').value.trim();
   if (!name || !date) { alert('行事の名前と日付を入力してください'); return; }
-
-  const time = document.getElementById('evTime').value || '';
-  const visibility    = curShareMode;
-  const targetUserIds = curShareMode === 'specific' ? [...selectedUserIds] : [];
-
-  const event = { name, date, time, note, emoji: selectedEmoji, visibility, target_user_ids: targetUserIds };
-
+  const btn = document.getElementById('evSaveBtn');
+  btn.disabled = true; btn.textContent = '保存中…';
   try {
-    const result = await EventAPI.add(event);
-    if (result) {
-      if (typeof scheduleEventNotifs === 'function') scheduleEventNotifs({ ...event, id: result.id || Date.now() });
-      document.getElementById('eventModal').classList.remove('open');
-      updateNotifBtn();
-      renderEvents();
-    }
+    const result = await EventAPI.add({
+      name, date,
+      time:            document.getElementById('evTime').value || '',
+      note:            document.getElementById('evNote').value.trim(),
+      emoji:           selectedEmoji,
+      visibility:      curShareMode,
+      target_user_ids: curShareMode === 'specific' ? [...selectedUserIds] : [],
+    });
+    if (result) { closeModal(); renderEvents(); }
   } catch (err) { alert('保存エラー: ' + err.message); }
+  finally { btn.disabled = false; btn.textContent = '記 す'; }
 }
 
 renderEvents();

@@ -19,14 +19,18 @@ async function migrate() {
     await client.query(`
       -- ユーザーテーブル
       CREATE TABLE IF NOT EXISTS users (
-        id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        nickname    VARCHAR(50)  NOT NULL,
-        email       VARCHAR(255) UNIQUE,
-        avatar_url  TEXT,
-        avatar_type VARCHAR(20)  DEFAULT 'member', -- 'member' | 'upload'
-        created_at  TIMESTAMPTZ  DEFAULT NOW(),
-        updated_at  TIMESTAMPTZ  DEFAULT NOW()
+        id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        nickname      VARCHAR(50)  NOT NULL,
+        email         VARCHAR(255) UNIQUE,
+        password_hash TEXT         NOT NULL DEFAULT '',
+        avatar_url    TEXT,
+        avatar_type   VARCHAR(20)  DEFAULT 'member',
+        created_at    TIMESTAMPTZ  DEFAULT NOW(),
+        updated_at    TIMESTAMPTZ  DEFAULT NOW()
       );
+
+      -- 既存テーブルへのカラム追加（既にある場合はスキップ）
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT NOT NULL DEFAULT '';
 
       -- イベントテーブル
       CREATE TABLE IF NOT EXISTS events (
@@ -100,8 +104,33 @@ async function migrate() {
         created_at  TIMESTAMPTZ DEFAULT NOW()
       );
 
-      -- インデックス
-      CREATE INDEX IF NOT EXISTS idx_events_user_id      ON events(user_id);
+      -- スケジュール進捗テーブル
+      CREATE TABLE IF NOT EXISTS schedules (
+        id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        title       VARCHAR(200) NOT NULL,
+        description TEXT,
+        created_by  UUID REFERENCES users(id) ON DELETE SET NULL,
+        status      VARCHAR(20) DEFAULT 'in_progress', -- 'in_progress' | 'completed'
+        created_at  TIMESTAMPTZ DEFAULT NOW(),
+        updated_at  TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      -- スケジュールのステップ（工程）テーブル
+      CREATE TABLE IF NOT EXISTS schedule_steps (
+        id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        schedule_id  UUID REFERENCES schedules(id) ON DELETE CASCADE,
+        step_order   INTEGER NOT NULL,
+        title        VARCHAR(200) NOT NULL,
+        assignee_id  UUID REFERENCES users(id) ON DELETE SET NULL,
+        status       VARCHAR(20) DEFAULT 'waiting', -- 'waiting' | 'in_progress' | 'completed'
+        completed_at TIMESTAMPTZ,
+        created_at   TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_schedule_steps_schedule ON schedule_steps(schedule_id);
+      CREATE INDEX IF NOT EXISTS idx_schedules_created_by    ON schedules(created_by);
+
+      -- インデックス（既存）
       CREATE INDEX IF NOT EXISTS idx_events_date         ON events(date);
       CREATE INDEX IF NOT EXISTS idx_events_visibility   ON events(visibility);
       CREATE INDEX IF NOT EXISTS idx_photos_user_id      ON photos(user_id);
@@ -119,8 +148,8 @@ async function migrate() {
     console.log('  - photos テーブル');
     console.log('  - flowers テーブル（祝花）');
     console.log('  - posters テーブル（ポスター案）');
-    console.log('  - poster_likes テーブル');
-    console.log('  - poster_comments テーブル');
+    console.log('  - schedules テーブル（スケジュール進捗）');
+    console.log('  - schedule_steps テーブル');
   } catch (err) {
     console.error('❌ マイグレーションエラー:', err.message);
     process.exit(1);

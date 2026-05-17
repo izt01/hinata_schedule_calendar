@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>日向坂46 — スケジュール進捗</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8b2252">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── ヒーロー ── */
+.schedule-hero {
+  margin: 0 0 24px; padding: 32px 20px 24px;
+  background: linear-gradient(145deg, #3a7a50 0%, #2a6040 50%, #1a4830 100%);
+  border-radius: 0 0 32px 32px; text-align: center;
+  box-shadow: 0 8px 32px rgba(40,100,60,0.3);
+}
+.schedule-hero-icon  { font-size: 52px; margin-bottom: 10px; }
+.schedule-hero-title { font-family: 'Shippori Mincho', serif; font-size: 26px; font-weight: 800; color: white; letter-spacing: 0.1em; margin-bottom: 4px; }
+.schedule-hero-sub   { font-family: 'Noto Serif JP', serif; font-size: 11px; color: rgba(255,255,255,0.8); letter-spacing: 0.15em; }
+
+/* ── スケジュールカード ── */
+.schedule-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 100px; }
+.schedule-card {
+  background: rgba(255,255,255,0.88); backdrop-filter: blur(10px);
+  border-radius: 22px; border: 1.5px solid var(--hina-2);
+  overflow: hidden; box-shadow: var(--shadow-hina);
+}
+.schedule-card.completed { border-color: rgba(40,160,80,0.3); background: rgba(240,255,245,0.9); }
+
+.schedule-card-header {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--hina-1);
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.schedule-card-title {
+  font-family: 'Shippori Mincho', serif; font-size: 16px; font-weight: 800;
+  color: var(--sumi); flex: 1; line-height: 1.4;
+}
+.schedule-card-desc {
+  font-family: 'Noto Serif JP', serif; font-size: 11px;
+  color: var(--sumi-light); margin-top: 4px; line-height: 1.6;
+}
+.schedule-status-badge {
+  flex-shrink: 0; padding: 4px 10px; border-radius: 12px;
+  font-size: 10px; font-weight: 700; font-family: 'Noto Serif JP', serif;
+  white-space: nowrap;
+}
+.badge-inprogress { background: rgba(21,101,160,0.1); color: var(--sky); border: 1px solid var(--hina-2); }
+.badge-completed  { background: rgba(40,160,80,0.12); color: #2a7a40; border: 1px solid rgba(40,160,80,0.3); }
+
+/* ── ステップリスト ── */
+.step-list { padding: 12px 18px 14px; display: flex; flex-direction: column; gap: 0; }
+.step-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 10px 0;
+  position: relative;
+}
+/* ステップ同士をつなぐ縦線 */
+.step-item:not(:last-child)::after {
+  content: '';
+  position: absolute; left: 16px; top: 36px;
+  width: 2px; bottom: -10px;
+  background: var(--hina-2);
+}
+.step-item.step-completed::after { background: rgba(40,160,80,0.3); }
+
+/* ステップアイコン */
+.step-icon {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; border: 2px solid var(--hina-2);
+  background: white; position: relative; z-index: 1;
+}
+.step-icon.icon-waiting    { background: var(--hina-0); border-color: var(--hina-2); color: var(--sumi-light); }
+.step-icon.icon-inprogress { background: rgba(21,101,160,0.12); border-color: var(--sky); color: var(--sky); }
+.step-icon.icon-completed  { background: rgba(40,160,80,0.12); border-color: #2a8a40; color: #2a8a40; }
+
+.step-body { flex: 1; min-width: 0; }
+.step-order-num {
+  font-size: 9px; font-family: 'Noto Serif JP', serif;
+  color: var(--sumi-light); margin-bottom: 2px; letter-spacing: 0.1em;
+}
+.step-title {
+  font-family: 'Noto Serif JP', serif; font-size: 13px; font-weight: 600;
+  color: var(--sumi); margin-bottom: 4px;
+}
+.step-title.title-completed { text-decoration: line-through; color: var(--sumi-light); }
+
+/* 担当者 */
+.step-assignee {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 8px; border-radius: 10px;
+  background: var(--hina-1); border: 1px solid var(--hina-2);
+  font-size: 10px; font-family: 'Noto Serif JP', serif; color: var(--sumi-light);
+}
+.step-assignee.is-me { background: rgba(21,101,160,0.1); border-color: var(--sky); color: var(--sky); font-weight: 700; }
+.step-assignee img { width: 16px; height: 16px; border-radius: 50%; object-fit: cover; }
+.step-assignee-noone { font-size: 10px; color: var(--sumi-light); font-family: 'Noto Serif JP', serif; font-style: italic; }
+
+.step-completed-at {
+  font-size: 9px; color: var(--sumi-light); font-family: 'Noto Serif JP', serif; margin-top: 3px;
+}
+
+/* 完了ボタン */
+.step-complete-btn {
+  flex-shrink: 0; padding: 7px 12px; border-radius: 14px;
+  background: var(--sky); border: none; color: white;
+  font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 11px; font-weight: 700;
+  cursor: pointer; touch-action: manipulation; transition: transform 0.15s;
+  white-space: nowrap; align-self: center;
+}
+.step-complete-btn:active { transform: scale(0.94); }
+.step-complete-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* 進捗バー */
+.schedule-progress-bar {
+  margin: 0 18px 14px; height: 6px; border-radius: 3px;
+  background: var(--hina-1); overflow: hidden;
+}
+.schedule-progress-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, #3a7a50, #5ab070);
+  transition: width 0.4s ease;
+}
+
+/* 削除ボタン */
+.schedule-card-footer {
+  padding: 0 18px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.schedule-delete-btn {
+  background: none; border: none; font-size: 11px;
+  color: rgba(200,60,60,0.6); cursor: pointer; touch-action: manipulation;
+  font-family: 'Noto Serif JP', serif; padding: 4px 0;
+}
+
+/* ── 作成モーダル ── */
+.ev-modal-wrap { display:none; position:fixed; inset:0; z-index:300; align-items:flex-end; justify-content:center; }
+.ev-modal-wrap.open { display:flex; }
+.ev-modal-bg { position:absolute; inset:0; background:rgba(10,30,60,0.5); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+.ev-modal-box { position:relative; width:100%; max-width:430px; background:var(--white-bg); border-radius:32px 32px 0 0; padding:12px 22px 52px; max-height:92vh; overflow-y:auto; -webkit-overflow-scrolling:touch; border-top:1.5px solid var(--hina-2); z-index:1; }
+
+/* ステップ入力エリア */
+.step-input-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+.step-input-row {
+  background: var(--hina-0); border-radius: 16px;
+  border: 1.5px solid var(--hina-2); padding: 12px 14px;
+}
+.step-input-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.step-input-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--sky); color: white;
+  font-size: 11px; font-weight: 800; font-family: 'M PLUS Rounded 1c', sans-serif;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.step-input-label {
+  font-family: 'Noto Serif JP', serif; font-size: 12px; font-weight: 700;
+  color: var(--sumi); flex: 1;
+}
+.step-remove-btn {
+  width: 24px; height: 24px; border-radius: 50%; background: none;
+  border: 1.5px solid var(--hina-3); color: var(--sumi-light);
+  font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  touch-action: manipulation; flex-shrink: 0;
+}
+.step-assignee-select {
+  width: 100%; background: rgba(255,255,255,0.9); border: 1.5px solid var(--hina-2);
+  border-radius: 12px; padding: 9px 12px; font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px; color: var(--sumi); outline: none; margin-top: 8px;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
+}
+
+.add-step-btn {
+  width: 100%; padding: 12px; border-radius: 16px;
+  border: 2px dashed var(--hina-3); background: var(--hina-0);
+  font-family: 'Noto Serif JP', serif; font-size: 12px; font-weight: 600;
+  color: var(--sumi-light); cursor: pointer; text-align: center;
+  touch-action: manipulation; transition: all 0.15s;
+}
+.add-step-btn:active { background: var(--hina-1); }
+</style>
+</head>
+<body>
+<canvas id="petals-canvas"></canvas>
+<div id="app">
+  <div id="headerMount"></div>
+  <div class="page-content page-enter" style="padding-top:0">
+
+    <div class="schedule-hero">
+      <div class="schedule-hero-icon">📋</div>
+      <div class="schedule-hero-title">スケジュール進捗</div>
+      <div class="schedule-hero-sub">✿ タスクを順番に割り当てて管理 ✿</div>
+    </div>
+
+    <!-- 作成ボタン -->
+    <button class="btn-primary" id="createBtn" style="width:100%;justify-content:center;margin-bottom:20px;background:linear-gradient(135deg,#3a7a50,#2a6040);box-shadow:0 6px 22px rgba(40,100,60,0.3)">
+      ＋ スケジュールを作成する
+    </button>
+
+    <!-- 一覧 -->
+    <div class="section-kamon"><span class="section-kamon-text">✿ スケジュール一覧 ✿</span></div>
+    <div class="schedule-list" id="scheduleList">
+      <div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">読み込み中…</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 作成モーダル -->
+<div class="ev-modal-wrap" id="createModal">
+  <div class="ev-modal-bg" id="createModalBg"></div>
+  <div class="ev-modal-box">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" id="createModalClose">✕</button>
+    <div class="modal-title">📋 スケジュールを作成</div>
+
+    <div class="form-group">
+      <label class="form-label">スケジュールタイトル <span style="color:var(--sky)">*</span></label>
+      <input class="form-input" id="schedTitle" type="text" placeholder="例：バースデーポスター制作" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label">概要・説明（任意）</label>
+      <input class="form-input" id="schedDesc" type="text" placeholder="例：〇〇ちゃんのお誕生日に向けて" autocomplete="off">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">工程（ステップ）<span style="color:var(--sky)">*</span></label>
+      <div class="step-input-list" id="stepInputList"></div>
+      <button class="add-step-btn" id="addStepBtn">＋ ステップを追加する</button>
+    </div>
+
+    <button class="btn-primary" id="schedSaveBtn" style="width:100%;justify-content:center;margin-top:8px;background:linear-gradient(135deg,#3a7a50,#2a6040)">
+      作 成
+    </button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="db.js"></script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+<script src="sakura.js"></script>
+<script>
+document.getElementById('headerMount').outerHTML = headerHTML('スケジュール進捗', '📋 タスク管理 📋');
+injectNav('schedule.html');
+
+let allUsers    = [];
+let allSchedules = [];
+
+// ── イベントリスナー ──────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('createBtn').addEventListener('click', openCreateModal);
+  document.getElementById('createModalBg').addEventListener('click', closeCreateModal);
+  document.getElementById('createModalClose').addEventListener('click', closeCreateModal);
+  document.getElementById('addStepBtn').addEventListener('click', addStepInput);
+  document.getElementById('schedSaveBtn').addEventListener('click', createSchedule);
+});
+
+// ── 初期化 ──────────────────────────────
+(async function init() {
+  if (!isLoggedIn()) {
+    document.getElementById('scheduleList').innerHTML =
+      `<div class="empty-state">
+        <div class="empty-state-icon">🔑</div>
+        <div class="empty-state-text">スケジュール機能を使うには<br><a href="profile.html" style="color:var(--sky)">アカウント設定</a>が必要です</div>
+      </div>`;
+    document.getElementById('createBtn').style.display = 'none';
+    return;
+  }
+  try { allUsers = await UserAPI.list() || []; } catch { allUsers = []; }
+  await loadSchedules();
+})();
+
+// ── スケジュール一覧 ──────────────────────
+async function loadSchedules() {
+  try {
+    allSchedules = await apiFetch('/api/schedules') || [];
+  } catch { allSchedules = []; }
+  renderSchedules();
+}
+
+function renderSchedules() {
+  const el = document.getElementById('scheduleList');
+  if (!allSchedules.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">スケジュールがまだありません<br>＋ボタンから作成しましょう</div></div>`;
+    return;
+  }
+  el.innerHTML = allSchedules.map(s => renderScheduleCard(s)).join('');
+}
+
+function renderScheduleCard(s) {
+  const myId = getUser()?.id;
+  const total     = s.steps?.length || 0;
+  const completed = s.steps?.filter(st => st.status === 'completed').length || 0;
+  const pct = total ? Math.round((completed / total) * 100) : 0;
+  const isCompleted = s.status === 'completed';
+  const isCreator   = s.created_by === myId;
+
+  const stepsHtml = (s.steps || []).map((st, idx) => {
+    const isMe = st.assignee_id === myId;
+    const iconMap = { waiting: '⏸', in_progress: '▶', completed: '✅' };
+    const icon    = iconMap[st.status] || '⏸';
+    const iconCls = `icon-${st.status.replace('_', '')}`;
+
+    // 担当者表示
+    const assigneeHtml = st.assignee_id
+      ? `<span class="step-assignee${isMe ? ' is-me' : ''}">
+          ${st.assignee_avatar ? `<img src="${st.assignee_avatar}" alt="${st.assignee_nickname}">` : '👤'}
+          ${st.assignee_nickname}${isMe ? '（あなた）' : ''}
+        </span>`
+      : `<span class="step-assignee-noone">担当者未設定</span>`;
+
+    // 完了ボタン（in_progress かつ 自分が担当 or 担当未設定）
+    const canComplete = st.status === 'in_progress' && (isMe || !st.assignee_id);
+    const completeBtn = canComplete
+      ? `<button class="step-complete-btn" onclick="completeStep('${s.id}','${st.id}')">タスク完了</button>`
+      : '';
+
+    const completedAt = st.completed_at
+      ? `<div class="step-completed-at">✅ ${new Date(st.completed_at).toLocaleDateString('ja-JP')} 完了</div>`
+      : '';
+
+    return `<div class="step-item${st.status === 'completed' ? ' step-completed' : ''}">
+      <div class="step-icon ${iconCls}">${icon}</div>
+      <div class="step-body">
+        <div class="step-order-num">STEP ${st.step_order}</div>
+        <div class="step-title${st.status === 'completed' ? ' title-completed' : ''}">${st.title}</div>
+        <div style="margin-top:5px">${assigneeHtml}</div>
+        ${completedAt}
+      </div>
+      ${completeBtn}
+    </div>`;
+  }).join('');
+
+  const d = new Date(s.created_at);
+  const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
+
+  return `<div class="schedule-card${isCompleted ? ' completed' : ''}" id="sched_${s.id}">
+    <div class="schedule-card-header">
+      <div style="flex:1">
+        <div class="schedule-card-title">${s.title}</div>
+        ${s.description ? `<div class="schedule-card-desc">${s.description}</div>` : ''}
+        <div style="margin-top:6px;font-size:10px;color:var(--sumi-light);font-family:'Noto Serif JP',serif">
+          ${s.creator_nickname ? `✿ ${s.creator_nickname}` : ''} · ${dateStr}
+        </div>
+      </div>
+      <span class="schedule-status-badge ${isCompleted ? 'badge-completed' : 'badge-inprogress'}">
+        ${isCompleted ? '✅ 完了' : `🔄 ${completed}/${total}完了`}
+      </span>
+    </div>
+
+    <div class="schedule-progress-bar">
+      <div class="schedule-progress-fill" style="width:${pct}%"></div>
+    </div>
+
+    <div class="step-list">${stepsHtml}</div>
+
+    ${isCreator ? `
+    <div class="schedule-card-footer">
+      <div style="font-size:10px;color:var(--sumi-light);font-family:'Noto Serif JP',serif">進捗 ${pct}%</div>
+      <button class="schedule-delete-btn" onclick="deleteSchedule('${s.id}')">🗑 削除</button>
+    </div>` : `<div style="height:8px"></div>`}
+  </div>`;
+}
+
+// ── ステップ完了 ──────────────────────────
+async function completeStep(schedId, stepId) {
+  if (!confirm('このステップを完了にしますか？\n次の担当者にバトンが渡されます。')) return;
+  try {
+    const result = await apiFetch(`/api/schedules/${schedId}/steps/${stepId}/complete`, { method: 'PUT' });
+    if (result) {
+      // ローカルのスケジュールを更新
+      const idx = allSchedules.findIndex(s => s.id === schedId);
+      if (idx !== -1) {
+        allSchedules[idx].steps    = result.steps;
+        allSchedules[idx].status   = result.schedule.status;
+        allSchedules[idx].updated_at = result.schedule.updated_at;
+      }
+      renderSchedules();
+    }
+  } catch (err) { alert('エラー: ' + err.message); }
+}
+
+// ── スケジュール削除 ──────────────────────
+async function deleteSchedule(id) {
+  if (!confirm('このスケジュールを削除しますか？\n全てのステップも削除されます。')) return;
+  try {
+    await apiFetch(`/api/schedules/${id}`, { method: 'DELETE' });
+    allSchedules = allSchedules.filter(s => s.id !== id);
+    renderSchedules();
+  } catch (err) { alert('削除エラー: ' + err.message); }
+}
+
+// ── 作成モーダル ──────────────────────────
+let stepCount = 0;
+
+function openCreateModal() {
+  if (!isLoggedIn()) { alert('アカウント設定が必要です'); window.location.href = 'profile.html'; return; }
+  document.getElementById('schedTitle').value = '';
+  document.getElementById('schedDesc').value  = '';
+  stepCount = 0;
+  document.getElementById('stepInputList').innerHTML = '';
+  // 最初のステップを1つ追加
+  addStepInput();
+  addStepInput();
+  document.getElementById('createModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCreateModal() {
+  document.getElementById('createModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function addStepInput() {
+  stepCount++;
+  const num = stepCount;
+  const userOptions = allUsers.map(u => {
+    const isMe = u.id === getUser()?.id;
+    return `<option value="${u.id}"${isMe ? ' selected' : ''}>${u.nickname}${isMe ? '（あなた）' : ''}</option>`;
+  }).join('');
+
+  const div = document.createElement('div');
+  div.className = 'step-input-row';
+  div.dataset.step = num;
+  div.innerHTML = `
+    <div class="step-input-header">
+      <div class="step-input-num">${num}</div>
+      <div class="step-input-label">STEP ${num}</div>
+      ${num > 1 ? `<button class="step-remove-btn" onclick="removeStepInput(this)">✕</button>` : ''}
+    </div>
+    <input class="form-input" type="text" placeholder="例：デザイン案を作成する" autocomplete="off"
+      style="margin-bottom:0" data-step-title="${num}">
+    <select class="step-assignee-select" data-step-assignee="${num}">
+      <option value="">担当者を選択（任意）</option>
+      ${userOptions}
+    </select>`;
+  document.getElementById('stepInputList').appendChild(div);
+}
+
+function removeStepInput(btn) {
+  const row = btn.closest('.step-input-row');
+  row.remove();
+  // 番号を振り直す
+  document.querySelectorAll('.step-input-row').forEach((r, i) => {
+    r.querySelector('.step-input-num').textContent  = i + 1;
+    r.querySelector('.step-input-label').textContent = `STEP ${i + 1}`;
+  });
+  stepCount = document.querySelectorAll('.step-input-row').length;
+}
+
+async function createSchedule() {
+  const title = document.getElementById('schedTitle').value.trim();
+  const desc  = document.getElementById('schedDesc').value.trim();
+  if (!title) { alert('タイトルを入力してください'); return; }
+
+  const rows = document.querySelectorAll('.step-input-row');
+  const steps = [];
+  for (const row of rows) {
+    const stepTitle = row.querySelector('input[data-step-title]').value.trim();
+    const assigneeId = row.querySelector('select').value;
+    if (!stepTitle) { alert('全てのステップにタイトルを入力してください'); return; }
+    steps.push({ title: stepTitle, assignee_id: assigneeId || null });
+  }
+  if (!steps.length) { alert('ステップを1つ以上追加してください'); return; }
+
+  const btn = document.getElementById('schedSaveBtn');
+  btn.disabled = true; btn.textContent = '作成中…';
+  try {
+    const result = await apiFetch('/api/schedules', {
+      method: 'POST',
+      body: JSON.stringify({ title, description: desc, steps }),
+    });
+    if (result) {
+      allSchedules.unshift(result);
+      closeCreateModal();
+      renderSchedules();
+    }
+  } catch (err) { alert('作成エラー: ' + err.message); }
+  finally { btn.disabled = false; btn.textContent = '作 成'; }
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+}
+</script>
+</body>
+</html>
