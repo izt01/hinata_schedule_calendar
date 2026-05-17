@@ -109,8 +109,9 @@ async function migrate() {
         id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         title       VARCHAR(200) NOT NULL,
         description TEXT,
+        due_date    DATE,
         created_by  UUID REFERENCES users(id) ON DELETE SET NULL,
-        status      VARCHAR(20) DEFAULT 'in_progress', -- 'in_progress' | 'completed'
+        status      VARCHAR(20) DEFAULT 'in_progress',
         created_at  TIMESTAMPTZ DEFAULT NOW(),
         updated_at  TIMESTAMPTZ DEFAULT NOW()
       );
@@ -122,10 +123,15 @@ async function migrate() {
         step_order   INTEGER NOT NULL,
         title        VARCHAR(200) NOT NULL,
         assignee_id  UUID REFERENCES users(id) ON DELETE SET NULL,
-        status       VARCHAR(20) DEFAULT 'waiting', -- 'waiting' | 'in_progress' | 'completed'
+        due_date     DATE,
+        status       VARCHAR(20) DEFAULT 'waiting',
         completed_at TIMESTAMPTZ,
         created_at   TIMESTAMPTZ DEFAULT NOW()
       );
+
+      -- 既存テーブルへのカラム追加（既にある場合はスキップ）
+      ALTER TABLE schedules       ADD COLUMN IF NOT EXISTS due_date DATE;
+      ALTER TABLE schedule_steps  ADD COLUMN IF NOT EXISTS due_date DATE;
 
       CREATE INDEX IF NOT EXISTS idx_schedule_steps_schedule ON schedule_steps(schedule_id);
       CREATE INDEX IF NOT EXISTS idx_schedules_created_by    ON schedules(created_by);
