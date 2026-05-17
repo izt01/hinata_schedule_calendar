@@ -10,7 +10,6 @@ const jwt       = require('jsonwebtoken');
 const bcrypt    = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const { notifyAssignment, sendDueReminders } = require('./notifier');
-const { v4: uuidv4 } = require('uuid');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
