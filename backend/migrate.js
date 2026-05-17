@@ -133,7 +133,16 @@ async function migrate() {
       ALTER TABLE schedules       ADD COLUMN IF NOT EXISTS due_date DATE;
       ALTER TABLE schedule_steps  ADD COLUMN IF NOT EXISTS due_date DATE;
 
-      CREATE INDEX IF NOT EXISTS idx_schedule_steps_schedule ON schedule_steps(schedule_id);
+      -- フィードバックテーブル
+      CREATE TABLE IF NOT EXISTS feedbacks (
+        id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id    UUID REFERENCES users(id) ON DELETE SET NULL,
+        nickname   VARCHAR(50),
+        category   VARCHAR(30) NOT NULL, -- 'idea' | 'bug' | 'request' | 'other'
+        body       TEXT NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_feedbacks_created ON feedbacks(created_at);
       CREATE INDEX IF NOT EXISTS idx_schedules_created_by    ON schedules(created_by);
 
       -- インデックス（既存）

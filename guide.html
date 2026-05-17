@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>日向坂46 — 使い方ガイド</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8b2252">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── ヒーロー ── */
+.guide-hero {
+  margin: 0 0 24px; padding: 32px 20px 28px;
+  background: linear-gradient(145deg, #2060a0 0%, #1a4880 50%, #102860 100%);
+  border-radius: 0 0 32px 32px; text-align: center;
+  box-shadow: 0 8px 32px rgba(20,60,140,0.3);
+}
+.guide-hero-icon  { font-size: 52px; margin-bottom: 10px; }
+.guide-hero-title { font-family:'Shippori Mincho',serif; font-size:26px; font-weight:800; color:white; letter-spacing:0.1em; margin-bottom:4px; }
+.guide-hero-sub   { font-family:'Noto Serif JP',serif; font-size:11px; color:rgba(255,255,255,0.8); letter-spacing:0.15em; }
+
+/* ── セクション ── */
+.guide-section {
+  background: rgba(255,255,255,0.88); backdrop-filter: blur(10px);
+  border-radius: 22px; border: 1.5px solid var(--hina-2);
+  box-shadow: var(--shadow-hina); margin-bottom: 16px; overflow: hidden;
+}
+.guide-section-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid var(--hina-1);
+  cursor: pointer; touch-action: manipulation;
+  user-select: none;
+}
+.guide-section-icon {
+  width: 44px; height: 44px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.guide-section-title {
+  font-family:'Shippori Mincho',serif; font-size:16px; font-weight:800;
+  color:var(--sumi); flex:1;
+}
+.guide-section-arrow {
+  font-size: 14px; color: var(--sumi-light);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.guide-section-arrow.open { transform: rotate(90deg); }
+
+.guide-section-body {
+  padding: 14px 18px 18px;
+  display: none;
+}
+.guide-section-body.open { display: block; }
+
+/* ── 機能アイテム ── */
+.guide-feature {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--hina-1);
+}
+.guide-feature:last-child { border-bottom: none; padding-bottom: 0; }
+.guide-feature-badge {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+  background: var(--hina-1); border: 1px solid var(--hina-2);
+}
+.guide-feature-info { flex: 1; }
+.guide-feature-name {
+  font-family:'Noto Serif JP',serif; font-size:13px; font-weight:700;
+  color:var(--sumi); margin-bottom:4px;
+}
+.guide-feature-desc {
+  font-family:'Noto Serif JP',serif; font-size:11px;
+  color:var(--sumi-light); line-height:1.8;
+}
+
+/* ── ステップリスト ── */
+.guide-steps {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-top: 4px;
+}
+.guide-step {
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.guide-step-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--sky); color: white;
+  font-size: 11px; font-weight: 800;
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.guide-step-text {
+  font-family:'Noto Serif JP',serif; font-size:12px;
+  color:var(--sumi); line-height:1.7; flex:1;
+}
+.guide-step-text b { color:var(--sky); }
+
+/* ── ヒントカード ── */
+.guide-tip {
+  background: rgba(21,101,160,0.06);
+  border: 1px solid var(--hina-2); border-radius: 12px;
+  padding: 10px 14px; margin-top: 10px;
+  font-family:'Noto Serif JP',serif; font-size:11px;
+  color: var(--sumi-light); line-height: 1.8;
+}
+.guide-tip::before { content: '💡 '; }
+
+/* ── リンクボタン ── */
+.guide-link-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 16px;
+  background: var(--sky); color: white; text-decoration: none;
+  font-family:'M PLUS Rounded 1c',sans-serif; font-size:12px; font-weight:700;
+  margin-top: 12px; touch-action: manipulation;
+}
+.guide-link-btn:active { opacity: 0.85; }
+
+/* フィードバックへのリンク */
+.feedback-cta {
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px; margin-bottom: 100px;
+  background: linear-gradient(135deg,rgba(80,160,80,0.08),rgba(40,120,40,0.12));
+  border-radius: 20px; border: 1.5px solid var(--hina-2);
+  text-decoration: none; color: var(--sumi);
+  box-shadow: var(--shadow-hina); touch-action: manipulation;
+}
+.feedback-cta:active { opacity: 0.85; }
+</style>
+</head>
+<body>
+<canvas id="petals-canvas"></canvas>
+<div id="app">
+  <div id="headerMount"></div>
+  <div class="page-content page-enter" style="padding-top:0">
+
+    <div class="guide-hero">
+      <div class="guide-hero-icon">📖</div>
+      <div class="guide-hero-title">使い方ガイド</div>
+      <div class="guide-hero-sub">✿ アプリの機能をご紹介 ✿</div>
+    </div>
+
+    <!-- ① カレンダー -->
+    <div class="guide-section">
+      <div class="guide-section-header" onclick="toggleSection(this)">
+        <div class="guide-section-icon" style="background:rgba(21,101,160,0.1)">📅</div>
+        <div class="guide-section-title">日向坂46 カレンダー</div>
+        <div class="guide-section-arrow">›</div>
+      </div>
+      <div class="guide-section-body">
+        <div class="guide-feature">
+          <div class="guide-feature-badge">📅</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">公式スケジュールの確認</div>
+            <div class="guide-feature-desc">日向坂46の公演・イベント・配信などのスケジュールをカレンダー形式で確認できます。推しメンの誕生日も表示されます。</div>
+          </div>
+        </div>
+        <div class="guide-tip">誕生日の前後には特別なお祝い画面が表示されます。</div>
+      </div>
+    </div>
+
+    <!-- ② 推しメン -->
+    <div class="guide-section">
+      <div class="guide-section-header" onclick="toggleSection(this)">
+        <div class="guide-section-icon" style="background:rgba(255,180,0,0.12)">🌻</div>
+        <div class="guide-section-title">推しメン一覧</div>
+        <div class="guide-section-arrow">›</div>
+      </div>
+      <div class="guide-section-body">
+        <div class="guide-feature">
+          <div class="guide-feature-badge">🌻</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">メンバープロフィール</div>
+            <div class="guide-feature-desc">全メンバーのプロフィール（誕生日・出身地・趣味など）を確認できます。</div>
+          </div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature-badge">⭐</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">推しメン登録</div>
+            <div class="guide-feature-desc">メンバーページから「推し」に登録すると、カレンダーや通知で優先表示されます。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ 行事帳 -->
+    <div class="guide-section">
+      <div class="guide-section-header" onclick="toggleSection(this)">
+        <div class="guide-section-icon" style="background:rgba(139,34,82,0.08)">✿</div>
+        <div class="guide-section-title">行事帳（イベント管理）</div>
+        <div class="guide-section-arrow">›</div>
+      </div>
+      <div class="guide-section-body">
+        <div class="guide-feature">
+          <div class="guide-feature-badge">＋</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">イベントの追加</div>
+            <div class="guide-feature-desc">コンサート・握手会など自分のイベントを登録できます。日時・絵文字・覚え書きを設定可能です。</div>
+          </div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature-badge">🔒</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">共有設定</div>
+            <div class="guide-feature-desc">イベントを<b>プライベート（自分だけ）</b>・<b>全体公開</b>・<b>特定ユーザーに共有</b>の3パターンから選べます。ログインが必要です。</div>
+          </div>
+        </div>
+        <div class="guide-steps">
+          <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">右上の <b>＋ボタン</b> をタップ</div></div>
+          <div class="guide-step"><div class="guide-step-num">2</div><div class="guide-step-text">上部タブで <b>プライベート / 共有</b> を選択</div></div>
+          <div class="guide-step"><div class="guide-step-num">3</div><div class="guide-step-text">名前・日付・絵文字を入力して <b>「記す」</b></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ④ ギャラリー -->
+    <div class="guide-section">
+      <div class="guide-section-header" onclick="toggleSection(this)">
+        <div class="guide-section-icon" style="background:rgba(80,160,200,0.1)">📷</div>
+        <div class="guide-section-title">フォトギャラリー</div>
+        <div class="guide-section-arrow">›</div>
+      </div>
+      <div class="guide-section-body">
+        <div class="guide-feature">
+          <div class="guide-feature-badge">📷</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">写真の一括登録</div>
+            <div class="guide-feature-desc">フォトアルバムから複数枚を一度に登録できます（最大20枚）。メンバーのタグ付けやキャプション設定も可能です。</div>
+          </div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature-badge">🔒</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">写真の共有</div>
+            <div class="guide-feature-desc">行事帳と同様に、プライベート・全体公開・特定ユーザーへの共有が選べます。</div>
+          </div>
+        </div>
+        <div class="guide-tip">左右スワイプで写真を切り替えられます。</div>
+      </div>
+    </div>
+
+    <!-- ⑤ アカウント -->
+    <div class="guide-section">
+      <div class="guide-section-header" onclick="toggleSection(this)">
+        <div class="guide-section-icon" style="background:rgba(21,101,160,0.1)">👤</div>
+        <div class="guide-section-title">アカウント設定・ログイン</div>
+        <div class="guide-section-arrow">›</div>
+      </div>
+      <div class="guide-section-body">
+        <div class="guide-feature">
+          <div class="guide-feature-badge">✏️</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">アカウント登録</div>
+            <div class="guide-feature-desc">ニックネーム（必須）・メールアドレス（任意）・パスワードで登録できます。メンバーのアイコンや自分の写真をアバターに設定できます。</div>
+          </div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature-badge">🔑</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">再ログイン</div>
+            <div class="guide-feature-desc">ニックネームまたはメールアドレス＋パスワードでいつでもログインできます。データはサーバーに保存されているため、機種変更後も引き継げます。</div>
+          </div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature-badge">🖼</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">トップ画面の壁紙設定</div>
+            <div class="guide-feature-desc">トップページのヒーロー右上の 🖼 ボタンからフォトアルバムの写真を壁紙に設定できます。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑥ スケジュール進捗 -->
+    <div class="guide-section">
+      <div class="guide-section-header" onclick="toggleSection(this)">
+        <div class="guide-section-icon" style="background:rgba(40,100,60,0.1)">📋</div>
+        <div class="guide-section-title">スケジュール進捗</div>
+        <div class="guide-section-arrow">›</div>
+      </div>
+      <div class="guide-section-body">
+        <div class="guide-feature">
+          <div class="guide-feature-badge">📋</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">タスクの順番管理</div>
+            <div class="guide-feature-desc">ポスター制作・イベント準備など、複数のステップを順番に管理できます。各ステップに担当者と期限を設定可能です。</div>
+          </div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature-badge">✅</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">バトンパス機能</div>
+            <div class="guide-feature-desc">担当者が「タスク完了」を押すと自動で次のステップに進み、次の担当者にバトンが渡されます。</div>
+          </div>
+        </div>
+        <div class="guide-steps">
+          <div class="guide-step"><div class="guide-step-num">1</div><div class="guide-step-text">「＋ スケジュールを作成する」をタップ</div></div>
+          <div class="guide-step"><div class="guide-step-num">2</div><div class="guide-step-text">タイトル・期限・各ステップの担当者を設定</div></div>
+          <div class="guide-step"><div class="guide-step-num">3</div><div class="guide-step-text">担当者が「タスク完了」を押すと次へ自動で進む</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑦ 祝花・ポスター -->
+    <div class="guide-section">
+      <div class="guide-section-header" onclick="toggleSection(this)">
+        <div class="guide-section-icon" style="background:rgba(200,40,80,0.08)">💐</div>
+        <div class="guide-section-title">祝花申し込み・ポスター案</div>
+        <div class="guide-section-arrow">›</div>
+      </div>
+      <div class="guide-section-body">
+        <div class="guide-feature">
+          <div class="guide-feature-badge">💐</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">祝花申し込み</div>
+            <div class="guide-feature-desc">メンバーへの祝花を申し込みできます。金額を選んで申し込むと振込案内が表示されます。振込待ちの申し込みは取り消しも可能です。</div>
+          </div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature-badge">🎨</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">ポスター案の投稿・評価</div>
+            <div class="guide-feature-desc">イラストをアップして全体に共有できます。匿名・ニックネーム表示を選べます。他の人の投稿に❤️いいね・💬コメントができます。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- フィードバックへのCTA -->
+    <a href="feedback.html" class="feedback-cta">
+      <div style="font-size:32px">💬</div>
+      <div style="flex:1">
+        <div style="font-family:'Shippori Mincho',serif;font-size:15px;font-weight:700;color:#2a6a2a;margin-bottom:3px">ご意見・ご要望はこちら</div>
+        <div style="font-family:'Noto Serif JP',serif;font-size:11px;color:var(--sumi-light)">機能の改善・要望を書き込めます</div>
+      </div>
+      <div style="font-size:18px;color:#2a6a2a">→</div>
+    </a>
+
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="db.js"></script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+<script src="sakura.js"></script>
+<script>
+document.getElementById('headerMount').outerHTML = headerHTML('使い方ガイド', '📖 機能のご紹介 📖');
+injectNav('guide.html');
+
+function toggleSection(header) {
+  const body  = header.nextElementSibling;
+  const arrow = header.querySelector('.guide-section-arrow');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+}
+</script>
+</body>
+</html>

@@ -576,6 +576,59 @@ app.delete('/api/schedules/:id', authRequired, async (req, res) => {
   res.json({ ok: true });
 });
 
+// ══════════════════════════════════════════
+//  FEEDBACK — ご意見・ご要望
+// ══════════════════════════════════════════
+
+// 投稿一覧（全員が見られる）
+app.get('/api/feedbacks', async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT id, user_id, nickname, category, body, created_at
+       FROM feedbacks ORDER BY created_at DESC LIMIT 100`
+    );
+    res.json(r.rows);
+  } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
+});
+
+// 投稿（ログイン不要）
+app.post('/api/feedbacks', async (req, res) => {
+  const { category, body, nickname } = req.body;
+  if (!body?.trim()) return res.status(400).json({ error: '内容を入力してください' });
+  const validCats = ['idea','bug','request','other'];
+  if (!validCats.includes(category)) return res.status(400).json({ error: 'カテゴリが不正です' });
+
+  const token = req.headers['authorization']?.replace('Bearer ', '');
+  let userId = null, nick = nickname?.trim() || '匿名';
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      userId = decoded.userId;
+      // ログイン中はニックネームをDBから取得
+      const u = await pool.query('SELECT nickname FROM users WHERE id=$1', [userId]);
+      if (u.rows[0]) nick = u.rows[0].nickname;
+    } catch {}
+  }
+  try {
+    const r = await pool.query(
+      `INSERT INTO feedbacks (user_id, nickname, category, body)
+       VALUES ($1,$2,$3,$4) RETURNING *`,
+      [userId, nick, category, body.trim()]
+    );
+    res.json(r.rows[0]);
+  } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
+});
+
+// 削除（自分のもののみ）
+app.delete('/api/feedbacks/:id', authRequired, async (req, res) => {
+  const r = await pool.query(
+    'DELETE FROM feedbacks WHERE id=$1 AND user_id=$2 RETURNING id',
+    [req.params.id, req.user.userId]
+  );
+  if (!r.rows[0]) return res.status(404).json({ error: '見つかりません' });
+  res.json({ ok: true });
+});
+
 // ── サーバー起動 ──────────────────────────
 app.listen(PORT, () => {
   console.log(`\n🌸 ひなたカレンダー API サーバー起動`);

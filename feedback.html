@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>日向坂46 — ご意見・ご要望</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8b2252">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── ヒーロー ── */
+.fb-hero {
+  margin: 0 0 24px; padding: 32px 20px 28px;
+  background: linear-gradient(145deg, #3a6a3a 0%, #2a5a2a 50%, #1a4020 100%);
+  border-radius: 0 0 32px 32px; text-align: center;
+  box-shadow: 0 8px 32px rgba(30,80,30,0.3);
+}
+.fb-hero-icon  { font-size: 52px; margin-bottom: 10px; }
+.fb-hero-title { font-family:'Shippori Mincho',serif; font-size:26px; font-weight:800; color:white; letter-spacing:0.1em; margin-bottom:4px; }
+.fb-hero-sub   { font-family:'Noto Serif JP',serif; font-size:11px; color:rgba(255,255,255,0.8); letter-spacing:0.15em; }
+
+/* ── カテゴリ選択 ── */
+.category-grid {
+  display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; margin-bottom: 14px;
+}
+.category-btn {
+  padding: 12px 8px; border-radius: 14px;
+  border: 1.5px solid var(--hina-2); background: rgba(255,255,255,0.8);
+  font-family:'Noto Serif JP',serif; font-size:12px; font-weight:600;
+  color: var(--sumi-light); cursor: pointer; text-align: center;
+  touch-action: manipulation; transition: all 0.18s;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.category-btn .cat-icon { font-size: 20px; }
+.category-btn.selected {
+  border-color: #3a6a3a; background: rgba(40,100,40,0.1); color: #2a5a2a; font-weight: 700;
+}
+.category-btn:active { transform: scale(0.95); }
+
+/* ── テキストエリア ── */
+.fb-textarea {
+  width: 100%; min-height: 120px;
+  background: rgba(255,255,255,0.92); border: 1.5px solid var(--hina-2);
+  border-radius: 16px; padding: 14px 16px;
+  font-family:'Noto Sans JP',sans-serif; font-size:14px; color: var(--sumi);
+  outline: none; resize: vertical; line-height: 1.7;
+  box-sizing: border-box;
+}
+.fb-textarea:focus { border-color: var(--hina-3); }
+
+/* ── 投稿一覧 ── */
+.fb-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 100px; }
+.fb-item {
+  background: rgba(255,255,255,0.88); backdrop-filter: blur(8px);
+  border-radius: 18px; border: 1.5px solid var(--hina-2);
+  padding: 14px 16px; box-shadow: var(--shadow-hina);
+  position: relative;
+}
+.fb-item-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.fb-cat-badge {
+  padding: 3px 9px; border-radius: 10px; font-size: 10px; font-weight: 700;
+  font-family:'Noto Serif JP',serif;
+}
+.cat-idea    { background: rgba(21,101,160,0.1); color:var(--sky); border:1px solid var(--hina-2); }
+.cat-bug     { background: rgba(200,60,60,0.1);  color:#c03030; border:1px solid rgba(200,60,60,0.3); }
+.cat-request { background: rgba(80,140,80,0.1);  color:#2a6a2a; border:1px solid rgba(80,140,80,0.3); }
+.cat-other   { background: rgba(140,80,180,0.1); color:#6a2a9a; border:1px solid rgba(140,80,180,0.3); }
+.fb-item-nickname {
+  font-family:'Noto Serif JP',serif; font-size:11px; color:var(--sumi-light); flex:1;
+}
+.fb-item-date {
+  font-family:'Noto Serif JP',serif; font-size:10px; color:var(--sumi-light);
+}
+.fb-item-body {
+  font-family:'Noto Serif JP',serif; font-size:13px; color:var(--sumi);
+  line-height: 1.8; word-break: break-word;
+}
+.fb-delete-btn {
+  position: absolute; top: 10px; right: 12px;
+  background: none; border: none; font-size: 13px;
+  color: var(--sumi-light); opacity: 0.4; cursor: pointer;
+  padding: 6px; border-radius: 50%; touch-action: manipulation;
+}
+.fb-delete-btn:active { opacity: 0.9; background: var(--hina-1); }
+
+/* 匿名入力 */
+.anon-toggle-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px; cursor: pointer;
+  font-family:'Noto Serif JP',serif; font-size:12px; color: var(--sumi-light);
+}
+.anon-toggle-row input { accent-color: #3a6a3a; width:16px; height:16px; cursor:pointer; }
+</style>
+</head>
+<body>
+<canvas id="petals-canvas"></canvas>
+<div id="app">
+  <div id="headerMount"></div>
+  <div class="page-content page-enter" style="padding-top:0">
+
+    <div class="fb-hero">
+      <div class="fb-hero-icon">💬</div>
+      <div class="fb-hero-title">ご意見・ご要望</div>
+      <div class="fb-hero-sub">✿ アプリをもっとよくするために ✿</div>
+    </div>
+
+    <!-- 投稿フォーム -->
+    <div class="profile-card" style="margin-bottom:16px">
+      <div class="profile-card-title" style="color:#2a6a2a">✏️ 書き込む</div>
+
+      <!-- カテゴリ -->
+      <div class="form-group">
+        <label class="form-label">カテゴリ <span style="color:#3a6a3a">*</span></label>
+        <div class="category-grid" id="categoryGrid">
+          <button class="category-btn" data-cat="idea"    onclick="selectCat('idea',this)">   <span class="cat-icon">💡</span>アイデア・提案</button>
+          <button class="category-btn" data-cat="request" onclick="selectCat('request',this)"><span class="cat-icon">🙏</span>機能リクエスト</button>
+          <button class="category-btn" data-cat="bug"     onclick="selectCat('bug',this)">    <span class="cat-icon">🐛</span>不具合・バグ報告</button>
+          <button class="category-btn" data-cat="other"   onclick="selectCat('other',this)">  <span class="cat-icon">💬</span>その他・感想</button>
+        </div>
+      </div>
+
+      <!-- 匿名切替（未ログイン時は非表示） -->
+      <div id="anonRow" style="display:none">
+        <label class="anon-toggle-row">
+          <input type="checkbox" id="anonCheck"> 匿名で投稿する
+        </label>
+        <div id="nicknamePreview" style="font-size:11px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;margin-bottom:10px"></div>
+      </div>
+
+      <!-- 内容 -->
+      <div class="form-group">
+        <label class="form-label">内容 <span style="color:#3a6a3a">*</span></label>
+        <textarea class="fb-textarea" id="fbBody" placeholder="ご意見・ご要望・不具合の詳細などを自由にお書きください。&#10;&#10;例：〇〇の機能で△△ができると便利だと思います。"></textarea>
+        <div style="text-align:right;font-size:10px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;margin-top:4px">
+          <span id="charCount">0</span> 文字
+        </div>
+      </div>
+
+      <button class="btn-primary" id="fbSubmitBtn" style="width:100%;justify-content:center;background:linear-gradient(135deg,#3a6a3a,#2a5a2a)">
+        投 稿
+      </button>
+    </div>
+
+    <!-- 投稿一覧 -->
+    <div class="section-kamon"><span class="section-kamon-text">✿ みんなの投稿 ✿</span></div>
+    <div class="fb-list" id="fbList">
+      <div class="empty-state"><div class="empty-state-icon">💬</div><div class="empty-state-text">読み込み中…</div></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="db.js"></script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+<script src="sakura.js"></script>
+<script>
+document.getElementById('headerMount').outerHTML = headerHTML('ご意見・ご要望', '💬 フィードバック 💬');
+injectNav('feedback.html');
+
+let selectedCat = '';
+let allFeedbacks = [];
+
+const CAT_MAP = {
+  idea:    { label:'💡 アイデア',   cls:'cat-idea'    },
+  bug:     { label:'🐛 バグ報告',   cls:'cat-bug'     },
+  request: { label:'🙏 機能要望',   cls:'cat-request' },
+  other:   { label:'💬 その他',     cls:'cat-other'   },
+};
+
+// ── 初期化 ──────────────────────────────
+(async function init() {
+  // ログイン中の表示
+  const user = getUser();
+  if (user) {
+    document.getElementById('anonRow').style.display = 'block';
+    document.getElementById('nicknamePreview').textContent = `投稿者名：${user.nickname}`;
+    document.getElementById('anonCheck').addEventListener('change', function() {
+      document.getElementById('nicknamePreview').textContent =
+        this.checked ? '投稿者名：匿名' : `投稿者名：${user.nickname}`;
+    });
+  }
+
+  // 文字数カウント
+  document.getElementById('fbBody').addEventListener('input', function() {
+    document.getElementById('charCount').textContent = this.value.length;
+  });
+
+  // 送信ボタン
+  document.getElementById('fbSubmitBtn').addEventListener('click', submitFeedback);
+
+  await loadFeedbacks();
+})();
+
+// ── カテゴリ選択 ──────────────────────────
+function selectCat(cat, btn) {
+  selectedCat = cat;
+  document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// ── 投稿 ──────────────────────────────────
+async function submitFeedback() {
+  if (!selectedCat)       { alert('カテゴリを選択してください'); return; }
+  const body = document.getElementById('fbBody').value.trim();
+  if (!body)              { alert('内容を入力してください'); return; }
+  if (body.length > 1000) { alert('1000文字以内で入力してください'); return; }
+
+  const isAnon = document.getElementById('anonCheck')?.checked;
+  const nickname = isAnon ? '匿名' : (getUser()?.nickname || '匿名');
+
+  const btn = document.getElementById('fbSubmitBtn');
+  btn.disabled = true; btn.textContent = '投稿中…';
+
+  try {
+    const result = await apiFetch('/api/feedbacks', {
+      method: 'POST',
+      body: JSON.stringify({ category: selectedCat, body, nickname }),
+    });
+    if (result) {
+      allFeedbacks.unshift(result);
+      document.getElementById('fbBody').value = '';
+      document.getElementById('charCount').textContent = '0';
+      selectedCat = '';
+      document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+      renderFeedbacks();
+      btn.textContent = '✅ 投稿しました';
+      setTimeout(() => { btn.textContent = '投 稿'; }, 2000);
+    }
+  } catch (err) {
+    alert('投稿エラー: ' + err.message);
+    btn.textContent = '投 稿';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── 一覧取得 ──────────────────────────────
+async function loadFeedbacks() {
+  try {
+    allFeedbacks = await apiFetch('/api/feedbacks') || [];
+  } catch { allFeedbacks = []; }
+  renderFeedbacks();
+}
+
+function renderFeedbacks() {
+  const el = document.getElementById('fbList');
+  if (!allFeedbacks.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">💬</div><div class="empty-state-text">まだ投稿がありません<br>最初の一件を書き込みましょう！</div></div>`;
+    return;
+  }
+
+  const myId = getUser()?.id;
+  el.innerHTML = allFeedbacks.map(f => {
+    const cat   = CAT_MAP[f.category] || CAT_MAP.other;
+    const d     = new Date(f.created_at);
+    const dateStr = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const isOwn = f.user_id && f.user_id === myId;
+    return `<div class="fb-item">
+      <div class="fb-item-header">
+        <span class="fb-cat-badge ${cat.cls}">${cat.label}</span>
+        <span class="fb-item-nickname">✿ ${f.nickname || '匿名'}</span>
+        <span class="fb-item-date">${dateStr}</span>
+      </div>
+      <div class="fb-item-body">${escapeHtml(f.body)}</div>
+      ${isOwn ? `<button class="fb-delete-btn" data-id="${f.id}">✕</button>` : ''}
+    </div>`;
+  }).join('');
+
+  // 削除ボタン
+  el.querySelectorAll('.fb-delete-btn').forEach(btn => {
+    btn.addEventListener('click', function() { deleteFeedback(this.dataset.id); });
+  });
+}
+
+async function deleteFeedback(id) {
+  if (!confirm('この投稿を削除しますか？')) return;
+  try {
+    await apiFetch(`/api/feedbacks/${id}`, { method: 'DELETE' });
+    allFeedbacks = allFeedbacks.filter(f => f.id !== id);
+    renderFeedbacks();
+  } catch (err) { alert('削除エラー: ' + err.message); }
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+}
+</script>
+</body>
+</html>

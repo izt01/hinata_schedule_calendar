@@ -16,6 +16,8 @@ function injectNav(activePage) {
     { href: 'schedule.html',  icon: '📋', label: 'スケジュール進捗' },
     { href: 'flower.html',   icon: '💐', label: '祝花申し込み' },
     { href: 'poster.html',   icon: '🎨', label: 'ポスター案' },
+    { href: 'guide.html',    icon: '📖', label: '使い方ガイド' },
+    { href: 'feedback.html', icon: '💬', label: 'ご意見・ご要望' },
     { href: 'profile.html',  icon: '👤', label: 'アカウント設定' },
   ];
 
