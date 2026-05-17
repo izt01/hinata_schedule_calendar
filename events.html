@@ -8,21 +8,13 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="theme-color" content="#8b2252">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="日向坂46">
 <link rel="stylesheet" href="style.css">
 <style>
-#petals-canvas { pointer-events: none; }
 .events-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
-.events-title { font-family:'Shippori Mincho',serif; font-size:28px; font-weight:800; color:var(--sky); letter-spacing:0.08em; }
-.event-list { display:flex; flex-direction:column; gap:11px; }
-.event-item {
-  background:rgba(255,255,255,0.8); backdrop-filter:blur(8px);
-  border-radius:18px; border:1.5px solid var(--hina-2);
-  padding:14px 16px; box-shadow:var(--shadow-hina);
-  display:flex; gap:13px; align-items:flex-start;
-  position:relative; animation:pageEnter 0.3s ease both;
-}
+.events-title  { font-family:'Shippori Mincho',serif; font-size:28px; font-weight:800; color:var(--sky); letter-spacing:0.08em; }
+.event-list { display:flex; flex-direction:column; gap:11px; margin-bottom:100px; }
+.event-item { background:rgba(255,255,255,0.8); backdrop-filter:blur(8px); border-radius:18px; border:1.5px solid var(--hina-2); padding:14px 16px; box-shadow:var(--shadow-hina); display:flex; gap:13px; align-items:flex-start; position:relative; }
+.event-item.shared-event { border-color:rgba(21,101,160,0.25); background:rgba(200,230,255,0.35); }
 .event-item-left { border-right:1px solid var(--hina-2); padding-right:13px; min-width:52px; text-align:center; flex-shrink:0; }
 .event-date-month { font-family:'Noto Serif JP',serif; font-size:10px; color:var(--hina-4); font-weight:600; }
 .event-date-day   { font-family:'Shippori Mincho',serif; font-size:28px; font-weight:800; color:var(--sumi); line-height:1.1; }
@@ -33,20 +25,27 @@
 .event-info-note { font-size:11px; color:var(--sumi-light); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .event-info-countdown { display:inline-block; margin-top:5px; font-size:10px; padding:2px 8px; border-radius:10px; background:var(--hina-1); color:var(--sky); border:1px solid var(--hina-2); font-family:'Noto Serif JP',serif; font-weight:600; }
 .event-info-countdown.past { background:#f0f0f0; color:#999; border-color:#e0e0e0; }
-.event-emoji { font-size:24px; flex-shrink:0; align-self:center; }
+.event-emoji  { font-size:24px; flex-shrink:0; align-self:center; }
 .event-delete { position:absolute; right:8px; top:8px; background:none; border:none; font-size:14px; padding:8px; color:var(--sumi); opacity:0.3; border-radius:50%; touch-action:manipulation; cursor:pointer; }
 .event-delete:active { opacity:0.9; background:var(--hina-1); }
+.event-owner-tag { display:inline-flex; align-items:center; gap:4px; font-size:9px; color:var(--hina-4); font-family:'Noto Serif JP',serif; margin-bottom:3px; }
+.event-owner-avatar { width:14px; height:14px; border-radius:50%; object-fit:cover; }
+.vis-badge { display:inline-block; padding:1px 7px; border-radius:9px; font-size:9px; font-weight:700; font-family:'Noto Serif JP',serif; margin-left:4px; }
+.vis-private  { background:rgba(100,100,100,0.08); color:#777; border:1px solid #ddd; }
+.vis-public   { background:rgba(21,101,160,0.08); color:var(--sky); border:1px solid var(--hina-2); }
+.vis-specific { background:rgba(80,160,80,0.1); color:#3a7a3a; border:1px solid rgba(80,160,80,0.3); }
 
 .event-tabs { display:flex; gap:8px; margin-bottom:16px; }
 .event-tab { flex:1; padding:9px 4px; border-radius:22px; border:1.5px solid var(--hina-2); background:rgba(255,255,255,0.75); font-family:'Noto Serif JP',serif; font-size:11px; font-weight:600; color:var(--sumi-light); cursor:pointer; text-align:center; touch-action:manipulation; }
 .event-tab.active { background:var(--sky); border-color:var(--sky); color:white; }
 
-/* ━━━ iOS対応モーダル ━━━ */
+.notif-toggle-btn { padding:7px 13px; border-radius:20px; border:1.5px solid var(--hina-2); background:rgba(255,255,255,0.8); font-family:'Noto Serif JP',serif; font-size:11px; font-weight:600; color:var(--sumi-light); cursor:pointer; white-space:nowrap; touch-action:manipulation; }
+
+/* モーダル */
 .ev-modal-wrap { display:none; position:fixed; inset:0; z-index:300; align-items:flex-end; justify-content:center; }
 .ev-modal-wrap.open { display:flex; }
-.ev-modal-bg { position:absolute; inset:0; background:rgba(10,30,60,0.5); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+.ev-modal-bg  { position:absolute; inset:0; background:rgba(10,30,60,0.5); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
 .ev-modal-box { position:relative; width:100%; max-width:430px; background:var(--white-bg); border-radius:32px 32px 0 0; padding:12px 22px 52px; max-height:92vh; overflow-y:auto; -webkit-overflow-scrolling:touch; border-top:1.5px solid var(--hina-2); z-index:1; }
-
 .share-tabs { display:flex; margin-bottom:16px; border:1.5px solid var(--hina-2); border-radius:16px; overflow:hidden; background:rgba(255,255,255,0.5); }
 .share-tab { flex:1; padding:11px 8px; text-align:center; font-family:'Noto Serif JP',serif; font-size:12px; font-weight:600; color:var(--sumi-light); border:none; background:none; touch-action:manipulation; cursor:pointer; }
 .share-tab.active { background:var(--sky); color:white; font-weight:700; }
@@ -57,17 +56,6 @@
 .user-select-item { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:10px; cursor:pointer; }
 .user-select-item.selected { background:var(--hina-1); }
 .user-select-name { font-family:'Noto Serif JP',serif; font-size:13px; font-weight:600; color:var(--sumi); flex:1; }
-
-.notif-toggle-btn { padding:7px 13px; border-radius:20px; border:1.5px solid var(--hina-2); background:rgba(255,255,255,0.8); font-family:'Noto Serif JP',serif; font-size:11px; font-weight:600; color:var(--sumi-light); cursor:pointer; white-space:nowrap; touch-action:manipulation; }
-.notif-toggle-btn.notif-on { background:var(--hina-1); border-color:var(--hina-3); color:var(--sky); }
-
-.event-item.shared-event { border-color:rgba(21,101,160,0.25); background:rgba(200,230,255,0.35); }
-.event-owner-tag { display:inline-flex; align-items:center; gap:4px; font-size:9px; color:var(--hina-4); font-family:'Noto Serif JP',serif; margin-bottom:3px; }
-.event-owner-avatar { width:14px; height:14px; border-radius:50%; object-fit:cover; }
-.vis-badge { display:inline-block; padding:1px 7px; border-radius:9px; font-size:9px; font-weight:700; font-family:'Noto Serif JP',serif; margin-left:4px; }
-.vis-private  { background:rgba(100,100,100,0.08); color:#777; border:1px solid #ddd; }
-.vis-public   { background:rgba(21,101,160,0.08); color:var(--sky); border:1px solid var(--hina-2); }
-.vis-specific { background:rgba(80,160,80,0.1); color:#3a7a3a; border:1px solid rgba(80,160,80,0.3); }
 </style>
 </head>
 <body>
@@ -91,14 +79,12 @@
   </div>
 </div>
 
-<!-- iOS対応モーダル：overlayのonclickを使わない -->
 <div class="ev-modal-wrap" id="eventModal">
   <div class="ev-modal-bg" id="evModalBg"></div>
   <div class="ev-modal-box">
     <div class="modal-handle"></div>
     <button class="modal-close-btn" id="evCloseBtn">✕</button>
     <div class="modal-title">行事を記す ☀</div>
-
     <div class="share-tabs" id="shareTabs">
       <button class="share-tab active" id="shareTabPrivate">🔒 プライベート</button>
       <button class="share-tab" id="shareTabShared">🌐 共 有</button>
@@ -113,7 +99,6 @@
         <div class="user-select-list" id="userSelectList"></div>
       </div>
     </div>
-
     <div class="form-group">
       <label class="form-label">行事の名前 <span style="color:var(--sky)">*</span></label>
       <input class="form-input" id="evName" placeholder="例：コンサート、握手会…" type="text" autocomplete="off">
@@ -126,7 +111,7 @@
       <label class="form-label">時間（任意）</label>
       <div style="display:flex;gap:8px;align-items:center">
         <input class="form-input" id="evTime" type="time" style="flex:1">
-        <button type="button" id="clearTimeBtn" style="padding:11px 14px;border-radius:13px;border:1.5px solid var(--hina-2);background:rgba(255,255,255,0.8);font-size:12px;color:var(--sumi-light);cursor:pointer;white-space:nowrap;touch-action:manipulation;font-family:'Noto Sans JP',sans-serif">時間なし</button>
+        <button type="button" id="clearTimeBtn" style="padding:11px 14px;border-radius:13px;border:1.5px solid var(--hina-2);background:rgba(255,255,255,0.8);font-size:12px;color:var(--sumi-light);cursor:pointer;white-space:nowrap;touch-action:manipulation">時間なし</button>
       </div>
     </div>
     <div class="form-group">
@@ -151,112 +136,111 @@
 document.getElementById('headerMount').outerHTML = headerHTML('行事帳', '☀ イベント管理 ☀');
 injectNav('events.html');
 
-const EMOJIS = ['🎪','🎤','🎸','💿','🎟️','🌸','💖','🎀','📸','✈️','🎁','🏆','🎂','🎵','📱','🎭'];
-let selectedEmoji = '🎪';
-let curTab = 'upcoming';
-let curShareMode = 'private';
-let selectedUserIds = new Set();
-let allUsers = [];
-const DOW = ['日','月','火','水','木','金','土'];
+var EMOJIS = ['🎪','🎤','🎸','💿','🎟️','🌸','💖','🎀','📸','✈️','🎁','🏆','🎂','🎵','📱','🎭'];
+var DOW    = ['日','月','火','水','木','金','土'];
+var selectedEmoji  = '🎪';
+var curTab         = 'upcoming';
+var curShareMode   = 'private';
+var selectedUserIds = {};
+var allUsers        = [];
 
-// ━━━ ボタンを直接バインド（DOMContentLoadedは使わない）━━━
-// ← ボタンバインドはファイル末尾に移動
-
+// ── タブ ──────────────────────────────────
 function setTab(mode, btn) {
   curTab = mode;
-  document.querySelectorAll('.event-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.event-tab').forEach(function(b) { b.classList.remove('active'); });
   btn.classList.add('active');
   renderEvents();
 }
 
-async function renderEvents() {
-  const el = document.getElementById('eventList');
+// ── イベント一覧 ──────────────────────────
+function renderEvents() {
+  var el = document.getElementById('eventList');
   el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✿</div><div class="empty-state-text">読み込み中…</div></div>';
-  let events = [];
-  try {
-    const raw = await EventAPI.list();
-    events = (raw || []).map(e => normalizeEvent(e));
-  } catch { events = loadLocalEvents(); }
 
-  events.sort((a, b) => new Date(a.date) - new Date(b.date));
-  if (curTab === 'upcoming') events = events.filter(e => new Date(e.date + 'T' + (e.time||'00:00') + ':00') >= new Date());
-  if (curTab === 'past')     events = events.filter(e => new Date(e.date + 'T' + (e.time||'23:59') + ':00') < new Date());
+  EventAPI.list().then(function(raw) {
+    var events = (raw || []).map(normalizeEvent);
+    events.sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
+    if (curTab === 'upcoming') events = events.filter(function(e) { return new Date(e.date + 'T' + (e.time||'00:00') + ':00') >= new Date(); });
+    if (curTab === 'past')     events = events.filter(function(e) { return new Date(e.date + 'T' + (e.time||'23:59') + ':00') < new Date(); });
 
-  if (!events.length) {
-    const msg = curTab === 'past' ? '過去の行事はありません' : '行事がまだ記されていません\n＋ ボタンから追加しましょう';
-    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✿</div><div class="empty-state-text">${msg}</div></div>`;
-    return;
-  }
+    if (!events.length) {
+      var msg = curTab === 'past' ? '過去の行事はありません' : '行事がまだ記されていません\n＋ ボタンから追加しましょう';
+      el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✿</div><div class="empty-state-text">' + msg + '</div></div>';
+      return;
+    }
 
-  el.innerHTML = events.map(e => {
-    const d = new Date(e.date + 'T' + (e.time||'00:00') + ':00');
-    const diff = Math.round((d - new Date()) / 86400000);
-    const diffStr = diff === 0 ? (e.time ? `今日 ${e.time}` : '今日！') : diff > 0 ? `あと${diff}日` : `${Math.abs(diff)}日前`;
-    const isPast = diff < 0;
-    const isOwn  = e.isOwn !== false;
-    const ownerTag = (!isOwn && e.ownerNickname)
-      ? `<div class="event-owner-tag">${e.ownerAvatar ? `<img class="event-owner-avatar" src="${e.ownerAvatar}">` : '👤'} ${e.ownerNickname}</div>` : '';
-    const visBadge = isLoggedIn() ? visibilityBadge(e.visibility, isOwn) : '';
-    return `<div class="event-item${!isOwn?' shared-event':''}">
-      <div class="event-item-left">
-        <div class="event-date-month">${MONTHS_JP[d.getMonth()]}</div>
-        <div class="event-date-day">${d.getDate()}</div>
-        <div class="event-date-dow">${DOW[d.getDay()]}</div>
-        ${e.time ? `<div class="event-date-time">${e.time}</div>` : ''}
-      </div>
-      <div class="event-info">
-        ${ownerTag}
-        <div class="event-info-name">${e.name}${visBadge}</div>
-        <div class="event-info-note">${e.note || '覚え書きなし'}</div>
-        <span class="event-info-countdown${isPast?' past':''}">${diffStr}</span>
-      </div>
-      <div class="event-emoji">${e.emoji}</div>
-      ${isOwn ? `<button class="event-delete" data-id="${e.id}">✕</button>` : ''}
-    </div>`;
-  }).join('');
+    el.innerHTML = events.map(function(e) {
+      var d    = new Date(e.date + 'T' + (e.time||'00:00') + ':00');
+      var diff = Math.round((d - new Date()) / 86400000);
+      var diffStr = diff === 0 ? (e.time ? '今日 ' + e.time : '今日！') : diff > 0 ? 'あと' + diff + '日' : Math.abs(diff) + '日前';
+      var isPast = diff < 0;
+      var isOwn  = e.isOwn !== false;
+      var ownerTag = (!isOwn && e.ownerNickname)
+        ? '<div class="event-owner-tag">' + (e.ownerAvatar ? '<img class="event-owner-avatar" src="' + e.ownerAvatar + '">' : '👤') + ' ' + e.ownerNickname + '</div>'
+        : '';
+      var visBadge = isLoggedIn() ? visibilityBadge(e.visibility, isOwn) : '';
+      return '<div class="event-item' + (!isOwn ? ' shared-event' : '') + '">'
+        + '<div class="event-item-left">'
+          + '<div class="event-date-month">' + MONTHS_JP[d.getMonth()] + '</div>'
+          + '<div class="event-date-day">' + d.getDate() + '</div>'
+          + '<div class="event-date-dow">' + DOW[d.getDay()] + '</div>'
+          + (e.time ? '<div class="event-date-time">' + e.time + '</div>' : '')
+        + '</div>'
+        + '<div class="event-info">'
+          + ownerTag
+          + '<div class="event-info-name">' + e.name + visBadge + '</div>'
+          + '<div class="event-info-note">' + (e.note || '覚え書きなし') + '</div>'
+          + '<span class="event-info-countdown' + (isPast ? ' past' : '') + '">' + diffStr + '</span>'
+        + '</div>'
+        + '<div class="event-emoji">' + e.emoji + '</div>'
+        + (isOwn ? '<button class="event-delete" data-id="' + e.id + '">✕</button>' : '')
+        + '</div>';
+    }).join('');
 
-  // 削除ボタンもaddEventListenerで（onclickを避ける）
-  el.querySelectorAll('.event-delete').forEach(btn => {
-    btn.addEventListener('click', function(ev) {
-      ev.stopPropagation();
-      deleteEvent(this.dataset.id);
+    el.querySelectorAll('.event-delete').forEach(function(btn) {
+      btn.addEventListener('click', function() { deleteEvent(this.dataset.id); });
+      btn.addEventListener('touchend', function(e) { e.preventDefault(); deleteEvent(this.dataset.id); }, { passive: false });
     });
+  }).catch(function() {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✿</div><div class="empty-state-text">読み込みに失敗しました</div></div>';
   });
 }
 
-async function deleteEvent(id) {
+function deleteEvent(id) {
   if (!confirm('このイベントを削除しますか？')) return;
-  try { await EventAPI.delete(id); renderEvents(); } catch (err) { alert('削除エラー: ' + err.message); }
+  EventAPI.delete(id).then(function() { renderEvents(); }).catch(function(err) { alert('削除エラー: ' + err.message); });
 }
 
+// ── モーダル ──────────────────────────────
 function openModal() {
   document.getElementById('evName').value = '';
   document.getElementById('evDate').value = new Date().toISOString().split('T')[0];
   document.getElementById('evTime').value = '';
   document.getElementById('evNote').value = '';
-  selectedEmoji = '🎪';
-  curShareMode  = 'private';
-  selectedUserIds.clear();
+  selectedEmoji   = '🎪';
+  curShareMode    = 'private';
+  selectedUserIds = {};
+
   document.getElementById('shareTabPrivate').classList.add('active');
   document.getElementById('shareTabShared').classList.remove('active');
   document.getElementById('shareSettingsPanel').style.display = 'none';
   document.getElementById('shareTabs').style.display = isLoggedIn() ? '' : 'none';
 
-  // 絵文字ピッカー（addEventListener）
-  const picker = document.getElementById('emojiPicker');
-  picker.innerHTML = EMOJIS.map(em =>
-    `<div class="emoji-opt${em===selectedEmoji?' selected':''}" data-emoji="${em}">${em}</div>`
-  ).join('');
-  picker.querySelectorAll('.emoji-opt').forEach(el => {
+  var picker = document.getElementById('emojiPicker');
+  picker.innerHTML = EMOJIS.map(function(em) {
+    return '<div class="emoji-opt' + (em === selectedEmoji ? ' selected' : '') + '" data-emoji="' + em + '">' + em + '</div>';
+  }).join('');
+  picker.querySelectorAll('.emoji-opt').forEach(function(el) {
     el.addEventListener('click', function() {
       selectedEmoji = this.dataset.emoji;
-      picker.querySelectorAll('.emoji-opt').forEach(x => x.classList.remove('selected'));
+      picker.querySelectorAll('.emoji-opt').forEach(function(x) { x.classList.remove('selected'); });
       this.classList.add('selected');
     });
   });
 
-  if (isLoggedIn()) UserAPI.list().then(u => { allUsers = u||[]; }).catch(()=>{});
-
+  if (isLoggedIn()) {
+    UserAPI.list().then(function(u) { allUsers = u || []; }).catch(function() { allUsers = []; });
+  }
   document.getElementById('eventModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -267,7 +251,7 @@ function closeModal() {
 }
 
 function setShareTab(mode, btn) {
-  document.querySelectorAll('.share-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.share-tab').forEach(function(b) { b.classList.remove('active'); });
   btn.classList.add('active');
   if (mode === 'private') {
     curShareMode = 'private';
@@ -282,7 +266,7 @@ function setShareTab(mode, btn) {
 }
 
 function setShareScope(scope, btn) {
-  document.querySelectorAll('.share-scope-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.share-scope-btn').forEach(function(b) { b.classList.remove('active'); });
   btn.classList.add('active');
   if (scope === 'public') {
     curShareMode = 'public';
@@ -295,79 +279,83 @@ function setShareScope(scope, btn) {
 }
 
 function buildUserSelectList() {
-  const myId = getUser()?.id;
-  const others = allUsers.filter(u => u.id !== myId);
-  const list = document.getElementById('userSelectList');
+  var myId   = getUser() ? getUser().id : null;
+  var others = allUsers.filter(function(u) { return u.id !== myId; });
+  var list   = document.getElementById('userSelectList');
   if (!others.length) {
     list.innerHTML = '<div style="padding:12px;text-align:center;font-size:12px;color:var(--sumi-light)">他のユーザーがいません</div>';
     return;
   }
-  list.innerHTML = others.map(u => {
-    const av = u.avatar_url
-      ? `<img src="${u.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`
-      : `<div style="width:32px;height:32px;border-radius:50%;background:var(--hina-1);display:flex;align-items:center;justify-content:center;font-size:16px">👤</div>`;
-    return `<label class="user-select-item" for="uu_${u.id}">
-      <input type="checkbox" id="uu_${u.id}" style="width:18px;height:18px;accent-color:var(--sky);flex-shrink:0" onchange="toggleUser('${u.id}',this)">
-      ${av}
-      <span class="user-select-name">${u.nickname}</span>
-    </label>`;
+  list.innerHTML = others.map(function(u) {
+    var av = u.avatar_url
+      ? '<img src="' + u.avatar_url + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover">'
+      : '<div style="width:32px;height:32px;border-radius:50%;background:var(--hina-1);display:flex;align-items:center;justify-content:center;font-size:16px">👤</div>';
+    return '<label class="user-select-item" for="uu_' + u.id + '">'
+      + '<input type="checkbox" id="uu_' + u.id + '" style="width:18px;height:18px;accent-color:var(--sky)" onchange="toggleUser(\'' + u.id + '\',this)">'
+      + av
+      + '<span class="user-select-name">' + u.nickname + '</span>'
+      + '</label>';
   }).join('');
 }
 
 function toggleUser(id, cb) {
-  if (cb.checked) selectedUserIds.add(id);
-  else selectedUserIds.delete(id);
-  cb.closest('.user-select-item')?.classList.toggle('selected', cb.checked);
+  if (cb.checked) selectedUserIds[id] = true;
+  else delete selectedUserIds[id];
+  var item = cb.closest('.user-select-item');
+  if (item) item.classList.toggle('selected', cb.checked);
 }
 
-async function addEvent() {
-  const name = document.getElementById('evName').value.trim();
-  const date = document.getElementById('evDate').value;
+function addEvent() {
+  var name = document.getElementById('evName').value.trim();
+  var date = document.getElementById('evDate').value;
   if (!name || !date) { alert('行事の名前と日付を入力してください'); return; }
-  const btn = document.getElementById('evSaveBtn');
+
+  var btn = document.getElementById('evSaveBtn');
   btn.disabled = true; btn.textContent = '保存中…';
-  try {
-    const result = await EventAPI.add({
-      name, date,
-      time:            document.getElementById('evTime').value || '',
-      note:            document.getElementById('evNote').value.trim(),
-      emoji:           selectedEmoji,
-      visibility:      curShareMode,
-      target_user_ids: curShareMode === 'specific' ? [...selectedUserIds] : [],
-    });
+
+  EventAPI.add({
+    name:            name,
+    date:            date,
+    time:            document.getElementById('evTime').value || '',
+    note:            document.getElementById('evNote').value.trim(),
+    emoji:           selectedEmoji,
+    visibility:      curShareMode,
+    target_user_ids: curShareMode === 'specific' ? Object.keys(selectedUserIds) : [],
+  }).then(function(result) {
     if (result) { closeModal(); renderEvents(); }
-  } catch (err) { alert('保存エラー: ' + err.message); }
-  finally { btn.disabled = false; btn.textContent = '記 す'; }
+  }).catch(function(err) {
+    alert('保存エラー: ' + err.message);
+  }).finally(function() {
+    btn.disabled = false; btn.textContent = '記 す';
+  });
 }
 
-// ━━━ ボタンバインド（全関数定義後に実行）━━━
-(function bindButtons() {
-  function on(id, fn) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('click', fn);
-    el.addEventListener('touchend', function(e) { e.preventDefault(); fn.call(this, e); }, { passive: false });
-  }
-  on('addBtn',         openModal);
-  on('evModalBg',      closeModal);
-  on('evCloseBtn',     closeModal);
-  on('evSaveBtn',      addEvent);
-  on('clearTimeBtn',   function() { document.getElementById('evTime').value = ''; });
-  on('tabUpcoming',    function() { setTab('upcoming', this); });
-  on('tabPast',        function() { setTab('past', this); });
-  on('tabAll',         function() { setTab('all', this); });
-  on('shareTabPrivate',function() { setShareTab('private', this); });
-  on('shareTabShared', function() { setShareTab('shared', this); });
-  on('scopePublic',    function() { setShareScope('public', this); });
-  on('scopeSpecific',  function() { setShareScope('specific', this); });
-})();
+// ━━━ ボタンバインド ━━━
+function on(id, fn) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('click', fn);
+  el.addEventListener('touchend', function(e) { e.preventDefault(); fn(); }, { passive: false });
+}
+on('addBtn',          openModal);
+on('evModalBg',       closeModal);
+on('evCloseBtn',      closeModal);
+on('evSaveBtn',       addEvent);
+on('clearTimeBtn',    function() { document.getElementById('evTime').value = ''; });
+on('tabUpcoming',     function() { setTab('upcoming', document.getElementById('tabUpcoming')); });
+on('tabPast',         function() { setTab('past',     document.getElementById('tabPast')); });
+on('tabAll',          function() { setTab('all',      document.getElementById('tabAll')); });
+on('shareTabPrivate', function() { setShareTab('private', document.getElementById('shareTabPrivate')); });
+on('shareTabShared',  function() { setShareTab('shared',  document.getElementById('shareTabShared')); });
+on('scopePublic',     function() { setShareScope('public',   document.getElementById('scopePublic')); });
+on('scopeSpecific',   function() { setShareScope('specific', document.getElementById('scopeSpecific')); });
 
+// ━━━ 初期表示 ━━━
 renderEvents();
-
 </script>
 <script>
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+  window.addEventListener('load', function() { navigator.serviceWorker.register('./service-worker.js'); });
 }
 </script>
 </body>
