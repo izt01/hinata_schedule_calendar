@@ -108,3 +108,21 @@ self.addEventListener('notificationclick', e => {
     })
   );
 });
+
+// ━━━ Webプッシュ通知受信 ━━━
+self.addEventListener('push', e => {
+  if (!e.data) return;
+  let data = {};
+  try { data = e.data.json(); } catch { data = { title: '通知', body: e.data.text() }; }
+
+  const title   = data.title || '日向坂カレンダー';
+  const options = {
+    body:    data.body  || '',
+    icon:    './icons/icon-192.png',
+    badge:   './icons/icon-192.png',
+    data:    { url: data.url || './schedule.html' },
+    tag:     data.tag   || 'hinata-push',
+    vibrate: [200, 100, 200],
+  };
+  e.waitUntil(self.registration.showNotification(title, options));
+});

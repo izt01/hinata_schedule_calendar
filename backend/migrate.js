@@ -133,6 +133,26 @@ async function migrate() {
       ALTER TABLE schedules       ADD COLUMN IF NOT EXISTS due_date DATE;
       ALTER TABLE schedule_steps  ADD COLUMN IF NOT EXISTS due_date DATE;
 
+      -- プッシュ通知購読テーブル
+      CREATE TABLE IF NOT EXISTS push_subscriptions (
+        id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id    UUID REFERENCES users(id) ON DELETE CASCADE,
+        endpoint   TEXT NOT NULL,
+        p256dh     TEXT NOT NULL,
+        auth       TEXT NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(user_id, endpoint)
+      );
+      CREATE INDEX IF NOT EXISTS idx_push_subs_user ON push_subscriptions(user_id);
+
+      -- スケジュール通知済みフラグ（二重送信防止）
+      CREATE TABLE IF NOT EXISTS notif_sent_log (
+        id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        target     VARCHAR(200) NOT NULL,
+        sent_at    TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(target)
+      );
+
       -- フィードバックテーブル
       CREATE TABLE IF NOT EXISTS feedbacks (
         id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),

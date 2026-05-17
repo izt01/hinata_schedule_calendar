@@ -264,3 +264,69 @@ function visibilityBadge(vis, isOwn) {
   const owner = isOwn ? '' : ' <span class="vis-other">他ユーザー</span>';
   return `<span class="vis-badge ${v.cls}">${v.label}${owner}</span>`;
 }
+
+// ━━━ Webプッシュ購読 ━━━━━━━━━━━━━━━━━━━━
+const PushAPI = {
+  // VAPIDの公開鍵を取得してプッシュ購読を登録
+  async subscribe() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      console.log('[Push] 非対応ブラウザ');
+      return false;
+    }
+    if (!isLoggedIn()) return false;
+
+    try {
+      // 通知許可を要求
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') { console.log('[Push] 通知許可が拒否されました'); return false; }
+
+      // VAPIDの公開鍵を取得
+      const keyRes = await fetch(API_BASE + '/api/push/vapid-public-key');
+      const { key } = await keyRes.json();
+      if (!key) { console.log('[Push] VAPID未設定'); return false; }
+
+      // Service Worker登録を待つ
+      const reg = await navigator.serviceWorker.ready;
+
+      // 既存の購読を確認
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        // 新規購読
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly:      true,
+          applicationServerKey: urlBase64ToUint8Array(key),
+        });
+      }
+
+      // サーバーに登録
+      await apiFetch('/api/push/subscribe', {
+        method: 'POST',
+        body:   JSON.stringify(sub.toJSON()),
+      });
+      console.log('[Push] 購読登録完了');
+      return true;
+    } catch (err) {
+      console.error('[Push] 購読エラー:', err);
+      return false;
+    }
+  },
+
+  // 購読解除
+  async unsubscribe() {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      if (!sub) return;
+      await apiFetch('/api/push/subscribe', { method: 'DELETE', body: JSON.stringify({ endpoint: sub.endpoint }) });
+      await sub.unsubscribe();
+    } catch {}
+  },
+};
+
+// Base64 → Uint8Array 変換（VAPID鍵用）
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64  = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw     = window.atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
