@@ -108,7 +108,7 @@ function updateNotifBtn() {
   if (perm === 'granted') {
     btn.textContent = '🔔 通知ON';
     btn.classList.add('notif-on');
-    btn.onclick = null;
+    btn._notifBound = false;
     btn.disabled = true;
   } else if (perm === 'denied') {
     btn.textContent = '🔕 通知ブロック中';
@@ -119,7 +119,10 @@ function updateNotifBtn() {
     btn.textContent = '🔔 通知を許可する';
     btn.classList.remove('notif-on');
     btn.disabled = false;
-    btn.onclick = onNotifBtnClick;
+    if (!btn._notifBound) {
+      btn._notifBound = true;
+      btn.addEventListener('click', onNotifBtnClick);
+    }
   }
 }
 
