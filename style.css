@@ -165,6 +165,7 @@ body::after {
   padding:14px 28px; background:var(--sky); color:white; border:none; border-radius:16px;
   font-family:'M PLUS Rounded 1c',sans-serif; font-size:15px; font-weight:700; letter-spacing:0.08em;
   cursor:pointer; box-shadow:0 6px 22px rgba(21,101,160,0.28); transition:transform 0.15s, box-shadow 0.15s; text-decoration:none;
+  touch-action:manipulation; -webkit-appearance:none;
 }
 .btn-primary:active { transform:scale(0.96); box-shadow:none; }
 
