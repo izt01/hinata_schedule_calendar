@@ -451,7 +451,7 @@ app.get('/api/schedules', authRequired, async (req, res) => {
 
 // スケジュール作成（ステップ一括）
 app.post('/api/schedules', authRequired, async (req, res) => {
-  const { title, description, steps } = req.body;
+  const { title, description, due_date, steps } = req.body;
   if (!title?.trim()) return res.status(400).json({ error: 'タイトルは必須です' });
   if (!steps?.length) return res.status(400).json({ error: 'ステップを1つ以上追加してください' });
 
@@ -459,20 +459,19 @@ app.post('/api/schedules', authRequired, async (req, res) => {
   try {
     await client.query('BEGIN');
     const sched = await client.query(
-      `INSERT INTO schedules (title, description, created_by)
-       VALUES ($1,$2,$3) RETURNING *`,
-      [title.trim(), description || '', req.user.userId]
+      `INSERT INTO schedules (title, description, due_date, created_by)
+       VALUES ($1,$2,$3,$4) RETURNING *`,
+      [title.trim(), description || '', due_date || null, req.user.userId]
     );
     const schedId = sched.rows[0].id;
 
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i];
-      // 最初のステップだけ in_progress、それ以外は waiting
       const status = i === 0 ? 'in_progress' : 'waiting';
       await client.query(
-        `INSERT INTO schedule_steps (schedule_id, step_order, title, assignee_id, status)
-         VALUES ($1,$2,$3,$4,$5)`,
-        [schedId, i + 1, step.title.trim(), step.assignee_id || null, status]
+        `INSERT INTO schedule_steps (schedule_id, step_order, title, assignee_id, due_date, status)
+         VALUES ($1,$2,$3,$4,$5,$6)`,
+        [schedId, i + 1, step.title.trim(), step.assignee_id || null, step.due_date || null, status]
       );
     }
 

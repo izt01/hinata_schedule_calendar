@@ -137,7 +137,22 @@
   font-family: 'Noto Serif JP', serif; padding: 4px 0;
 }
 
-/* ── 作成モーダル ── */
+/* 期限バッジ */
+.due-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 3px 9px; border-radius: 10px; font-size: 10px; font-weight: 700;
+  font-family: 'Noto Serif JP', serif;
+  background: rgba(21,101,160,0.08); color: var(--sky);
+  border: 1px solid var(--hina-2);
+}
+.due-badge.soon {
+  background: rgba(200,140,0,0.10); color: #a06000;
+  border-color: rgba(200,140,0,0.3);
+}
+.due-badge.overdue {
+  background: rgba(200,50,50,0.10); color: #c03030;
+  border-color: rgba(200,50,50,0.3);
+}
 .ev-modal-wrap { display:none; position:fixed; inset:0; z-index:300; align-items:flex-end; justify-content:center; }
 .ev-modal-wrap.open { display:flex; }
 .ev-modal-bg { position:absolute; inset:0; background:rgba(10,30,60,0.5); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
@@ -229,6 +244,10 @@
       <label class="form-label">概要・説明（任意）</label>
       <input class="form-input" id="schedDesc" type="text" placeholder="例：〇〇ちゃんのお誕生日に向けて" autocomplete="off">
     </div>
+    <div class="form-group">
+      <label class="form-label">全体の期限（任意）</label>
+      <input class="form-input" id="schedDueDate" type="date">
+    </div>
 
     <div class="form-group">
       <label class="form-label">工程（ステップ）<span style="color:var(--sky)">*</span></label>
@@ -295,6 +314,19 @@ function renderSchedules() {
   el.innerHTML = allSchedules.map(s => renderScheduleCard(s)).join('');
 }
 
+// ── 期限フォーマットヘルパー ──────────────
+function formatDueDate(dateStr) {
+  if (!dateStr) return null;
+  const due   = new Date(dateStr + 'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff  = Math.round((due - today) / 86400000);
+  const label = diff < 0  ? `期限切れ ${Math.abs(diff)}日超過`
+              : diff === 0 ? '📅 今日が期限'
+              : diff === 1 ? '📅 明日が期限'
+              : `📅 あと${diff}日`;
+  return { label, isOverdue: diff < 0, isSoon: diff >= 0 && diff <= 3 };
+}
+
 function renderScheduleCard(s) {
   const myId = getUser()?.id;
   const total     = s.steps?.length || 0;
@@ -327,12 +359,19 @@ function renderScheduleCard(s) {
       ? `<div class="step-completed-at">✅ ${new Date(st.completed_at).toLocaleDateString('ja-JP')} 完了</div>`
       : '';
 
+    // ステップ期限バッジ
+    const stepDue = st.due_date && st.status !== 'completed' ? formatDueDate(st.due_date) : null;
+    const stepDueBadge = stepDue
+      ? `<span class="due-badge${stepDue.isOverdue ? ' overdue' : stepDue.isSoon ? ' soon' : ''}" style="font-size:9px;padding:2px 7px;margin-top:4px;display:inline-block">${stepDue.label}</span>`
+      : '';
+
     return `<div class="step-item${st.status === 'completed' ? ' step-completed' : ''}">
       <div class="step-icon ${iconCls}">${icon}</div>
       <div class="step-body">
         <div class="step-order-num">STEP ${st.step_order}</div>
         <div class="step-title${st.status === 'completed' ? ' title-completed' : ''}">${st.title}</div>
         <div style="margin-top:5px">${assigneeHtml}</div>
+        ${stepDueBadge}
         ${completedAt}
       </div>
       ${completeBtn}
@@ -342,13 +381,20 @@ function renderScheduleCard(s) {
   const d = new Date(s.created_at);
   const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
 
+  // 全体期限の表示
+  const overallDue = s.due_date ? formatDueDate(s.due_date) : null;
+  const overallDueBadge = overallDue
+    ? `<span class="due-badge${overallDue.isOverdue ? ' overdue' : overallDue.isSoon ? ' soon' : ''}">${overallDue.label}</span>`
+    : '';
+
   return `<div class="schedule-card${isCompleted ? ' completed' : ''}" id="sched_${s.id}">
     <div class="schedule-card-header">
       <div style="flex:1">
         <div class="schedule-card-title">${s.title}</div>
         ${s.description ? `<div class="schedule-card-desc">${s.description}</div>` : ''}
-        <div style="margin-top:6px;font-size:10px;color:var(--sumi-light);font-family:'Noto Serif JP',serif">
-          ${s.creator_nickname ? `✿ ${s.creator_nickname}` : ''} · ${dateStr}
+        <div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:10px;color:var(--sumi-light);font-family:'Noto Serif JP',serif">${s.creator_nickname ? `✿ ${s.creator_nickname}` : ''} · ${dateStr}</span>
+          ${overallDueBadge}
         </div>
       </div>
       <span class="schedule-status-badge ${isCompleted ? 'badge-completed' : 'badge-inprogress'}">
@@ -403,11 +449,11 @@ let stepCount = 0;
 
 function openCreateModal() {
   if (!isLoggedIn()) { alert('アカウント設定が必要です'); window.location.href = 'profile.html'; return; }
-  document.getElementById('schedTitle').value = '';
-  document.getElementById('schedDesc').value  = '';
+  document.getElementById('schedTitle').value   = '';
+  document.getElementById('schedDesc').value    = '';
+  document.getElementById('schedDueDate').value = '';
   stepCount = 0;
   document.getElementById('stepInputList').innerHTML = '';
-  // 最初のステップを1つ追加
   addStepInput();
   addStepInput();
   document.getElementById('createModal').classList.add('open');
@@ -437,37 +483,43 @@ function addStepInput() {
       ${num > 1 ? `<button class="step-remove-btn" onclick="removeStepInput(this)">✕</button>` : ''}
     </div>
     <input class="form-input" type="text" placeholder="例：デザイン案を作成する" autocomplete="off"
-      style="margin-bottom:0" data-step-title="${num}">
-    <select class="step-assignee-select" data-step-assignee="${num}">
-      <option value="">担当者を選択（任意）</option>
-      ${userOptions}
-    </select>`;
+      style="margin-bottom:8px" data-step-title="${num}">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:0">
+      <select class="step-assignee-select" data-step-assignee="${num}" style="flex:1;margin-top:0">
+        <option value="">担当者を選択（任意）</option>
+        ${userOptions}
+      </select>
+      <input type="date" class="form-input" data-step-due="${num}"
+        style="flex:1;margin-top:0;font-size:12px;padding:9px 10px" title="このステップの期限（任意）">
+    </div>
+    <div style="font-size:9px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;margin-top:4px;text-align:right">📅 ステップの期限（任意）</div>`;
   document.getElementById('stepInputList').appendChild(div);
 }
 
 function removeStepInput(btn) {
   const row = btn.closest('.step-input-row');
   row.remove();
-  // 番号を振り直す
   document.querySelectorAll('.step-input-row').forEach((r, i) => {
-    r.querySelector('.step-input-num').textContent  = i + 1;
+    r.querySelector('.step-input-num').textContent   = i + 1;
     r.querySelector('.step-input-label').textContent = `STEP ${i + 1}`;
   });
   stepCount = document.querySelectorAll('.step-input-row').length;
 }
 
 async function createSchedule() {
-  const title = document.getElementById('schedTitle').value.trim();
-  const desc  = document.getElementById('schedDesc').value.trim();
+  const title   = document.getElementById('schedTitle').value.trim();
+  const desc    = document.getElementById('schedDesc').value.trim();
+  const dueDate = document.getElementById('schedDueDate').value || null;
   if (!title) { alert('タイトルを入力してください'); return; }
 
   const rows = document.querySelectorAll('.step-input-row');
   const steps = [];
   for (const row of rows) {
-    const stepTitle = row.querySelector('input[data-step-title]').value.trim();
+    const stepTitle  = row.querySelector('input[data-step-title]').value.trim();
     const assigneeId = row.querySelector('select').value;
+    const stepDue    = row.querySelector('input[data-step-due]')?.value || null;
     if (!stepTitle) { alert('全てのステップにタイトルを入力してください'); return; }
-    steps.push({ title: stepTitle, assignee_id: assigneeId || null });
+    steps.push({ title: stepTitle, assignee_id: assigneeId || null, due_date: stepDue || null });
   }
   if (!steps.length) { alert('ステップを1つ以上追加してください'); return; }
 
@@ -476,7 +528,7 @@ async function createSchedule() {
   try {
     const result = await apiFetch('/api/schedules', {
       method: 'POST',
-      body: JSON.stringify({ title, description: desc, steps }),
+      body: JSON.stringify({ title, description: desc, due_date: dueDate, steps }),
     });
     if (result) {
       allSchedules.unshift(result);
