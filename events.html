@@ -131,7 +131,18 @@
 <script src="api.js"></script>
 <script src="nav.js"></script>
 <script src="sakura.js"></script>
-<script src="notify.js"></script>
+<script>
+// notify.jsは非同期ロード
+var _notifyLoaded = false;
+function _loadNotify(cb) {
+  if (_notifyLoaded) { if(cb) cb(); return; }
+  var s = document.createElement("script");
+  s.src = "notify.js";
+  s.onload = function() { _notifyLoaded = true; if(cb) cb(); };
+  s.onerror = function() { _notifyLoaded = true; if(cb) cb(); };
+  document.head.appendChild(s);
+}
+</script>
 <script>
 document.getElementById('headerMount').outerHTML = headerHTML('行事帳', '☀ イベント管理 ☀');
 injectNav('events.html');
@@ -349,6 +360,26 @@ on('shareTabPrivate', function() { setShareTab('private', document.getElementByI
 on('shareTabShared',  function() { setShareTab('shared',  document.getElementById('shareTabShared')); });
 on('scopePublic',     function() { setShareScope('public',   document.getElementById('scopePublic')); });
 on('scopeSpecific',   function() { setShareScope('specific', document.getElementById('scopeSpecific')); });
+
+// 通知ボタン（notify.jsを遅延ロードして初期化）
+var notifBtn = document.getElementById('notifToggleBtn');
+if (notifBtn) {
+  notifBtn.addEventListener('click', function() {
+    _loadNotify(function() {
+      if (typeof initNotifications === 'function') initNotifications();
+    });
+  });
+  notifBtn.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    _loadNotify(function() {
+      if (typeof initNotifications === 'function') initNotifications();
+    });
+  }, { passive: false });
+  // 初期状態の更新
+  _loadNotify(function() {
+    if (typeof updateNotifBtn === 'function') updateNotifBtn();
+  });
+}
 
 // ━━━ 初期表示 ━━━
 renderEvents();
