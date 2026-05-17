@@ -160,26 +160,7 @@ let allUsers = [];
 const DOW = ['日','月','火','水','木','金','土'];
 
 // ━━━ ボタンを直接バインド（DOMContentLoadedは使わない）━━━
-(function bindButtons() {
-  function on(id, fn) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('click', fn);
-    el.addEventListener('touchend', function(e) { e.preventDefault(); fn.call(this, e); }, { passive: false });
-  }
-  on('addBtn',         openModal);
-  on('evModalBg',      closeModal);
-  on('evCloseBtn',     closeModal);
-  on('evSaveBtn',      addEvent);
-  on('clearTimeBtn',   function() { document.getElementById('evTime').value = ''; });
-  on('tabUpcoming',    function() { setTab('upcoming', this); });
-  on('tabPast',        function() { setTab('past', this); });
-  on('tabAll',         function() { setTab('all', this); });
-  on('shareTabPrivate',function() { setShareTab('private', this); });
-  on('shareTabShared', function() { setShareTab('shared', this); });
-  on('scopePublic',    function() { setShareScope('public', this); });
-  on('scopeSpecific',  function() { setShareScope('specific', this); });
-})();
+// ← ボタンバインドはファイル末尾に移動
 
 function setTab(mode, btn) {
   curTab = mode;
@@ -359,7 +340,30 @@ async function addEvent() {
   finally { btn.disabled = false; btn.textContent = '記 す'; }
 }
 
+// ━━━ ボタンバインド（全関数定義後に実行）━━━
+(function bindButtons() {
+  function on(id, fn) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', fn);
+    el.addEventListener('touchend', function(e) { e.preventDefault(); fn.call(this, e); }, { passive: false });
+  }
+  on('addBtn',         openModal);
+  on('evModalBg',      closeModal);
+  on('evCloseBtn',     closeModal);
+  on('evSaveBtn',      addEvent);
+  on('clearTimeBtn',   function() { document.getElementById('evTime').value = ''; });
+  on('tabUpcoming',    function() { setTab('upcoming', this); });
+  on('tabPast',        function() { setTab('past', this); });
+  on('tabAll',         function() { setTab('all', this); });
+  on('shareTabPrivate',function() { setShareTab('private', this); });
+  on('shareTabShared', function() { setShareTab('shared', this); });
+  on('scopePublic',    function() { setShareScope('public', this); });
+  on('scopeSpecific',  function() { setShareScope('specific', this); });
+})();
+
 renderEvents();
+
 </script>
 <script>
 if ('serviceWorker' in navigator) {
