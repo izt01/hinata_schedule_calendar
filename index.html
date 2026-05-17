@@ -21,8 +21,6 @@
 }
 #splash.fade-out { opacity: 0; transform: scale(1.04); pointer-events: none; }
 .splash-petals { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.splash-crest { font-size: 64px; margin-bottom: 8px; animation: floatCrest 3s ease-in-out infinite; filter: drop-shadow(0 8px 24px rgba(200,80,130,0.25)); }
-@keyframes floatCrest { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
 .splash-title { font-family:'Shippori Mincho',serif; font-size:52px; font-weight:800; color:var(--sky); letter-spacing:0.15em; text-align:center; line-height:1.1; margin-bottom:6px; text-shadow:0 2px 20px rgba(139,34,82,0.15); animation:titleReveal 1s cubic-bezier(0.34,1.2,0.64,1) 0.3s both; }
 .splash-subtitle { font-family:'Noto Serif JP',serif; font-size:12px; color:var(--hina-4); letter-spacing:0.35em; margin-bottom:4px; animation:titleReveal 1s cubic-bezier(0.34,1.2,0.64,1) 0.5s both; }
 @keyframes titleReveal { from{opacity:0;transform:translateY(20px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
@@ -64,112 +62,7 @@
 }
 
 /* 陽差し光芒 */
-/* ── 斜陽ビーム（右上から差し込む自然な光） ── */
-.hero-oblique {
-  position: absolute; inset: 0;
-  /* 右上から左下へ幅広に差し込む光帯 */
-  background:
-    linear-gradient(
-      118deg,
-      rgba(255,242,170,0.60) 0%,
-      rgba(255,225,90,0.30) 16%,
-      rgba(255,210,50,0.10) 32%,
-      transparent 50%
-    );
-  animation: obliqueBreath 9s ease-in-out infinite alternate;
-}
-@keyframes obliqueBreath {
-  0%   { opacity: 0.70; transform: translateX(-4px) skewY(-0.3deg); }
-  50%  { opacity: 1.00; transform: translateX(6px)  skewY(0.5deg); }
-  100% { opacity: 0.80; transform: translateX(-2px) skewY(-0.2deg); }
-}
 
-/* ── ハロ（拡散する柔らかい光） ── */
-.hero-halo {
-  position: absolute;
-  top: -50%; right: -15%;
-  width: 80%; height: 170%;
-  background: radial-gradient(
-    ellipse at 75% 18%,
-    rgba(255,232,100,0.28) 0%,
-    rgba(255,215,55,0.09) 40%,
-    transparent 75%
-  );
-  animation: haloFloat 11s ease-in-out infinite alternate;
-}
-@keyframes haloFloat {
-  0%   { opacity: 0.65; transform: scale(1)    translateY(0); }
-  100% { opacity: 1.00; transform: scale(1.07) translateY(-8px); }
-}
-
-/* ── ゴッドレイ（窓から差し込む細い光条・2本） ── */
-.hero-godray {
-  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
-}
-.hero-godray::before, .hero-godray::after {
-  content: '';
-  position: absolute;
-  top: 0; right: 0;
-  width: 55%; height: 130%;
-  transform-origin: top right;
-}
-.hero-godray::before {
-  transform: rotate(-28deg);
-  background: linear-gradient(to bottom,
-    rgba(255,248,180,0.22) 0%,
-    rgba(255,240,130,0.08) 45%,
-    transparent 75%);
-  animation: godray1 13s ease-in-out infinite alternate;
-}
-.hero-godray::after {
-  width: 40%; right: 8%;
-  transform: rotate(-18deg);
-  background: linear-gradient(to bottom,
-    rgba(255,255,200,0.14) 0%,
-    rgba(255,240,110,0.04) 45%,
-    transparent 75%);
-  animation: godray2 10s 1.5s ease-in-out infinite alternate;
-}
-@keyframes godray1 { 0%{opacity:0.5;transform:rotate(-30deg)} 100%{opacity:1;transform:rotate(-26deg)} }
-@keyframes godray2 { 0%{opacity:0.3;transform:rotate(-20deg) translateX(0)} 100%{opacity:0.85;transform:rotate(-16deg) translateX(6px)} }
-
-/* ── 光だまり（床・下部に落ちる暖かい光） ── */
-.hero-pool {
-  position: absolute;
-  bottom: -10px; right: -10px;
-  width: 70%; height: 55%;
-  background: radial-gradient(
-    ellipse at 78% 95%,
-    rgba(255,238,130,0.20) 0%,
-    rgba(255,218,60,0.06) 55%,
-    transparent 80%
-  );
-  animation: poolShimmer 8s ease-in-out infinite alternate;
-}
-@keyframes poolShimmer {
-  0%   { opacity: 0.55; transform: scale(1) translateX(0); }
-  100% { opacity: 1.00; transform: scale(1.07) translateX(8px); }
-}
-
-/* ── 空気中のちり（光の粒感） ── */
-.hero-dust {
-  position: absolute; top: 0; right: 0;
-  width: 55%; height: 70%;
-  background-image:
-    radial-gradient(circle, rgba(255,248,160,0.7) 1px, transparent 1px),
-    radial-gradient(circle, rgba(255,240,130,0.5) 1.2px, transparent 1.2px),
-    radial-gradient(circle, rgba(255,255,200,0.6) 0.8px, transparent 0.8px);
-  background-size: 80px 70px, 110px 90px, 60px 80px;
-  background-position: 30px 20px, 60px 45px, 15px 55px;
-  animation: dustDrift 18s ease-in-out infinite alternate;
-}
-@keyframes dustDrift {
-  0%   { opacity: 0.35; transform: translateY(0) translateX(0); }
-  50%  { opacity: 0.75; transform: translateY(-8px) translateX(5px); }
-  100% { opacity: 0.50; transform: translateY(4px) translateX(-3px); }
-}
-
-/* テキストオーバーレイ */
 .hero-overlay {
   position: absolute; inset: 0;
   background: linear-gradient(to top, rgba(10,30,60,0.55) 0%, transparent 60%);
@@ -291,51 +184,7 @@
 @keyframes loginBgIn { from{opacity:0} to{opacity:1} }
 .login-sparkle { position:absolute; border-radius:50%; pointer-events:none; animation:sparklePulse 2.5s ease-in-out infinite; }
 @keyframes sparklePulse { 0%,100%{transform:scale(1);opacity:.5} 50%{transform:scale(1.3);opacity:.9} }
-/* ── ログイン画面：斜陽エフェクト ── */
-.login-oblique {
-  position: absolute; inset: 0;
-  background:
-    linear-gradient(
-      120deg,
-      rgba(255,242,170,0.65) 0%,
-      rgba(255,225,90,0.32) 18%,
-      rgba(255,210,50,0.10) 35%,
-      transparent 52%
-    );
-  animation: obliqueBreath 9s ease-in-out infinite alternate;
-}
-.login-halo {
-  position: absolute;
-  top: -40%; right: -20%;
-  width: 90%; height: 155%;
-  background: radial-gradient(
-    ellipse at 72% 16%,
-    rgba(255,232,100,0.32) 0%,
-    rgba(255,215,55,0.10) 38%,
-    transparent 70%
-  );
-  animation: haloFloat 11s ease-in-out infinite alternate;
-}
-.login-godray {
-  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
-}
-.login-godray::before, .login-godray::after {
-  content: ''; position: absolute;
-  top: 0; right: 0;
-  width: 60%; height: 140%;
-  transform-origin: top right;
-}
-.login-godray::before {
-  transform: rotate(-28deg);
-  background: linear-gradient(to bottom, rgba(255,248,180,0.25) 0%, rgba(255,240,130,0.08) 45%, transparent 75%);
-  animation: godray1 13s ease-in-out infinite alternate;
-}
-.login-godray::after {
-  width: 42%; right: 10%;
-  transform: rotate(-17deg);
-  background: linear-gradient(to bottom, rgba(255,255,200,0.15) 0%, rgba(255,240,110,0.04) 45%, transparent 75%);
-  animation: godray2 10s 1.5s ease-in-out infinite alternate;
-}
+
 #login-title-badge { position:fixed; top:clamp(16px,8vh,60px); left:clamp(12px,5vw,40px); display:flex; flex-direction:column; gap:2px; pointer-events:none; opacity:0; animation:titleBadgeIn .5s .1s ease forwards; }
 @keyframes titleBadgeIn { from{opacity:0;transform:translateX(-14px)} to{opacity:1;transform:translateX(0)} }
 .login-title-main { font-size:clamp(22px,5.5vw,30px); font-weight:900; color:var(--sky); font-family:'Noto Serif JP',serif; text-shadow:0 2px 12px rgba(72,180,224,.35); letter-spacing:.06em; }
@@ -351,8 +200,7 @@
 <!-- SPLASH -->
 <div id="splash">
   <canvas class="splash-petals" id="splashCanvas"></canvas>
-  <div class="splash-crest">☀️</div>
-  <div class="splash-title">日向坂46</div>
+    <div class="splash-title">日向坂46</div>
   <div class="splash-subtitle">✿ ひなたカレンダー ✿</div>
   <div class="splash-divider"><span class="splash-divider-mark">✿ ✿ ✿</span></div>
   <button class="splash-start-btn" id="splashBtn">はじめる</button>
@@ -371,11 +219,6 @@
         <div class="hero-wallpaper" id="heroWallpaper"></div>
 
         <!-- 斜陽エフェクト -->
-        <div class="hero-oblique"></div>
-        <div class="hero-halo"></div>
-        <div class="hero-godray"></div>
-        <div class="hero-pool"></div>
-        <div class="hero-dust"></div>
 
         <!-- テキストオーバーレイ -->
         <div class="hero-overlay"></div>
@@ -472,9 +315,6 @@
   <div class="login-sparkle" style="width:180px;height:180px;bottom:25%;left:-30px;background:radial-gradient(circle,rgba(80,200,255,.3) 0%,transparent 70%);animation-delay:.8s"></div>
 
   <!-- 斜陽エフェクト（セリフなし） -->
-  <div class="login-oblique"></div>
-  <div class="login-halo"></div>
-  <div class="login-godray"></div>
 
   <div id="login-title-badge">
     <div class="login-title-main">日向坂46</div>

@@ -449,11 +449,19 @@ let stepCount = 0;
 
 function openCreateModal() {
   if (!isLoggedIn()) { alert('アカウント設定が必要です'); window.location.href = 'profile.html'; return; }
+  _openCreateModal();
+}
+
+async function _openCreateModal() {
   document.getElementById('schedTitle').value   = '';
   document.getElementById('schedDesc').value    = '';
   document.getElementById('schedDueDate').value = '';
   stepCount = 0;
   document.getElementById('stepInputList').innerHTML = '';
+
+  // ユーザー一覧を必ず最新で取得してからステップを追加
+  try { allUsers = await UserAPI.list() || []; } catch { allUsers = []; }
+
   addStepInput();
   addStepInput();
   document.getElementById('createModal').classList.add('open');
@@ -468,10 +476,18 @@ function closeCreateModal() {
 function addStepInput() {
   stepCount++;
   const num = stepCount;
-  const userOptions = allUsers.map(u => {
-    const isMe = u.id === getUser()?.id;
-    return `<option value="${u.id}"${isMe ? ' selected' : ''}>${u.nickname}${isMe ? '（あなた）' : ''}</option>`;
-  }).join('');
+
+  const myId = getUser()?.id;
+  const userOptions = allUsers.length
+    ? allUsers.map(u => {
+        const isMe = u.id === myId;
+        return `<option value="${u.id}">${isMe ? '👤 ' : ''}${u.nickname}${isMe ? '（あなた）' : ''}</option>`;
+      }).join('')
+    : '';
+
+  const noUserMsg = !allUsers.length
+    ? `<option value="" disabled>ユーザーが見つかりません</option>`
+    : '';
 
   const div = document.createElement('div');
   div.className = 'step-input-row';
@@ -485,14 +501,22 @@ function addStepInput() {
     <input class="form-input" type="text" placeholder="例：デザイン案を作成する" autocomplete="off"
       style="margin-bottom:8px" data-step-title="${num}">
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:0">
-      <select class="step-assignee-select" data-step-assignee="${num}" style="flex:1;margin-top:0">
-        <option value="">担当者を選択（任意）</option>
-        ${userOptions}
-      </select>
-      <input type="date" class="form-input" data-step-due="${num}"
-        style="flex:1;margin-top:0;font-size:12px;padding:9px 10px" title="このステップの期限（任意）">
-    </div>
-    <div style="font-size:9px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;margin-top:4px;text-align:right">📅 ステップの期限（任意）</div>`;
+      <div style="flex:1">
+        <div style="font-size:9px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;margin-bottom:4px">👤 担当者${allUsers.length ? `（${allUsers.length}人から選択）` : ''}（任意）</div>
+        <select class="step-assignee-select" data-step-assignee="${num}" style="margin-top:0;width:100%">
+          <option value="">── 担当者なし ──</option>
+          ${noUserMsg}
+          ${userOptions}
+        </select>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:9px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;margin-bottom:4px">📅 ステップ期限（任意）</div>
+        <input type="date" class="form-input" data-step-due="${num}"
+          style="margin-top:0;font-size:12px;padding:9px 10px;width:100%">
+      </div>
+    </div>`;
+  document.getElementById('stepInputList').appendChild(div);
+}
   document.getElementById('stepInputList').appendChild(div);
 }
 
