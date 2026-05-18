@@ -77,7 +77,7 @@ app.post('/api/users/register', async (req, res) => {
       [id, nickname.trim(), email?.trim() || null, passwordHash, avatar_url || null, avatar_type || 'member']
     );
     const user  = result.rows[0];
-    const token = jwt.sign({ userId: user.id, nickname: user.nickname }, JWT_SECRET, { expiresIn: '365d' });
+    const token = jwt.sign({ userId: user.id, nickname: user.nickname, isAdmin: user.is_admin || false }, JWT_SECRET, { expiresIn: '365d' });
     res.json({ user, token });
   } catch (err) {
     if (err.code === '23505') return res.status(409).json({ error: 'このメールアドレスは既に使われています' });
@@ -119,7 +119,7 @@ app.post('/api/users/login', async (req, res) => {
     }
 
     const { password_hash, ...user } = matchedUser;
-    const token = jwt.sign({ userId: user.id, nickname: user.nickname }, JWT_SECRET, { expiresIn: '365d' });
+    const token = jwt.sign({ userId: user.id, nickname: user.nickname, isAdmin: user.is_admin || false }, JWT_SECRET, { expiresIn: '365d' });
     res.json({ user, token });
   } catch (err) {
     console.error(err);
@@ -137,7 +137,7 @@ app.put('/api/users/me', authRequired, async (req, res) => {
       if (!current_password) return res.status(400).json({ error: '現在のパスワードを入力してください' });
       if (new_password.length < 4) return res.status(400).json({ error: '新しいパスワードは4文字以上にしてください' });
 
-      const cur = await pool.query('SELECT password_hash FROM users WHERE id=$1', [req.user.userId]);
+      const cur = await pool.query('SELECT password_hash, is_admin FROM users WHERE id=$1', [req.user.userId]);
       const ok  = cur.rows[0]?.password_hash
         ? await bcrypt.compare(current_password, cur.rows[0].password_hash)
         : false;
@@ -146,23 +146,23 @@ app.put('/api/users/me', authRequired, async (req, res) => {
       const newHash = await bcrypt.hash(new_password, SALT_ROUNDS);
       const result  = await pool.query(
         `UPDATE users SET nickname=$1, email=$2, avatar_url=$3, avatar_type=$4, password_hash=$5, updated_at=NOW()
-         WHERE id=$6 RETURNING id, nickname, email, avatar_url, avatar_type`,
+         WHERE id=$6 RETURNING id, nickname, email, avatar_url, avatar_type, is_admin`,
         [nickname?.trim(), email?.trim() || null, avatar_url || null, avatar_type || 'member', newHash, req.user.userId]
       );
       const user  = result.rows[0];
-      const token = jwt.sign({ userId: user.id, nickname: user.nickname }, JWT_SECRET, { expiresIn: '365d' });
+      const token = jwt.sign({ userId: user.id, nickname: user.nickname, isAdmin: user.is_admin || false }, JWT_SECRET, { expiresIn: '365d' });
       return res.json({ user, token, message: 'パスワードを変更しました' });
     }
 
     // パスワード変更なし
     const result = await pool.query(
       `UPDATE users SET nickname=$1, email=$2, avatar_url=$3, avatar_type=$4, updated_at=NOW()
-       WHERE id=$5 RETURNING id, nickname, email, avatar_url, avatar_type`,
+       WHERE id=$5 RETURNING id, nickname, email, avatar_url, avatar_type, is_admin`,
       [nickname?.trim(), email?.trim() || null, avatar_url || null, avatar_type || 'member', req.user.userId]
     );
     if (!result.rows[0]) return res.status(404).json({ error: 'ユーザーが見つかりません' });
     const user  = result.rows[0];
-    const token = jwt.sign({ userId: user.id, nickname: user.nickname }, JWT_SECRET, { expiresIn: '365d' });
+    const token = jwt.sign({ userId: user.id, nickname: user.nickname, isAdmin: user.is_admin || false }, JWT_SECRET, { expiresIn: '365d' });
     res.json({ user, token });
   } catch (err) {
     console.error(err);
@@ -173,7 +173,7 @@ app.put('/api/users/me', authRequired, async (req, res) => {
 // ── 自分のプロフィール取得 ─────────────────
 app.get('/api/users/me', authRequired, async (req, res) => {
   const result = await pool.query(
-    'SELECT id, nickname, email, avatar_url, avatar_type, created_at FROM users WHERE id=$1',
+    'SELECT id, nickname, email, avatar_url, avatar_type, is_admin, created_at FROM users WHERE id=$1',
     [req.user.userId]
   );
   if (!result.rows[0]) return res.status(404).json({ error: 'ユーザーが見つかりません' });
@@ -606,8 +606,10 @@ app.delete('/api/schedules/:id', authRequired, async (req, res) => {
 //  FEEDBACK — ご意見・ご要望
 // ══════════════════════════════════════════
 
-// 投稿一覧（全員が見られる）
-app.get('/api/feedbacks', async (req, res) => {
+// 投稿一覧（管理者のみ → /api/admin/feedbacks に移行）
+app.get('/api/feedbacks', authRequired, async (req, res) => {
+  // 管理者チェック
+  if (!req.user.isAdmin) return res.status(403).json({ error: '管理者のみ閲覧できます' });
   try {
     const r = await pool.query(
       `SELECT id, user_id, nickname, category, body, created_at
@@ -677,6 +679,127 @@ app.listen(PORT, () => {
     }, msUntil);
   }
   scheduleDailyCheck();
+});
+
+// ── 管理者認証ミドルウェア ──────────────────
+function adminRequired(req, res, next) {
+  const token = req.headers['authorization']?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: '認証が必要です' });
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (!decoded.isAdmin) return res.status(403).json({ error: '管理者権限が必要です' });
+    req.user = decoded;
+    next();
+  } catch {
+    return res.status(401).json({ error: 'トークンが無効です' });
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  ADMIN — 管理者API
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// 管理者フラグ確認
+app.get('/api/admin/me', adminRequired, (req, res) => {
+  res.json({ isAdmin: true, userId: req.user.userId, nickname: req.user.nickname });
+});
+
+// フィードバック一覧（管理者のみ）
+app.get('/api/admin/feedbacks', adminRequired, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT f.*, u.nickname as user_nickname, u.email as user_email
+       FROM feedbacks f
+       LEFT JOIN users u ON f.user_id = u.id
+       ORDER BY f.created_at DESC`
+    );
+    res.json(r.rows);
+  } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
+});
+
+// フィードバック削除（管理者）
+app.delete('/api/admin/feedbacks/:id', adminRequired, async (req, res) => {
+  await pool.query('DELETE FROM feedbacks WHERE id=$1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// ユーザー一覧（管理者）
+app.get('/api/admin/users', adminRequired, async (req, res) => {
+  const r = await pool.query(
+    'SELECT id, nickname, email, is_admin, created_at FROM users ORDER BY created_at DESC'
+  );
+  res.json(r.rows);
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  FLOWER SETTINGS — 祝花公開設定
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const FLOWER_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
+
+// 設定取得（全員）
+app.get('/api/flower-settings', async (req, res) => {
+  try {
+    const r = await pool.query('SELECT * FROM flower_settings WHERE id=$1', [FLOWER_SETTINGS_ID]);
+    if (!r.rows[0]) return res.json({ is_open: false, open_from: null, open_to: null });
+    const s = r.rows[0];
+    // 期間チェック：期間設定がある場合は自動ON/OFF
+    const today = new Date().toISOString().split('T')[0];
+    let isOpen = s.is_open;
+    if (s.open_from && s.open_to) {
+      isOpen = today >= s.open_from && today <= s.open_to;
+    }
+    res.json({ is_open: isOpen, open_from: s.open_from, open_to: s.open_to, manual_open: s.is_open });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
+});
+
+// 設定更新（管理者のみ）
+app.put('/api/flower-settings', adminRequired, async (req, res) => {
+  const { is_open, open_from, open_to } = req.body;
+  try {
+    const r = await pool.query(
+      `UPDATE flower_settings SET is_open=$1, open_from=$2, open_to=$3, updated_at=NOW()
+       WHERE id=$4 RETURNING *`,
+      [!!is_open, open_from || null, open_to || null, FLOWER_SETTINGS_ID]
+    );
+    res.json(r.rows[0]);
+  } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
+});
+
+// 祝花申し込み集計（管理者）
+app.get('/api/admin/flowers', adminRequired, async (req, res) => {
+  try {
+    // 全申し込み
+    const all = await pool.query(
+      `SELECT f.*, u.nickname as owner_nickname, u.email as owner_email
+       FROM flowers f LEFT JOIN users u ON f.user_id=u.id
+       ORDER BY f.created_at DESC`
+    );
+    // メンバー別集計
+    const byMember = await pool.query(
+      `SELECT member_name, member_id,
+        COUNT(*) as count,
+        SUM(amount) as total,
+        SUM(CASE WHEN status='completed' THEN amount ELSE 0 END) as completed_total,
+        SUM(CASE WHEN status='pending'   THEN amount ELSE 0 END) as pending_total
+       FROM flowers
+       GROUP BY member_name, member_id
+       ORDER BY total DESC`
+    );
+    // 全体合計
+    const totals = await pool.query(
+      `SELECT
+        COUNT(*) as count,
+        SUM(amount) as total,
+        SUM(CASE WHEN status='completed' THEN amount ELSE 0 END) as completed_total,
+        SUM(CASE WHEN status='pending'   THEN amount ELSE 0 END) as pending_total
+       FROM flowers`
+    );
+    res.json({
+      items:    all.rows,
+      byMember: byMember.rows,
+      totals:   totals.rows[0],
+    });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

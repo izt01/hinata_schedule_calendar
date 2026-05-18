@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>日向坂46 — 管理者ページ</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8b2252">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+<style>
+.admin-hero {
+  margin:0 0 24px; padding:32px 20px 28px;
+  background:linear-gradient(145deg,#2a2a6a 0%,#1a1a50 50%,#0a0a30 100%);
+  border-radius:0 0 32px 32px; text-align:center;
+  box-shadow:0 8px 32px rgba(20,20,100,0.4);
+}
+.admin-hero-icon  { font-size:52px; margin-bottom:10px; }
+.admin-hero-title { font-family:'Shippori Mincho',serif; font-size:26px; font-weight:800; color:white; letter-spacing:0.1em; margin-bottom:4px; }
+.admin-hero-sub   { font-family:'Noto Serif JP',serif; font-size:11px; color:rgba(255,255,255,0.7); letter-spacing:0.15em; }
+
+.admin-card { background:rgba(255,255,255,0.88); backdrop-filter:blur(10px); border-radius:20px; border:1.5px solid var(--hina-2); padding:20px; box-shadow:var(--shadow-hina); margin-bottom:16px; }
+.admin-card-title { font-family:'M PLUS Rounded 1c',sans-serif; font-size:13px; font-weight:800; color:#2a2a6a; margin-bottom:14px; letter-spacing:0.06em; }
+
+/* 祝花設定 */
+.flower-toggle-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.flower-toggle-label { font-family:'Noto Serif JP',serif; font-size:14px; font-weight:600; color:var(--sumi); }
+.toggle-switch { position:relative; width:52px; height:28px; }
+.toggle-switch input { opacity:0; width:0; height:0; }
+.toggle-slider { position:absolute; cursor:pointer; inset:0; background:#ccc; border-radius:28px; transition:.3s; }
+.toggle-slider:before { position:absolute; content:""; height:22px; width:22px; left:3px; bottom:3px; background:white; border-radius:50%; transition:.3s; }
+.toggle-switch input:checked + .toggle-slider { background:#e05080; }
+.toggle-switch input:checked + .toggle-slider:before { transform:translateX(24px); }
+
+.flower-status-badge { display:inline-block; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:700; font-family:'Noto Serif JP',serif; }
+.status-open   { background:rgba(40,180,80,0.12); color:#2a8a40; border:1px solid rgba(40,180,80,0.3); }
+.status-closed { background:rgba(100,100,100,0.1); color:#666; border:1px solid #ddd; }
+
+/* 金額集計 */
+.amount-summary { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:14px; }
+.amount-box { background:var(--hina-0); border-radius:14px; border:1.5px solid var(--hina-2); padding:14px 12px; text-align:center; }
+.amount-box-label { font-family:'Noto Serif JP',serif; font-size:10px; color:var(--sumi-light); margin-bottom:4px; }
+.amount-box-value { font-family:'Shippori Mincho',serif; font-size:20px; font-weight:800; color:var(--sky); }
+.amount-box.total  { grid-column:1/-1; background:linear-gradient(135deg,rgba(200,40,80,0.08),rgba(230,80,100,0.05)); }
+.amount-box.total .amount-box-value { font-size:26px; color:#c03060; }
+
+/* メンバー別 */
+.member-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--hina-1); }
+.member-row:last-child { border-bottom:none; }
+.member-row-name  { font-family:'Noto Serif JP',serif; font-size:13px; font-weight:600; color:var(--sumi); flex:1; }
+.member-row-amount { font-family:'Shippori Mincho',serif; font-size:14px; font-weight:700; color:#c03060; }
+.member-row-sub   { font-size:10px; color:var(--sumi-light); font-family:'Noto Serif JP',serif; margin-top:2px; }
+
+/* 申し込み一覧 */
+.flower-admin-item { background:rgba(255,255,255,0.8); border-radius:14px; border:1.5px solid var(--hina-2); padding:12px 14px; margin-bottom:8px; }
+.flower-admin-header { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.flower-admin-name   { font-family:'Noto Serif JP',serif; font-size:13px; font-weight:700; color:var(--sumi); flex:1; }
+.flower-admin-amount { font-family:'Shippori Mincho',serif; font-size:16px; font-weight:800; color:#c03060; }
+.flower-status-s { padding:2px 8px; border-radius:8px; font-size:9px; font-weight:700; font-family:'Noto Serif JP',serif; }
+.s-pending   { background:rgba(255,200,50,0.2); color:#b08000; border:1px solid rgba(255,200,50,0.4); }
+.s-completed { background:rgba(40,180,80,0.1);  color:#2a8a40; border:1px solid rgba(40,180,80,0.3); }
+
+/* フィードバック */
+.fb-admin-item { background:rgba(255,255,255,0.8); border-radius:14px; border:1.5px solid var(--hina-2); padding:12px 14px; margin-bottom:8px; position:relative; }
+.fb-cat-s { padding:2px 8px; border-radius:8px; font-size:9px; font-weight:700; font-family:'Noto Serif JP',serif; }
+.cat-idea    { background:rgba(21,101,160,0.1); color:var(--sky); border:1px solid var(--hina-2); }
+.cat-bug     { background:rgba(200,60,60,0.1);  color:#c03030; border:1px solid rgba(200,60,60,0.3); }
+.cat-request { background:rgba(80,140,80,0.1);  color:#2a6a2a; border:1px solid rgba(80,140,80,0.3); }
+.cat-other   { background:rgba(140,80,180,0.1); color:#6a2a9a; border:1px solid rgba(140,80,180,0.3); }
+.fb-del-btn  { position:absolute; top:10px; right:12px; background:none; border:none; font-size:13px; color:var(--sumi-light); opacity:0.4; cursor:pointer; padding:6px; border-radius:50%; touch-action:manipulation; }
+.fb-del-btn:active { opacity:0.9; }
+
+/* タブ */
+.admin-tabs { display:flex; gap:0; border:1.5px solid var(--hina-2); border-radius:16px; overflow:hidden; margin-bottom:16px; }
+.admin-tab  { flex:1; padding:10px 4px; text-align:center; font-family:'Noto Serif JP',serif; font-size:11px; font-weight:600; color:var(--sumi-light); border:none; background:rgba(255,255,255,0.5); cursor:pointer; touch-action:manipulation; }
+.admin-tab.active { background:#2a2a6a; color:white; font-weight:700; }
+</style>
+</head>
+<body>
+<canvas id="petals-canvas"></canvas>
+<div id="app">
+  <div id="headerMount"></div>
+  <div class="page-content page-enter" style="padding-top:0">
+
+    <div class="admin-hero">
+      <div class="admin-hero-icon">🔐</div>
+      <div class="admin-hero-title">管理者ページ</div>
+      <div class="admin-hero-sub" id="adminName">読み込み中…</div>
+    </div>
+
+    <!-- タブ -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" id="tabFlower" onclick="showTab('flower',this)">💐 祝花管理</button>
+      <button class="admin-tab"        id="tabFeedback" onclick="showTab('feedback',this)">💬 フィードバック</button>
+      <button class="admin-tab"        id="tabUsers" onclick="showTab('users',this)">👤 ユーザー</button>
+    </div>
+
+    <!-- ① 祝花管理 -->
+    <div id="panelFlower">
+
+      <!-- 公開設定 -->
+      <div class="admin-card">
+        <div class="admin-card-title">⚙ 祝花申し込みの公開設定</div>
+
+        <div class="flower-toggle-row">
+          <div>
+            <div class="flower-toggle-label">即時公開 ON/OFF</div>
+            <div style="font-size:10px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;margin-top:2px">ONにすると期間設定に関わらず公開</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="flowerToggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div style="margin-bottom:14px">
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px;font-weight:700;color:var(--sumi);margin-bottom:8px">期間設定（任意）</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="form-input" type="date" id="flowerFrom" style="flex:1;font-size:12px">
+            <span style="color:var(--sumi-light);font-size:12px">〜</span>
+            <input class="form-input" type="date" id="flowerTo" style="flex:1;font-size:12px">
+          </div>
+          <div style="font-size:10px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;margin-top:4px">期間を設定すると、その期間のみ自動で公開されます</div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div>
+            <div style="font-size:11px;color:var(--sumi-light);font-family:'Noto Serif JP',serif">現在の状態</div>
+            <span class="flower-status-badge" id="flowerStatusBadge">確認中…</span>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="flowerSaveBtn" style="width:100%;justify-content:center;background:linear-gradient(135deg,#2a2a6a,#1a1a50)">
+          設定を保存する
+        </button>
+      </div>
+
+      <!-- 金額集計 -->
+      <div class="admin-card">
+        <div class="admin-card-title">💰 申し込み金額の集計</div>
+        <div class="amount-summary" id="amountSummary">
+          <div class="empty-state"><div class="empty-state-text">読み込み中…</div></div>
+        </div>
+        <div class="admin-card-title" style="margin-top:4px">📊 メンバー別</div>
+        <div id="memberSummary"></div>
+      </div>
+
+      <!-- 申し込み一覧 -->
+      <div class="admin-card" style="margin-bottom:100px">
+        <div class="admin-card-title">📋 申し込み一覧</div>
+        <div id="flowerList"></div>
+      </div>
+    </div>
+
+    <!-- ② フィードバック -->
+    <div id="panelFeedback" style="display:none;margin-bottom:100px">
+      <div class="admin-card">
+        <div class="admin-card-title">💬 ご意見・ご要望一覧</div>
+        <div id="feedbackList"></div>
+      </div>
+    </div>
+
+    <!-- ③ ユーザー一覧 -->
+    <div id="panelUsers" style="display:none;margin-bottom:100px">
+      <div class="admin-card">
+        <div class="admin-card-title">👤 登録ユーザー一覧</div>
+        <div id="userList"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="db.js"></script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+<script src="sakura.js"></script>
+<script>
+document.getElementById('headerMount').outerHTML = headerHTML('管理者ページ', '🔐 Admin');
+injectNav('admin.html');
+
+const CAT_MAP = { idea:'💡 アイデア', bug:'🐛 バグ報告', request:'🙏 機能要望', other:'💬 その他' };
+const CAT_CLS = { idea:'cat-idea', bug:'cat-bug', request:'cat-request', other:'cat-other' };
+
+// ── 管理者チェック ────────────────────────
+(async function init() {
+  if (!isLoggedIn() || !isAdmin()) {
+    document.getElementById('app').innerHTML = `
+      <div class="page-content" style="text-align:center;padding-top:100px">
+        <div style="font-size:64px;margin-bottom:16px">🔒</div>
+        <div style="font-family:'Shippori Mincho',serif;font-size:20px;font-weight:800;color:var(--sky);margin-bottom:8px">アクセス権限がありません</div>
+        <div style="font-family:'Noto Serif JP',serif;font-size:13px;color:var(--sumi-light)">管理者アカウントでログインしてください</div>
+        <a href="index.html" style="display:inline-block;margin-top:24px;padding:12px 28px;background:var(--sky);color:white;border-radius:16px;text-decoration:none;font-family:'M PLUS Rounded 1c',sans-serif;font-weight:700">トップへ戻る</a>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('adminName').textContent = '管理者：' + (getUser()?.nickname || '');
+
+  // 設定ボタンバインド
+  document.getElementById('flowerSaveBtn').addEventListener('click', saveFlowerSettings);
+  document.getElementById('flowerSaveBtn').addEventListener('touchend', function(e) { e.preventDefault(); saveFlowerSettings(); }, { passive: false });
+
+  await Promise.all([loadFlowerSettings(), loadFlowerData(), loadFeedbacks(), loadUsers()]);
+})();
+
+// ── タブ切替 ──────────────────────────────
+function showTab(tab, btn) {
+  document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panelFlower').style.display   = tab === 'flower'   ? 'block' : 'none';
+  document.getElementById('panelFeedback').style.display = tab === 'feedback' ? 'block' : 'none';
+  document.getElementById('panelUsers').style.display    = tab === 'users'    ? 'block' : 'none';
+}
+
+// ── 祝花設定 ──────────────────────────────
+async function loadFlowerSettings() {
+  try {
+    const s = await apiFetch('/api/flower-settings');
+    document.getElementById('flowerToggle').checked = s.manual_open || false;
+    document.getElementById('flowerFrom').value = s.open_from ? s.open_from.split('T')[0] : '';
+    document.getElementById('flowerTo').value   = s.open_to   ? s.open_to.split('T')[0]   : '';
+    updateFlowerStatus(s.is_open);
+  } catch {}
+}
+
+function updateFlowerStatus(isOpen) {
+  const badge = document.getElementById('flowerStatusBadge');
+  badge.textContent = isOpen ? '✅ 現在公開中' : '🔒 現在非公開';
+  badge.className = 'flower-status-badge ' + (isOpen ? 'status-open' : 'status-closed');
+}
+
+async function saveFlowerSettings() {
+  const btn = document.getElementById('flowerSaveBtn');
+  btn.disabled = true; btn.textContent = '保存中…';
+  try {
+    const result = await apiFetch('/api/flower-settings', {
+      method: 'PUT',
+      body: JSON.stringify({
+        is_open:   document.getElementById('flowerToggle').checked,
+        open_from: document.getElementById('flowerFrom').value || null,
+        open_to:   document.getElementById('flowerTo').value   || null,
+      }),
+    });
+    if (result) {
+      // 保存後に現在の状態を再取得して表示
+      const s = await apiFetch('/api/flower-settings');
+      updateFlowerStatus(s.is_open);
+      btn.textContent = '✅ 保存しました';
+      setTimeout(() => { btn.textContent = '設定を保存する'; }, 2000);
+    }
+  } catch (err) {
+    alert('保存エラー: ' + err.message);
+    btn.textContent = '設定を保存する';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── 祝花データ ────────────────────────────
+async function loadFlowerData() {
+  try {
+    const data = await apiFetch('/api/admin/flowers');
+    renderFlowerSummary(data);
+    renderFlowerList(data.items);
+  } catch {}
+}
+
+function renderFlowerSummary(data) {
+  const t = data.totals || {};
+  document.getElementById('amountSummary').innerHTML = `
+    <div class="amount-box total">
+      <div class="amount-box-label">💰 申し込み総額</div>
+      <div class="amount-box-value">¥${Number(t.total||0).toLocaleString()}</div>
+    </div>
+    <div class="amount-box">
+      <div class="amount-box-label">✅ 振込完了</div>
+      <div class="amount-box-value" style="color:#2a8a40">¥${Number(t.completed_total||0).toLocaleString()}</div>
+    </div>
+    <div class="amount-box">
+      <div class="amount-box-label">⏳ 振込待ち</div>
+      <div class="amount-box-value" style="color:#b08000">¥${Number(t.pending_total||0).toLocaleString()}</div>
+    </div>`;
+
+  // メンバー別
+  const memberHtml = (data.byMember || []).map(m => `
+    <div class="member-row">
+      <div>
+        <div class="member-row-name">${m.member_name}</div>
+        <div class="member-row-sub">${m.count}件 / 完了¥${Number(m.completed_total||0).toLocaleString()} / 待ち¥${Number(m.pending_total||0).toLocaleString()}</div>
+      </div>
+      <div class="member-row-amount">¥${Number(m.total||0).toLocaleString()}</div>
+    </div>`).join('');
+  document.getElementById('memberSummary').innerHTML = memberHtml || '<div style="font-size:12px;color:var(--sumi-light);font-family:\'Noto Serif JP\',serif;padding:8px 0">申し込みはまだありません</div>';
+}
+
+function renderFlowerList(items) {
+  const el = document.getElementById('flowerList');
+  if (!items?.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--sumi-light);font-family:\'Noto Serif JP\',serif">申し込みはまだありません</div>';
+    return;
+  }
+  el.innerHTML = items.map(f => {
+    const d = new Date(f.created_at);
+    const dateStr = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    return `<div class="flower-admin-item">
+      <div class="flower-admin-header">
+        <div class="flower-admin-name">${f.member_name}</div>
+        <div class="flower-admin-amount">¥${Number(f.amount).toLocaleString()}</div>
+        <span class="flower-status-s ${f.status === 'completed' ? 's-completed' : 's-pending'}">${f.status === 'completed' ? '✅ 完了' : '⏳ 待ち'}</span>
+      </div>
+      <div style="font-size:10px;color:var(--sumi-light);font-family:'Noto Serif JP',serif">
+        ${f.owner_nickname || '匿名'} · ${dateStr}
+        ${f.message ? ' · ' + f.message : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── フィードバック ────────────────────────
+async function loadFeedbacks() {
+  try {
+    const data = await apiFetch('/api/admin/feedbacks');
+    const el = document.getElementById('feedbackList');
+    if (!data?.length) {
+      el.innerHTML = '<div style="font-size:12px;color:var(--sumi-light);font-family:\'Noto Serif JP\',serif">フィードバックはまだありません</div>';
+      return;
+    }
+    el.innerHTML = data.map(f => {
+      const d = new Date(f.created_at);
+      const dateStr = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      return `<div class="fb-admin-item" id="fb_${f.id}">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span class="fb-cat-s ${CAT_CLS[f.category]||'cat-other'}">${CAT_MAP[f.category]||'その他'}</span>
+          <span style="font-size:11px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;flex:1">${f.nickname||'匿名'} · ${dateStr}</span>
+        </div>
+        <div style="font-family:'Noto Serif JP',serif;font-size:13px;color:var(--sumi);line-height:1.7">${escapeHtml(f.body)}</div>
+        ${f.user_email ? `<div style="font-size:10px;color:var(--sumi-light);margin-top:4px;font-family:'Noto Serif JP',serif">📧 ${f.user_email}</div>` : ''}
+        <button class="fb-del-btn" onclick="deleteFeedback('${f.id}')">✕</button>
+      </div>`;
+    }).join('');
+  } catch {}
+}
+
+async function deleteFeedback(id) {
+  if (!confirm('この投稿を削除しますか？')) return;
+  try {
+    await apiFetch('/api/admin/feedbacks/' + id, { method: 'DELETE' });
+    document.getElementById('fb_' + id)?.remove();
+  } catch (err) { alert('削除エラー: ' + err.message); }
+}
+
+// ── ユーザー一覧 ──────────────────────────
+async function loadUsers() {
+  try {
+    const data = await apiFetch('/api/admin/users');
+    const el = document.getElementById('userList');
+    if (!data?.length) { el.innerHTML = '<div style="font-size:12px;color:var(--sumi-light)">ユーザーはまだいません</div>'; return; }
+    el.innerHTML = `
+      <div style="font-size:10px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;margin-bottom:8px">合計 ${data.length} 人</div>
+      ${data.map(u => `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--hina-1)">
+          <div style="flex:1">
+            <div style="font-family:'Noto Serif JP',serif;font-size:13px;font-weight:600;color:var(--sumi)">${u.nickname} ${u.is_admin ? '<span style="background:#2a2a6a;color:white;font-size:9px;padding:2px 6px;border-radius:6px;margin-left:4px">管理者</span>' : ''}</div>
+            <div style="font-size:10px;color:var(--sumi-light);font-family:'Noto Serif JP',serif">${u.email || 'メール未登録'}</div>
+          </div>
+          <div style="font-size:10px;color:var(--sumi-light);font-family:'Noto Serif JP',serif">${new Date(u.created_at).toLocaleDateString('ja-JP')}</div>
+        </div>`).join('')}`;
+  } catch {}
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() { navigator.serviceWorker.register('./service-worker.js'); });
+}
+</script>
+</body>
+</html>

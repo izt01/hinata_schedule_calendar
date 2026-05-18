@@ -18,6 +18,14 @@ function removeToken()    { localStorage.removeItem('hinata_token'); localStorag
 function getUser()        { try { return JSON.parse(localStorage.getItem('hinata_user') || 'null'); } catch { return null; } }
 function setUser(u)       { localStorage.setItem('hinata_user', JSON.stringify(u)); }
 function isLoggedIn()     { return !!getToken(); }
+function isAdmin() {
+  try {
+    const token = getToken();
+    if (!token) return false;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.isAdmin === true;
+  } catch { return false; }
+}
 
 // ── 共通fetchラッパー ─────────────────────
 async function apiFetch(path, opts = {}) {

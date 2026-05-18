@@ -25,12 +25,27 @@ async function migrate() {
         password_hash TEXT         NOT NULL DEFAULT '',
         avatar_url    TEXT,
         avatar_type   VARCHAR(20)  DEFAULT 'member',
+        is_admin      BOOLEAN      DEFAULT false,
         created_at    TIMESTAMPTZ  DEFAULT NOW(),
         updated_at    TIMESTAMPTZ  DEFAULT NOW()
       );
 
       -- 既存テーブルへのカラム追加（既にある場合はスキップ）
       ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT NOT NULL DEFAULT '';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT false;
+
+      -- 祝花公開設定テーブル
+      CREATE TABLE IF NOT EXISTS flower_settings (
+        id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        is_open    BOOLEAN     DEFAULT false,
+        open_from  DATE,
+        open_to    DATE,
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+      -- デフォルト設定を1行だけ挿入
+      INSERT INTO flower_settings (id, is_open)
+        VALUES ('00000000-0000-0000-0000-000000000001', false)
+        ON CONFLICT (id) DO NOTHING;
 
       -- イベントテーブル
       CREATE TABLE IF NOT EXISTS events (

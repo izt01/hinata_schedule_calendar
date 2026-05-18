@@ -21,6 +21,11 @@ function injectNav(activePage) {
     { href: 'profile.html',  icon: '👤', label: 'アカウント設定' },
   ];
 
+  // 管理者のみ管理者ページを追加
+  if (typeof isAdmin === 'function' && isAdmin()) {
+    pages.push({ href: 'admin.html', icon: '🔐', label: '管理者ページ' });
+  }
+
   const navItems = pages.map(p => {
     const isActive = p.href === activePage;
     return `<a class="drawer-nav-item${isActive ? ' active' : ''}" href="${p.href}">
