@@ -95,7 +95,7 @@ app.post('/api/users/login', async (req, res) => {
   try {
     // ニックネーム完全一致 or メールアドレスで検索
     const result = await pool.query(
-      `SELECT id, nickname, email, password_hash, avatar_url, avatar_type
+      `SELECT id, nickname, email, password_hash, avatar_url, avatar_type, is_admin
        FROM users
        WHERE nickname = $1 OR (email IS NOT NULL AND email = $1)
        LIMIT 5`,
