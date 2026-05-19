@@ -379,6 +379,14 @@
           <a class="quick-card" href="guide.html"><div class="quick-card-icon">📖</div><div class="quick-card-label">使い方ガイド</div><div class="quick-card-sub">機能のご紹介</div></a>
           <a class="quick-card" href="feedback.html"><div class="quick-card-icon">💬</div><div class="quick-card-label">ご意見・ご要望</div><div class="quick-card-sub">フィードバック</div></a>
         </div>
+        <!-- 管理者カード（管理者ログイン時のみ表示） -->
+        <div id="adminCardWrap" style="display:none;margin-bottom:24px">
+          <a class="quick-card" href="admin.html" style="background:linear-gradient(135deg,rgba(42,42,106,0.12),rgba(26,26,80,0.08));border-color:rgba(42,42,106,0.3)">
+            <div class="quick-card-icon">🔐</div>
+            <div class="quick-card-label" style="color:#2a2a6a">管理者ページ</div>
+            <div class="quick-card-sub">フィードバック・祝花管理</div>
+          </a>
+        </div>
 
         <!-- UPCOMING -->
         <div class="section-kamon"><span class="section-kamon-text">✿ COMING UP ✿</span></div>
@@ -1171,9 +1179,12 @@ injectNav('index.html');
   }).join('');
 })();
 
-// ━━━ アカウントCTA ━━━
+// ━━━ アカウントCTA・管理者カード ━━━
 if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
   document.getElementById('accountCta').style.display = 'block';
+}
+if (typeof isAdmin === 'function' && isAdmin()) {
+  document.getElementById('adminCardWrap').style.display = 'block';
 }
 </script>
 
