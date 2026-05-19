@@ -79,6 +79,9 @@
       <div class="profile-name"  id="heroName">ゲスト</div>
       <div class="profile-email" id="heroEmail">アカウント未設定</div>
       <span class="profile-login-badge" id="loginBadge">✿ タップして設定 ✿</span>
+      <div id="adminBadge" style="display:none;margin-top:8px">
+        <span style="display:inline-block;padding:4px 16px;border-radius:20px;background:rgba(42,42,106,0.85);color:white;font-size:11px;font-family:'M PLUS Rounded 1c',sans-serif;font-weight:700;letter-spacing:0.12em">🔐 管理者アカウント</span>
+      </div>
     </div>
 
     <!-- ━━━ 未ログイン：登録 / ログインカード ━━━ -->
@@ -327,6 +330,8 @@ function updateHero(user) {
   document.getElementById('heroName').textContent  = user.nickname || 'ゲスト';
   document.getElementById('heroEmail').textContent = user.email    || 'メール未設定';
   document.getElementById('loginBadge').textContent = '✿ 設定済み ✿';
+  // 管理者バッジ
+  document.getElementById('adminBadge').style.display = isAdmin() ? 'block' : 'none';
   const heroAvatar = document.getElementById('heroAvatar');
   if (user.avatar_url) {
     heroAvatar.innerHTML = `<img src="${user.avatar_url}" alt="${user.nickname}"><div class="profile-avatar-edit">✎</div>`;
