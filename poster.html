@@ -10,145 +10,70 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="style.css">
 <style>
-/* ── ポスターページ ── */
 .poster-hero {
-  margin: 0 0 24px;
-  padding: 32px 20px 24px;
-  background: linear-gradient(145deg, #6040c0 0%, #4020a0 50%, #201080 100%);
-  border-radius: 0 0 32px 32px;
-  text-align: center;
-  box-shadow: 0 8px 32px rgba(80,40,180,0.3);
+  margin:0 0 24px; padding:32px 20px 24px;
+  background:linear-gradient(145deg,#6040c0 0%,#4020a0 50%,#201080 100%);
+  border-radius:0 0 32px 32px; text-align:center;
+  box-shadow:0 8px 32px rgba(80,40,180,0.3);
 }
-.poster-hero-icon  { font-size: 52px; margin-bottom: 10px; }
-.poster-hero-title { font-family: 'Shippori Mincho', serif; font-size: 26px; font-weight: 800; color: white; letter-spacing: 0.1em; margin-bottom: 4px; }
-.poster-hero-sub   { font-family: 'Noto Serif JP', serif; font-size: 11px; color: rgba(255,255,255,0.8); letter-spacing: 0.15em; }
+.poster-hero-icon  { font-size:52px; margin-bottom:10px; }
+.poster-hero-title { font-family:'Shippori Mincho',serif; font-size:26px; font-weight:800; color:white; letter-spacing:0.1em; margin-bottom:4px; }
+.poster-hero-sub   { font-family:'Noto Serif JP',serif; font-size:11px; color:rgba(255,255,255,0.8); letter-spacing:0.15em; }
 
-/* ポスターカード */
-.poster-grid { display: flex; flex-direction: column; gap: 16px; margin-bottom: 100px; }
-.poster-card {
-  background: rgba(255,255,255,0.88); backdrop-filter: blur(10px);
-  border-radius: 22px; border: 1.5px solid var(--hina-2);
-  overflow: hidden; box-shadow: var(--shadow-hina);
-  animation: pageEnter 0.3s ease both;
+/* キャンペーンバナー */
+.campaign-banner {
+  background:linear-gradient(135deg,rgba(96,64,192,0.12),rgba(64,32,160,0.08));
+  border:1.5px solid rgba(96,64,192,0.3); border-radius:20px;
+  padding:16px 18px; margin-bottom:20px;
 }
-.poster-card-img {
-  width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block;
-  cursor: pointer; transition: transform 0.22s;
-}
-.poster-card-img:active { transform: scale(0.98); }
-.poster-card-body { padding: 14px 16px 0; }
-.poster-card-header {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
-}
-.poster-card-avatar {
-  width: 32px; height: 32px; border-radius: 50%;
-  object-fit: cover; border: 1.5px solid var(--hina-2);
-  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-  background: var(--hina-1); font-size: 16px; overflow: hidden;
-}
+.campaign-banner-title { font-family:'Shippori Mincho',serif; font-size:18px; font-weight:800; color:#4020a0; margin-bottom:4px; }
+.campaign-banner-sub   { font-family:'Noto Serif JP',serif; font-size:11px; color:var(--sumi-light); }
+.campaign-banner-period { display:inline-block; margin-top:8px; padding:3px 10px; border-radius:10px; background:rgba(96,64,192,0.1); color:#4020a0; font-size:10px; font-weight:700; font-family:'Noto Serif JP',serif; border:1px solid rgba(96,64,192,0.2); }
+.campaign-banner-member { display:inline-block; margin-top:4px; margin-left:6px; padding:3px 10px; border-radius:10px; background:rgba(200,40,80,0.08); color:#a02040; font-size:10px; font-weight:700; font-family:'Noto Serif JP',serif; border:1px solid rgba(200,40,80,0.2); }
+
+/* キャンペーン選択タブ */
+.campaign-tabs { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:16px; -webkit-overflow-scrolling:touch; }
+.campaign-tab { flex-shrink:0; padding:8px 14px; border-radius:20px; border:1.5px solid var(--hina-2); background:rgba(255,255,255,0.8); font-family:'Noto Serif JP',serif; font-size:11px; font-weight:600; color:var(--sumi-light); cursor:pointer; white-space:nowrap; touch-action:manipulation; }
+.campaign-tab.active { background:#4020a0; border-color:#4020a0; color:white; }
+
+/* ポスターグリッド */
+.poster-grid { display:flex; flex-direction:column; gap:16px; margin-bottom:100px; }
+.poster-card { background:rgba(255,255,255,0.88); backdrop-filter:blur(10px); border-radius:22px; border:1.5px solid var(--hina-2); overflow:hidden; box-shadow:var(--shadow-hina); }
+.poster-card-img { width:100%; aspect-ratio:3/4; object-fit:cover; display:block; cursor:pointer; }
+.poster-card-body { padding:14px 16px 0; }
+.poster-card-header { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.poster-card-avatar { width:32px; height:32px; border-radius:50%; object-fit:cover; border:1.5px solid var(--hina-2); flex-shrink:0; display:flex; align-items:center; justify-content:center; background:var(--hina-1); font-size:16px; overflow:hidden; }
 .poster-card-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
-.poster-card-name  { font-family: 'Noto Serif JP', serif; font-size: 12px; font-weight: 600; color: var(--sumi); flex: 1; }
-.poster-card-date  { font-size: 10px; color: var(--sumi-light); }
-.poster-card-caption { font-family: 'Noto Serif JP', serif; font-size: 13px; color: var(--sumi); line-height: 1.6; margin-bottom: 10px; }
+.poster-card-name  { font-family:'Noto Serif JP',serif; font-size:12px; font-weight:600; color:var(--sumi); flex:1; }
+.poster-card-caption { font-family:'Noto Serif JP',serif; font-size:12px; color:var(--sumi-light); margin-bottom:10px; line-height:1.6; }
+.poster-card-actions { display:flex; gap:12px; padding:10px 0; border-top:1px solid var(--hina-1); }
+.poster-action-btn { display:flex; align-items:center; gap:5px; background:none; border:none; font-size:12px; color:var(--sumi-light); cursor:pointer; font-family:'Noto Serif JP',serif; padding:4px 8px; border-radius:10px; touch-action:manipulation; }
+.poster-action-btn.liked { color:#e05080; }
+.poster-action-btn:active { background:var(--hina-1); }
+.poster-delete-btn { margin-left:auto; background:none; border:none; font-size:11px; color:rgba(200,60,60,0.5); cursor:pointer; padding:4px 8px; border-radius:10px; touch-action:manipulation; }
 
-/* アクションバー */
-.poster-card-actions {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 16px 14px; border-top: 1px solid var(--hina-1);
-}
-.like-btn {
-  display: flex; align-items: center; gap: 5px;
-  padding: 7px 14px; border-radius: 20px;
-  border: 1.5px solid var(--hina-2); background: rgba(255,255,255,0.8);
-  font-family: 'Noto Serif JP', serif; font-size: 12px; font-weight: 600;
-  color: var(--sumi-light); cursor: pointer; transition: all 0.18s;
-}
-.like-btn.liked {
-  border-color: #e05080; background: rgba(255,200,210,0.3);
-  color: #c03060;
-}
-.like-btn:active { transform: scale(0.94); }
-.comment-btn {
-  display: flex; align-items: center; gap: 5px;
-  padding: 7px 14px; border-radius: 20px;
-  border: 1.5px solid var(--hina-2); background: rgba(255,255,255,0.8);
-  font-family: 'Noto Serif JP', serif; font-size: 12px; font-weight: 600;
-  color: var(--sumi-light); cursor: pointer; transition: all 0.18s;
-}
-.comment-btn:active { transform: scale(0.94); }
-.delete-btn {
-  margin-left: auto; padding: 7px 12px; border-radius: 20px;
-  border: 1.5px solid rgba(200,60,60,0.3); background: rgba(200,60,60,0.06);
-  font-size: 11px; color: #c03030; cursor: pointer; transition: all 0.18s;
-}
-.delete-btn:active { background: rgba(200,60,60,0.15); }
+/* コメント */
+.comments-section { padding:12px 16px 14px; background:var(--hina-0); border-top:1px solid var(--hina-1); display:none; }
+.comments-section.open { display:block; }
+.comment-item { padding:8px 0; border-bottom:1px solid var(--hina-1); }
+.comment-item:last-child { border-bottom:none; }
+.comment-name { font-family:'Noto Serif JP',serif; font-size:10px; font-weight:700; color:var(--sky); }
+.comment-body { font-family:'Noto Serif JP',serif; font-size:12px; color:var(--sumi); line-height:1.6; }
+.comment-input-row { display:flex; gap:8px; margin-top:10px; }
+.comment-input { flex:1; background:rgba(255,255,255,0.9); border:1.5px solid var(--hina-2); border-radius:12px; padding:8px 12px; font-family:'Noto Sans JP',sans-serif; font-size:12px; color:var(--sumi); outline:none; }
+.comment-send-btn { padding:8px 14px; border-radius:12px; background:var(--sky); border:none; color:white; font-size:12px; font-weight:700; cursor:pointer; touch-action:manipulation; }
 
-/* コメントエリア */
-.comment-area { padding: 0 16px 14px; display: none; }
-.comment-area.open { display: block; }
-.comment-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
-.comment-item {
-  display: flex; gap: 8px; align-items: flex-start;
-}
-.comment-avatar {
-  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
-  background: var(--hina-1); display: flex; align-items: center; justify-content: center;
-  font-size: 13px; border: 1px solid var(--hina-2); overflow: hidden;
-}
-.comment-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
-.comment-bubble {
-  background: var(--hina-0); border-radius: 0 14px 14px 14px;
-  border: 1px solid var(--hina-2); padding: 8px 10px; flex: 1;
-}
-.comment-name { font-size: 10px; font-weight: 700; color: var(--sky); margin-bottom: 3px; font-family: 'Noto Serif JP', serif; }
-.comment-body { font-size: 12px; color: var(--sumi); line-height: 1.5; font-family: 'Noto Serif JP', serif; }
-.comment-input-row {
-  display: flex; gap: 8px; align-items: flex-end;
-}
-.comment-input {
-  flex: 1; background: rgba(255,255,255,0.92); border: 1.5px solid var(--hina-2);
-  border-radius: 13px; padding: 9px 12px; font-family: 'Noto Sans JP', sans-serif;
-  font-size: 13px; color: var(--sumi); outline: none; resize: none;
-}
-.comment-input:focus { border-color: var(--hina-3); }
-.comment-send {
-  padding: 9px 14px; border-radius: 13px; background: var(--sky);
-  border: none; color: white; font-size: 12px; font-weight: 700; cursor: pointer;
-  white-space: nowrap; transition: transform 0.15s;
-}
-.comment-send:active { transform: scale(0.92); }
-.comment-anon-row {
-  display: flex; align-items: center; gap: 6px;
-  margin-bottom: 6px; font-family: 'Noto Serif JP', serif; font-size: 11px; color: var(--sumi-light);
-  cursor: pointer;
-}
-.comment-anon-row input { accent-color: var(--sky); cursor: pointer; }
+/* 受付期間外 */
+.closed-banner { text-align:center; padding:40px 20px; }
+.closed-banner-icon { font-size:52px; margin-bottom:12px; }
+.closed-banner-title { font-family:'Shippori Mincho',serif; font-size:20px; font-weight:800; color:#4020a0; margin-bottom:8px; }
+.closed-banner-sub { font-family:'Noto Serif JP',serif; font-size:13px; color:var(--sumi-light); line-height:1.8; }
 
-/* 投稿モーダル */
-.anon-row {
-  display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
-  font-family: 'Noto Serif JP', serif; font-size: 13px; color: var(--sumi);
-}
-.anon-row input[type=checkbox] { width:18px; height:18px; accent-color: var(--sky); cursor: pointer; }
-
-/* ビューア */
-.poster-viewer-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(10,6,4,0.97); z-index: 500;
-  align-items: center; justify-content: center;
-}
-.poster-viewer-overlay.open { display: flex; }
-.poster-viewer-img {
-  max-width: 96vw; max-height: 92vh;
-  object-fit: contain; border-radius: 10px;
-}
-.poster-viewer-close {
-  position: absolute; top: 16px; right: 16px;
-  width: 36px; height: 36px; background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.25); border-radius: 50%;
-  color: white; font-size: 18px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
+/* モーダル */
+.ev-modal-wrap { display:none; position:fixed; inset:0; z-index:300; align-items:flex-end; justify-content:center; }
+.ev-modal-wrap.open { display:flex; }
+.ev-modal-bg { position:absolute; inset:0; background:rgba(10,30,60,0.5); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+.ev-modal-box { position:relative; width:100%; max-width:430px; background:var(--white-bg); border-radius:32px 32px 0 0; padding:12px 22px 52px; max-height:92vh; overflow-y:auto; -webkit-overflow-scrolling:touch; border-top:1.5px solid var(--hina-2); z-index:1; }
 </style>
 </head>
 <body>
@@ -159,17 +84,32 @@
 
     <div class="poster-hero">
       <div class="poster-hero-icon">🎨</div>
-      <div class="poster-hero-title">ポスター案</div>
-      <div class="poster-hero-sub">✿ イラストを投稿・共有しよう ✿</div>
+      <div class="poster-hero-title" id="heroTitle">ポスター案</div>
+      <div class="poster-hero-sub" id="heroSub">✿ みんなのデザインを共有 ✿</div>
     </div>
 
+    <!-- キャンペーンタブ -->
+    <div id="campaignTabsWrap" style="display:none">
+      <div class="campaign-tabs" id="campaignTabs"></div>
+    </div>
+
+    <!-- キャンペーンバナー -->
+    <div id="campaignBanner" style="display:none"></div>
+
     <!-- 投稿ボタン -->
-    <button class="btn-primary" style="width:100%;justify-content:center;margin-bottom:20px;background:linear-gradient(135deg,#6040c0,#4020a0);box-shadow:0 6px 22px rgba(80,40,180,0.3)" onclick="openPosterModal()">
-      🎨 ポスター案を投稿する
+    <button class="btn-primary" id="addBtn" style="width:100%;justify-content:center;margin-bottom:20px;background:linear-gradient(135deg,#6040c0,#4020a0);display:none">
+      ＋ ポスターを投稿する
     </button>
 
+    <!-- 受付期間外 -->
+    <div id="closedBanner" class="closed-banner" style="display:none">
+      <div class="closed-banner-icon">🎨</div>
+      <div class="closed-banner-title">現在募集期間外です</div>
+      <div class="closed-banner-sub" id="closedBannerSub">次の募集をお待ちください</div>
+    </div>
+
     <!-- ポスター一覧 -->
-    <div class="section-kamon"><span class="section-kamon-text">✿ みんなのポスター案 ✿</span></div>
+    <div class="section-kamon"><span class="section-kamon-text" id="listTitle">✿ 投稿一覧 ✿</span></div>
     <div class="poster-grid" id="posterGrid">
       <div class="empty-state"><div class="empty-state-icon">🎨</div><div class="empty-state-text">読み込み中…</div></div>
     </div>
@@ -177,48 +117,36 @@
   </div>
 </div>
 
-<!-- 全画面ビューア -->
-<div class="poster-viewer-overlay" id="posterViewer" onclick="closePosterViewer()">
-  <button class="poster-viewer-close">✕</button>
-  <img class="poster-viewer-img" id="posterViewerImg" src="" alt="">
-</div>
-
 <!-- 投稿モーダル -->
-<div class="modal-overlay" id="posterModal" onclick="closePosterModal(event)">
-  <div class="modal">
+<div class="ev-modal-wrap" id="addModal">
+  <div class="ev-modal-bg" id="addModalBg"></div>
+  <div class="ev-modal-box">
     <div class="modal-handle"></div>
-    <button class="modal-close-btn" onclick="document.getElementById('posterModal').classList.remove('open')">✕</button>
-    <div class="modal-title">🎨 ポスター案を投稿</div>
+    <button class="modal-close-btn" id="addModalClose">✕</button>
+    <div class="modal-title">🎨 ポスターを投稿する</div>
 
     <!-- 画像選択 -->
-    <div class="photo-preview-wrap" id="posterPreviewWrap" onclick="document.getElementById('posterFileInput').click()" style="aspect-ratio:3/4;border-radius:16px;border:2px dashed var(--hina-3);background:var(--hina-0);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;margin-bottom:14px">
-      <div id="posterPreviewPlaceholder" style="text-align:center;color:var(--sumi-light)">
-        <div style="font-size:40px;margin-bottom:8px">🎨</div>
-        <div style="font-family:'Noto Serif JP',serif;font-size:12px">タップしてイラストを選択</div>
+    <div style="margin-bottom:14px">
+      <div style="width:100%;aspect-ratio:3/4;max-height:300px;border-radius:16px;overflow:hidden;border:2px dashed var(--hina-3);background:var(--hina-0);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative" id="imgPickerWrap" onclick="document.getElementById('posterFileInput').click()">
+        <div id="imgPickerPlaceholder" style="text-align:center;color:var(--sumi-light)">
+          <div style="font-size:36px;margin-bottom:8px">🖼</div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px">タップして画像を選択</div>
+        </div>
+        <img id="posterPreview" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
       </div>
-      <img id="posterPreviewImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover">
+      <input type="file" id="posterFileInput" accept="image/*" style="display:none">
     </div>
-    <input type="file" id="posterFileInput" accept="image/*" style="display:none" onchange="onPosterFileSelect(event)">
 
-    <!-- キャプション -->
     <div class="form-group">
-      <label class="form-label">説明・コメント（任意）</label>
-      <input class="form-input" id="posterCaption" type="text" placeholder="例：〇〇ちゃんのバースデーポスター案">
+      <label class="form-label">コメント（任意）</label>
+      <input class="form-input" id="posterCaption" type="text" placeholder="一言コメントを入力" autocomplete="off">
     </div>
 
-    <!-- 匿名設定 -->
-    <div class="anon-row">
-      <input type="checkbox" id="posterAnon" onchange="toggleAnonPanel(this)">
-      <label for="posterAnon">匿名で投稿する</label>
-    </div>
-    <div id="nicknamePanel" style="margin-bottom:14px">
-      <div class="form-group" style="margin-bottom:0">
-        <label class="form-label">表示名（空白の場合はアカウント名）</label>
-        <input class="form-input" id="posterNickname" type="text" placeholder="例：おひさまファン">
-      </div>
-    </div>
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:16px;cursor:pointer;font-family:'Noto Serif JP',serif;font-size:13px;color:var(--sumi-light)">
+      <input type="checkbox" id="anonCheck" style="width:16px;height:16px;accent-color:#4020a0"> 匿名で投稿する
+    </label>
 
-    <button class="btn-primary" style="width:100%;justify-content:center;background:linear-gradient(135deg,#6040c0,#4020a0);box-shadow:0 6px 22px rgba(80,40,180,0.3)" onclick="submitPoster()">
+    <button class="btn-primary" id="posterSubmitBtn" style="width:100%;justify-content:center;background:linear-gradient(135deg,#6040c0,#4020a0)">
       投 稿
     </button>
   </div>
@@ -230,210 +158,313 @@
 <script src="nav.js"></script>
 <script src="sakura.js"></script>
 <script>
-document.getElementById('headerMount').outerHTML = headerHTML('ポスター案', '🎨 イラスト共有 🎨');
+document.getElementById('headerMount').outerHTML = headerHTML('ポスター案', '🎨 みんなのデザイン 🎨');
 injectNav('poster.html');
 
-let pendingPosterDataUrl = null;
-let allPosters = [];
+var campaigns       = [];
+var currentCampaign = null;
+var allPosters      = [];
+var pendingDataUrl  = null;
+var openComments    = {};
 
-// ── 初期化 ──────────────────────────────
+// ━━━ 初期化 ━━━
 (async function init() {
-  await loadPosters();
-})();
-
-async function loadPosters() {
+  // キャンペーン一覧を取得
   try {
-    allPosters = await apiFetch('/api/posters') || [];
-  } catch { allPosters = []; }
-  renderPosters();
-}
+    campaigns = await apiFetch('/api/poster-campaigns') || [];
+  } catch { campaigns = []; }
 
-function renderPosters() {
-  const grid = document.getElementById('posterGrid');
-  if (!allPosters.length) {
-    grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🎨</div><div class="empty-state-text">まだポスター案はありません<br>最初の1枚を投稿しましょう！</div></div>`;
+  if (!campaigns.length) {
+    document.getElementById('closedBanner').style.display = 'block';
+    document.getElementById('posterGrid').style.display   = 'none';
     return;
   }
-  grid.innerHTML = allPosters.map(p => {
-    const d = new Date(p.created_at);
-    const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
-    const name = p.is_anonymous ? '匿名' : (p.nickname || p.owner_nickname || '不明');
-    const avatarHtml = (p.owner_avatar && !p.is_anonymous)
-      ? `<div class="poster-card-avatar"><img src="${p.owner_avatar}" alt="${name}"></div>`
-      : `<div class="poster-card-avatar">${p.is_anonymous ? '🌸' : '👤'}</div>`;
-    const isLiked = p.is_liked;
-    const isOwn   = p.is_own;
 
-    return `<div class="poster-card" id="poster_${p.id}">
-      <img class="poster-card-img" src="${p.image_data}" alt="${p.caption||'ポスター案'}" onclick="openPosterViewer('${p.image_data}')">
-      <div class="poster-card-body">
-        <div class="poster-card-header">
-          ${avatarHtml}
-          <div class="poster-card-name">${name}</div>
-          <div class="poster-card-date">${dateStr}</div>
-        </div>
-        ${p.caption ? `<div class="poster-card-caption">${p.caption}</div>` : ''}
-      </div>
-      <div class="poster-card-actions">
-        <button class="like-btn${isLiked?' liked':''}" onclick="toggleLike('${p.id}',this)">
-          ${isLiked?'❤️':'🤍'} <span class="like-count">${p.likes_count||0}</span>
-        </button>
-        <button class="comment-btn" onclick="toggleComments('${p.id}')">
-          💬 コメント
-        </button>
-        ${isOwn ? `<button class="delete-btn" onclick="deletePoster('${p.id}')">削除</button>` : ''}
-      </div>
-      <div class="comment-area" id="comments_${p.id}">
-        <div class="comment-list" id="commentList_${p.id}"></div>
-        ${isLoggedIn() ? `
-        <label class="comment-anon-row">
-          <input type="checkbox" id="commentAnon_${p.id}"> 匿名でコメント
-        </label>
-        <div class="comment-input-row">
-          <textarea class="comment-input" id="commentInput_${p.id}" placeholder="コメントを入力…" rows="2"></textarea>
-          <button class="comment-send" onclick="sendComment('${p.id}')">送信</button>
-        </div>` : `<div style="font-size:11px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;padding:4px 0">コメントするにはアカウント設定が必要です</div>`}
-      </div>
-    </div>`;
+  // 公開中のキャンペーンがあるか
+  var today = new Date().toISOString().split('T')[0];
+  var openCampaigns   = campaigns.filter(function(c) { return c.is_open; });
+  var futureCampaigns = campaigns.filter(function(c) { return c.open_from > today; });
+
+  // タブを表示（複数キャンペーンがある場合）
+  if (campaigns.length > 1) {
+    buildCampaignTabs();
+  }
+
+  // 最初のキャンペーンを選択（公開中を優先）
+  selectCampaign(openCampaigns.length ? openCampaigns[0] : campaigns[0]);
+})();
+
+// ━━━ キャンペーンタブ ━━━
+function buildCampaignTabs() {
+  var wrap = document.getElementById('campaignTabsWrap');
+  var tabs = document.getElementById('campaignTabs');
+  wrap.style.display = 'block';
+  tabs.innerHTML = campaigns.map(function(c) {
+    return '<button class="campaign-tab" data-id="' + c.id + '" onclick="selectCampaignById(\'' + c.id + '\')">'
+      + (c.is_open ? '🟢 ' : '⏸ ') + c.title
+      + '</button>';
   }).join('');
 }
 
-// ── ビューア ──────────────────────────────
-function openPosterViewer(src) {
-  document.getElementById('posterViewerImg').src = src;
-  document.getElementById('posterViewer').classList.add('open');
-}
-function closePosterViewer() {
-  document.getElementById('posterViewer').classList.remove('open');
+function selectCampaignById(id) {
+  var c = campaigns.find(function(c) { return c.id === id; });
+  if (c) selectCampaign(c);
 }
 
-// ── いいね ───────────────────────────────
-async function toggleLike(posterId, btn) {
-  if (!isLoggedIn()) { alert('いいねするにはアカウント設定が必要です'); return; }
-  try {
-    const result = await apiFetch(`/api/posters/${posterId}/like`, { method: 'POST' });
-    if (result) {
-      const isLiked = result.liked;
-      btn.className = `like-btn${isLiked?' liked':''}`;
-      const countEl = btn.querySelector('.like-count');
-      const cur = parseInt(countEl.textContent);
-      countEl.textContent = isLiked ? cur + 1 : cur - 1;
-      btn.innerHTML = `${isLiked?'❤️':'🤍'} <span class="like-count">${isLiked?cur+1:cur-1}</span>`;
-      btn.className = `like-btn${isLiked?' liked':''}`;
+function selectCampaign(c) {
+  currentCampaign = c;
+
+  // タブのアクティブ状態
+  document.querySelectorAll('.campaign-tab').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.id === c.id);
+  });
+
+  // バナー表示
+  var banner = document.getElementById('campaignBanner');
+  var fromDate = c.open_from ? c.open_from.replace(/-/g, '/') : '';
+  var toDate   = c.open_to   ? c.open_to.replace(/-/g, '/')   : '';
+  banner.style.display = 'block';
+  banner.innerHTML = '<div class="campaign-banner">'
+    + '<div class="campaign-banner-title">🎨 ' + c.title + '</div>'
+    + (c.member_name ? '<div class="campaign-banner-sub">対象メンバー：' + c.member_name + '</div>' : '')
+    + '<div style="margin-top:6px">'
+    + '<span class="campaign-banner-period">📅 ' + fromDate + ' 〜 ' + toDate + '</span>'
+    + (c.member_name ? '<span class="campaign-banner-member">🌻 ' + c.member_name + '</span>' : '')
+    + '</div></div>';
+
+  // ヒーロータイトル更新
+  document.getElementById('heroTitle').textContent = c.title;
+  document.getElementById('listTitle').textContent = '✿ ' + c.title + ' 投稿一覧 ✿';
+
+  // 公開中かチェック
+  if (c.is_open) {
+    document.getElementById('addBtn').style.display    = isLoggedIn() ? 'flex' : 'none';
+    document.getElementById('closedBanner').style.display = 'none';
+    document.getElementById('posterGrid').style.display   = 'flex';
+  } else {
+    document.getElementById('addBtn').style.display    = 'none';
+    document.getElementById('posterGrid').style.display   = 'none';
+    var sub = document.getElementById('closedBannerSub');
+    var today = new Date().toISOString().split('T')[0];
+    if (c.open_from > today) {
+      sub.textContent = '募集開始：' + fromDate + ' 〜 ' + toDate;
+    } else {
+      sub.textContent = 'この募集は終了しました（' + fromDate + ' 〜 ' + toDate + '）';
     }
-  } catch (err) { alert('エラー: ' + err.message); }
+    document.getElementById('closedBanner').style.display = 'block';
+  }
+
+  loadPosters();
 }
 
-// ── コメント ──────────────────────────────
-async function toggleComments(posterId) {
-  const area = document.getElementById(`comments_${posterId}`);
-  const isOpen = area.classList.toggle('open');
-  if (isOpen) await loadComments(posterId);
+// ━━━ ポスター一覧 ━━━
+function loadPosters() {
+  if (!currentCampaign) return;
+  var grid = document.getElementById('posterGrid');
+  grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎨</div><div class="empty-state-text">読み込み中…</div></div>';
+
+  apiFetch('/api/posters?campaign_id=' + currentCampaign.id).then(function(data) {
+    allPosters = data || [];
+    renderPosters();
+  }).catch(function() {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎨</div><div class="empty-state-text">読み込みに失敗しました</div></div>';
+  });
 }
 
-async function loadComments(posterId) {
-  try {
-    const comments = await apiFetch(`/api/posters/${posterId}/comments`) || [];
-    const list = document.getElementById(`commentList_${posterId}`);
-    if (!comments.length) {
-      list.innerHTML = `<div style="font-size:11px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;padding:4px 0;text-align:center">まだコメントはありません</div>`;
-      return;
-    }
-    list.innerHTML = comments.map(c => {
-      const av = (c.owner_avatar && !c.is_anonymous)
-        ? `<div class="comment-avatar"><img src="${c.owner_avatar}" alt="${c.display_name}"></div>`
-        : `<div class="comment-avatar">${c.is_anonymous?'🌸':'👤'}</div>`;
-      return `<div class="comment-item">
-        ${av}
-        <div class="comment-bubble">
-          <div class="comment-name">${c.display_name}</div>
-          <div class="comment-body">${c.body}</div>
-        </div>
-      </div>`;
-    }).join('');
-  } catch {}
-}
-
-async function sendComment(posterId) {
-  const input  = document.getElementById(`commentInput_${posterId}`);
-  const isAnon = document.getElementById(`commentAnon_${posterId}`)?.checked;
-  const body   = input.value.trim();
-  if (!body) return;
-  try {
-    await apiFetch(`/api/posters/${posterId}/comments`, {
-      method: 'POST',
-      body: JSON.stringify({ body, is_anonymous: !!isAnon }),
-    });
-    input.value = '';
-    await loadComments(posterId);
-  } catch (err) { alert('エラー: ' + err.message); }
-}
-
-// ── 削除 ─────────────────────────────────
-async function deletePoster(posterId) {
-  if (!confirm('このポスター案を削除しますか？')) return;
-  try {
-    await apiFetch(`/api/posters/${posterId}`, { method: 'DELETE' });
-    await loadPosters();
-  } catch (err) { alert('削除エラー: ' + err.message); }
-}
-
-// ── 投稿モーダル ──────────────────────────
-function openPosterModal() {
-  if (!isLoggedIn()) {
-    alert('投稿するにはアカウント設定が必要です。\nプロフィールページから設定してください。');
-    window.location.href = 'profile.html';
+function renderPosters() {
+  var grid = document.getElementById('posterGrid');
+  if (!allPosters.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎨</div><div class="empty-state-text">まだ投稿がありません<br>最初の一枚を投稿しましょう！</div></div>';
     return;
   }
-  pendingPosterDataUrl = null;
-  document.getElementById('posterCaption').value   = '';
-  document.getElementById('posterNickname').value  = '';
-  document.getElementById('posterAnon').checked    = false;
-  document.getElementById('nicknamePanel').style.display = 'block';
-  document.getElementById('posterPreviewImg').style.display = 'none';
-  document.getElementById('posterPreviewPlaceholder').style.display = 'block';
-  document.getElementById('posterModal').classList.add('open');
-}
-function closePosterModal(e) {
-  if (e && e.target !== document.getElementById('posterModal')) return;
-  document.getElementById('posterModal').classList.remove('open');
-}
-function toggleAnonPanel(cb) {
-  document.getElementById('nicknamePanel').style.display = cb.checked ? 'none' : 'block';
+  var myId = getUser() ? getUser().id : null;
+  grid.innerHTML = allPosters.map(function(p) {
+    var isOwn   = p.is_own;
+    var isLiked = p.is_liked;
+    var avHtml  = p.owner_avatar
+      ? '<div class="poster-card-avatar"><img src="' + p.owner_avatar + '"></div>'
+      : '<div class="poster-card-avatar">👤</div>';
+    return '<div class="poster-card" id="poster_' + p.id + '">'
+      + '<img class="poster-card-img" src="' + p.image_data + '" alt="" onclick="openImg(\'' + p.image_data + '\')">'
+      + '<div class="poster-card-body">'
+        + '<div class="poster-card-header">'
+          + avHtml
+          + '<div class="poster-card-name">' + (p.display_name || '匿名') + '</div>'
+        + '</div>'
+        + (p.caption ? '<div class="poster-card-caption">' + escapeHtml(p.caption) + '</div>' : '')
+        + '<div class="poster-card-actions">'
+          + '<button class="poster-action-btn' + (isLiked ? ' liked' : '') + '" onclick="toggleLike(\'' + p.id + '\')">'
+            + (isLiked ? '❤️' : '🤍') + ' <span id="likes_' + p.id + '">' + (p.likes_count || 0) + '</span>'
+          + '</button>'
+          + '<button class="poster-action-btn" onclick="toggleComments(\'' + p.id + '\')">'
+            + '💬 <span id="cmt_' + p.id + '">' + (p.comments_count || 0) + '</span>'
+          + '</button>'
+          + (isOwn ? '<button class="poster-delete-btn" onclick="deletePoster(\'' + p.id + '\')">🗑 削除</button>' : '')
+        + '</div>'
+      + '</div>'
+      + '<div class="comments-section" id="cmtsec_' + p.id + '">'
+        + '<div id="cmtlist_' + p.id + '"></div>'
+        + (isLoggedIn() ? '<div class="comment-input-row">'
+            + '<input class="comment-input" id="cmtinput_' + p.id + '" placeholder="コメントを入力...">'
+            + '<button class="comment-send-btn" onclick="sendComment(\'' + p.id + '\')">送信</button>'
+          + '</div>' : '')
+      + '</div>'
+      + '</div>';
+  }).join('');
 }
 
-async function onPosterFileSelect(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  try {
-    pendingPosterDataUrl = await fileToBase64(file);
-    const img = document.getElementById('posterPreviewImg');
-    img.src = pendingPosterDataUrl;
-    img.style.display = 'block';
-    document.getElementById('posterPreviewPlaceholder').style.display = 'none';
-  } catch { alert('画像の読み込みに失敗しました'); }
+// ━━━ いいね ━━━
+function toggleLike(posterId) {
+  if (!isLoggedIn()) { alert('ログインが必要です'); return; }
+  apiFetch('/api/posters/' + posterId + '/like', { method: 'POST' }).then(function(r) {
+    if (!r) return;
+    var p = allPosters.find(function(p) { return p.id === posterId; });
+    if (!p) return;
+    p.is_liked    = r.liked;
+    p.likes_count = r.liked ? (p.likes_count || 0) + 1 : Math.max(0, (p.likes_count || 1) - 1);
+    var btn = document.querySelector('#poster_' + posterId + ' .poster-action-btn');
+    if (btn) { btn.innerHTML = (r.liked ? '❤️' : '🤍') + ' <span id="likes_' + posterId + '">' + p.likes_count + '</span>'; btn.className = 'poster-action-btn' + (r.liked ? ' liked' : ''); }
+  }).catch(function() {});
 }
 
-async function submitPoster() {
-  if (!pendingPosterDataUrl) { alert('イラストを選択してください'); return; }
-  const isAnon   = document.getElementById('posterAnon').checked;
-  const nickname = document.getElementById('posterNickname').value.trim();
-  const caption  = document.getElementById('posterCaption').value.trim();
-  try {
-    const result = await apiFetch('/api/posters', {
-      method: 'POST',
-      body: JSON.stringify({ image_data: pendingPosterDataUrl, caption, is_anonymous: isAnon, nickname }),
-    });
-    if (result) {
-      document.getElementById('posterModal').classList.remove('open');
-      await loadPosters();
+// ━━━ コメント ━━━
+function toggleComments(posterId) {
+  var sec = document.getElementById('cmtsec_' + posterId);
+  if (!sec) return;
+  var isOpen = sec.classList.contains('open');
+  sec.classList.toggle('open', !isOpen);
+  if (!isOpen && !openComments[posterId]) {
+    openComments[posterId] = true;
+    loadComments(posterId);
+  }
+}
+
+function loadComments(posterId) {
+  apiFetch('/api/posters/' + posterId + '/comments').then(function(data) {
+    var list = document.getElementById('cmtlist_' + posterId);
+    if (!list) return;
+    if (!data || !data.length) { list.innerHTML = '<div style="font-size:11px;color:var(--sumi-light);font-family:\'Noto Serif JP\',serif;padding:4px 0">まだコメントはありません</div>'; return; }
+    list.innerHTML = data.map(function(c) {
+      return '<div class="comment-item">'
+        + '<div class="comment-name">' + (c.display_name || '匿名') + '</div>'
+        + '<div class="comment-body">' + escapeHtml(c.body) + '</div>'
+        + '</div>';
+    }).join('');
+  }).catch(function() {});
+}
+
+function sendComment(posterId) {
+  if (!isLoggedIn()) { alert('ログインが必要です'); return; }
+  var input = document.getElementById('cmtinput_' + posterId);
+  var body  = input ? input.value.trim() : '';
+  if (!body) return;
+  apiFetch('/api/posters/' + posterId + '/comments', {
+    method: 'POST',
+    body: JSON.stringify({ body: body, is_anonymous: false }),
+  }).then(function(r) {
+    if (!r) return;
+    input.value = '';
+    openComments[posterId] = false;
+    loadComments(posterId);
+    var p = allPosters.find(function(p) { return p.id === posterId; });
+    if (p) {
+      p.comments_count = (p.comments_count || 0) + 1;
+      var cnt = document.getElementById('cmt_' + posterId);
+      if (cnt) cnt.textContent = p.comments_count;
     }
-  } catch (err) { alert('投稿エラー: ' + err.message); }
+  }).catch(function(err) { alert('コメントエラー: ' + err.message); });
+}
+
+// ━━━ 削除 ━━━
+function deletePoster(posterId) {
+  if (!confirm('この投稿を削除しますか？')) return;
+  apiFetch('/api/posters/' + posterId, { method: 'DELETE' }).then(function() {
+    allPosters = allPosters.filter(function(p) { return p.id !== posterId; });
+    renderPosters();
+  }).catch(function(err) { alert('削除エラー: ' + err.message); });
+}
+
+// ━━━ 画像拡大 ━━━
+function openImg(src) {
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;cursor:pointer';
+  overlay.innerHTML = '<img src="' + src + '" style="max-width:100%;max-height:100%;object-fit:contain">';
+  overlay.onclick = function() { document.body.removeChild(overlay); };
+  document.body.appendChild(overlay);
+}
+
+// ━━━ 投稿モーダル ━━━
+function on(id, fn) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('click', fn);
+  el.addEventListener('touchend', function(e) { e.preventDefault(); fn(); }, { passive: false });
+}
+
+on('addBtn',       openAddModal);
+on('addModalBg',   closeAddModal);
+on('addModalClose',closeAddModal);
+on('posterSubmitBtn', submitPoster);
+
+document.getElementById('posterFileInput').addEventListener('change', function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    pendingDataUrl = ev.target.result;
+    var preview = document.getElementById('posterPreview');
+    preview.src = pendingDataUrl; preview.style.display = 'block';
+    document.getElementById('imgPickerPlaceholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+});
+
+function openAddModal() {
+  if (!isLoggedIn()) { alert('投稿するにはログインが必要です'); window.location.href = 'profile.html'; return; }
+  if (!currentCampaign || !currentCampaign.is_open) { alert('現在募集期間外です'); return; }
+  pendingDataUrl = null;
+  document.getElementById('posterCaption').value = '';
+  document.getElementById('anonCheck').checked   = false;
+  document.getElementById('posterPreview').style.display = 'none';
+  document.getElementById('imgPickerPlaceholder').style.display = 'flex';
+  document.getElementById('addModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAddModal() {
+  document.getElementById('addModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function submitPoster() {
+  if (!pendingDataUrl) { alert('画像を選択してください'); return; }
+  var btn = document.getElementById('posterSubmitBtn');
+  btn.disabled = true; btn.textContent = '投稿中…';
+  apiFetch('/api/posters', {
+    method: 'POST',
+    body: JSON.stringify({
+      image_data:   pendingDataUrl,
+      caption:      document.getElementById('posterCaption').value.trim(),
+      is_anonymous: document.getElementById('anonCheck').checked,
+      campaign_id:  currentCampaign ? currentCampaign.id : null,
+    }),
+  }).then(function(r) {
+    if (r) { closeAddModal(); loadPosters(); }
+  }).catch(function(err) {
+    alert('投稿エラー: ' + err.message);
+  }).finally(function() {
+    btn.disabled = false; btn.textContent = '投 稿';
+  });
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
 }
 </script>
 <script>
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+  window.addEventListener('load', function() { navigator.serviceWorker.register('./service-worker.js'); });
 }
 </script>
 </body>

@@ -91,9 +91,10 @@
 
     <!-- タブ -->
     <div class="admin-tabs">
-      <button class="admin-tab active" id="tabFlower" onclick="showTab('flower',this)">💐 祝花管理</button>
+      <button class="admin-tab active" id="tabFlower"   onclick="showTab('flower',this)">💐 祝花管理</button>
+      <button class="admin-tab"        id="tabPoster"   onclick="showTab('poster',this)">🎨 ポスター</button>
       <button class="admin-tab"        id="tabFeedback" onclick="showTab('feedback',this)">💬 フィードバック</button>
-      <button class="admin-tab"        id="tabUsers" onclick="showTab('users',this)">👤 ユーザー</button>
+      <button class="admin-tab"        id="tabUsers"    onclick="showTab('users',this)">👤 ユーザー</button>
     </div>
 
     <!-- ① 祝花管理 -->
@@ -153,7 +154,52 @@
       </div>
     </div>
 
-    <!-- ② フィードバック -->
+    <!-- ② ポスター管理 -->
+    <div id="panelPoster" style="display:none">
+
+      <!-- キャンペーン作成 -->
+      <div class="admin-card">
+        <div class="admin-card-title">✚ 新しい募集を作成</div>
+        <div class="form-group">
+          <label class="form-label">タイトル <span style="color:#2a2a6a">*</span></label>
+          <input class="form-input" id="campTitle" type="text" placeholder="例：お誕生日祝い、ライブ応援">
+        </div>
+        <div class="form-group">
+          <label class="form-label">対象メンバー（任意）</label>
+          <select class="form-input" id="campMember">
+            <option value="">指定なし</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">募集期間 <span style="color:#2a2a6a">*</span></label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="form-input" type="date" id="campFrom" style="flex:1;font-size:12px">
+            <span style="color:var(--sumi-light);font-size:12px">〜</span>
+            <input class="form-input" type="date" id="campTo" style="flex:1;font-size:12px">
+          </div>
+        </div>
+        <button class="btn-primary" id="campCreateBtn" style="width:100%;justify-content:center;background:linear-gradient(135deg,#6040c0,#4020a0)">
+          募集を作成する
+        </button>
+      </div>
+
+      <!-- キャンペーン一覧 -->
+      <div class="admin-card" id="campListCard">
+        <div class="admin-card-title">📋 募集一覧</div>
+        <div id="campList"></div>
+      </div>
+
+      <!-- ランキング -->
+      <div class="admin-card" id="campRankCard" style="display:none;margin-bottom:100px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div class="admin-card-title" style="margin-bottom:0" id="campRankTitle">📊 ランキング</div>
+          <button onclick="document.getElementById('campRankCard').style.display='none'" style="background:none;border:none;color:var(--sumi-light);font-size:12px;cursor:pointer;touch-action:manipulation">✕ 閉じる</button>
+        </div>
+        <div id="campRankList"></div>
+      </div>
+    </div>
+
+    <!-- ③ フィードバック -->
     <div id="panelFeedback" style="display:none;margin-bottom:100px">
       <div class="admin-card">
         <div class="admin-card-title">💬 ご意見・ご要望一覧</div>
@@ -203,14 +249,128 @@ const CAT_CLS = { idea:'cat-idea', bug:'cat-bug', request:'cat-request', other:'
   document.getElementById('flowerSaveBtn').addEventListener('click', saveFlowerSettings);
   document.getElementById('flowerSaveBtn').addEventListener('touchend', function(e) { e.preventDefault(); saveFlowerSettings(); }, { passive: false });
 
-  await Promise.all([loadFlowerSettings(), loadFlowerData(), loadFeedbacks(), loadUsers()]);
+  await Promise.all([loadFlowerSettings(), loadFlowerData(), loadFeedbacks(), loadUsers(), loadCampaigns()]);
 })();
+
+// ── ポスターキャンペーン ──────────────────
+var allCampaigns = [];
+
+async function loadCampaigns() {
+  try {
+    allCampaigns = await apiFetch('/api/poster-campaigns') || [];
+    renderCampaigns();
+    var sel = document.getElementById('campMember');
+    if (sel && typeof ACTIVE_MEMBERS !== 'undefined') {
+      sel.innerHTML = '<option value="">指定なし</option>'
+        + ACTIVE_MEMBERS.map(function(m) { return '<option value="' + m.name + '">' + m.name + '</option>'; }).join('');
+    }
+  } catch {}
+}
+
+function renderCampaigns() {
+  var el = document.getElementById('campList');
+  if (!allCampaigns.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--sumi-light);font-family:\'Noto Serif JP\',serif">まだ募集はありません</div>';
+    return;
+  }
+  el.innerHTML = allCampaigns.map(function(c) {
+    var fromStr = c.open_from ? c.open_from.split('T')[0] : '';
+    var toStr   = c.open_to   ? c.open_to.split('T')[0]   : '';
+    var statusBadge = c.is_open
+      ? '<span style="background:rgba(40,180,80,0.12);color:#2a8a40;border:1px solid rgba(40,180,80,0.3);padding:2px 8px;border-radius:8px;font-size:9px;font-weight:700">🟢 公開中</span>'
+      : '<span style="background:rgba(100,100,100,0.1);color:#666;border:1px solid #ddd;padding:2px 8px;border-radius:8px;font-size:9px;font-weight:700">⏸ 期間外</span>';
+    return '<div style="padding:12px 0;border-bottom:1px solid var(--hina-1)">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
+        + '<div style="font-family:\'Noto Serif JP\',serif;font-size:13px;font-weight:700;color:var(--sumi);flex:1">' + c.title + '</div>'
+        + statusBadge
+      + '</div>'
+      + '<div style="font-size:10px;color:var(--sumi-light);font-family:\'Noto Serif JP\',serif;margin-bottom:8px">'
+        + (c.member_name ? '🌻 ' + c.member_name + ' · ' : '') + '📅 ' + fromStr + ' 〜 ' + toStr
+        + ' · 投稿 ' + (c.poster_count || 0) + '件'
+      + '</div>'
+      + '<div style="display:flex;gap:8px">'
+        + '<button onclick="showCampRanking(\'' + c.id + '\',\'' + c.title + '\')" style="flex:1;padding:7px;border-radius:12px;border:1.5px solid rgba(96,64,192,0.3);background:rgba(96,64,192,0.06);color:#4020a0;font-family:\'Noto Serif JP\',serif;font-size:11px;font-weight:700;cursor:pointer;touch-action:manipulation">📊 ランキング</button>'
+        + '<button onclick="deleteCampaign(\'' + c.id + '\')" style="padding:7px 12px;border-radius:12px;border:1.5px solid rgba(200,60,60,0.3);background:rgba(200,60,60,0.06);color:#c03030;font-family:\'Noto Serif JP\',serif;font-size:11px;cursor:pointer;touch-action:manipulation">🗑 削除</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+async function showCampRanking(campId, campTitle) {
+  document.getElementById('campRankTitle').textContent = '📊 ' + campTitle + ' ランキング';
+  document.getElementById('campRankCard').style.display = 'block';
+  document.getElementById('campRankList').innerHTML = '<div style="text-align:center;padding:20px;font-size:12px;color:var(--sumi-light)">読み込み中…</div>';
+  document.getElementById('campRankCard').scrollIntoView({ behavior: 'smooth' });
+  try {
+    var data = await apiFetch('/api/admin/poster-campaigns/' + campId + '/ranking');
+    if (!data || !data.length) {
+      document.getElementById('campRankList').innerHTML = '<div style="font-size:12px;color:var(--sumi-light);font-family:\'Noto Serif JP\',serif;padding:8px">まだ投稿がありません</div>';
+      return;
+    }
+    document.getElementById('campRankList').innerHTML = data.map(function(p, i) {
+      var medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '位';
+      return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--hina-1)">'
+        + '<div style="font-size:' + (i < 3 ? '24px' : '13px') + ';font-weight:800;min-width:36px;text-align:center">' + medal + '</div>'
+        + '<img src="' + p.image_data + '" style="width:48px;height:64px;object-fit:cover;border-radius:8px;border:1.5px solid var(--hina-2)">'
+        + '<div style="flex:1">'
+          + '<div style="font-family:\'Noto Serif JP\',serif;font-size:12px;font-weight:700;color:var(--sumi)">' + (p.display_name || '匿名') + '</div>'
+          + (p.caption ? '<div style="font-size:11px;color:var(--sumi-light);margin-top:2px">' + escapeHtml(p.caption) + '</div>' : '')
+        + '</div>'
+        + '<div style="text-align:right;flex-shrink:0">'
+          + '<div style="font-family:\'Shippori Mincho\',serif;font-size:16px;font-weight:800;color:#e05080">❤️ ' + p.likes_count + '</div>'
+          + '<div style="font-size:10px;color:var(--sumi-light)">💬 ' + p.comments_count + '</div>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  } catch (err) {
+    document.getElementById('campRankList').innerHTML = '<div style="font-size:12px;color:#c03030">エラー: ' + err.message + '</div>';
+  }
+}
+
+async function deleteCampaign(id) {
+  if (!confirm('この募集を削除しますか？')) return;
+  try {
+    await apiFetch('/api/poster-campaigns/' + id, { method: 'DELETE' });
+    allCampaigns = allCampaigns.filter(function(c) { return c.id !== id; });
+    renderCampaigns();
+  } catch (err) { alert('削除エラー: ' + err.message); }
+}
+
+document.getElementById('campCreateBtn').addEventListener('click', async function() {
+  var title  = document.getElementById('campTitle').value.trim();
+  var member = document.getElementById('campMember').value;
+  var from   = document.getElementById('campFrom').value;
+  var to     = document.getElementById('campTo').value;
+  if (!title)       { alert('タイトルを入力してください'); return; }
+  if (!from || !to) { alert('募集期間を設定してください'); return; }
+  if (from > to)    { alert('終了日は開始日より後にしてください'); return; }
+  var btn = this;
+  btn.disabled = true; btn.textContent = '作成中…';
+  try {
+    var result = await apiFetch('/api/poster-campaigns', {
+      method: 'POST',
+      body: JSON.stringify({ title: title, member_name: member || null, open_from: from, open_to: to }),
+    });
+    if (result) {
+      document.getElementById('campTitle').value = '';
+      document.getElementById('campFrom').value  = '';
+      document.getElementById('campTo').value    = '';
+      await loadCampaigns();
+      btn.textContent = '✅ 作成しました';
+      setTimeout(function() { btn.textContent = '募集を作成する'; }, 2000);
+    }
+  } catch (err) {
+    alert('作成エラー: ' + err.message);
+    btn.textContent = '募集を作成する';
+  } finally { btn.disabled = false; }
+});
 
 // ── タブ切替 ──────────────────────────────
 function showTab(tab, btn) {
   document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('panelFlower').style.display   = tab === 'flower'   ? 'block' : 'none';
+  document.getElementById('panelPoster').style.display   = tab === 'poster'   ? 'block' : 'none';
   document.getElementById('panelFeedback').style.display = tab === 'feedback' ? 'block' : 'none';
   document.getElementById('panelUsers').style.display    = tab === 'users'    ? 'block' : 'none';
 }

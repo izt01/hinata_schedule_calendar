@@ -345,30 +345,35 @@ app.get('/api/posters', async (req, res) => {
   let userId = null;
   if (token) { try { userId = jwt.verify(token, JWT_SECRET).userId; } catch {} }
   const uid = userId || '00000000-0000-0000-0000-000000000000';
+  const { campaign_id } = req.query;
   try {
+    const where = campaign_id ? 'WHERE p.campaign_id=$2' : '';
+    const params = campaign_id ? [uid, campaign_id] : [uid];
     const r = await pool.query(
       `SELECT p.*,
-        CASE WHEN p.is_anonymous THEN NULL ELSE u.nickname END as owner_nickname,
+        CASE WHEN p.is_anonymous THEN NULL ELSE u.nickname END as display_name,
         CASE WHEN p.is_anonymous THEN NULL ELSE u.avatar_url END as owner_avatar,
-        (SELECT COUNT(*) FROM poster_likes WHERE poster_id=p.id)::int as likes_count,
+        (SELECT COUNT(*) FROM poster_likes    WHERE poster_id=p.id)::int as likes_count,
+        (SELECT COUNT(*) FROM poster_comments WHERE poster_id=p.id)::int as comments_count,
         EXISTS(SELECT 1 FROM poster_likes WHERE poster_id=p.id AND user_id=$1) as is_liked,
         p.user_id=$1 as is_own
        FROM posters p LEFT JOIN users u ON p.user_id=u.id
+       ${where}
        ORDER BY p.created_at DESC`,
-      [uid]
+      params
     );
     res.json(r.rows);
   } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
 });
 
 app.post('/api/posters', authRequired, async (req, res) => {
-  const { image_data, caption, is_anonymous, nickname } = req.body;
+  const { image_data, caption, is_anonymous, nickname, campaign_id } = req.body;
   if (!image_data) return res.status(400).json({ error: '画像が必要です' });
   try {
     const r = await pool.query(
-      `INSERT INTO posters (user_id,image_data,caption,is_anonymous,nickname)
-       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
-      [req.user.userId, image_data, caption||'', !!is_anonymous, is_anonymous ? null : (nickname||null)]
+      `INSERT INTO posters (user_id, image_data, caption, is_anonymous, nickname, campaign_id)
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+      [req.user.userId, image_data, caption||'', !!is_anonymous, is_anonymous ? null : (nickname||null), campaign_id||null]
     );
     res.json(r.rows[0]);
   } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
@@ -799,6 +804,83 @@ app.get('/api/admin/flowers', adminRequired, async (req, res) => {
       byMember: byMember.rows,
       totals:   totals.rows[0],
     });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  POSTER CAMPAIGNS — ポスター募集管理
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// キャンペーン一覧（全員）
+app.get('/api/poster-campaigns', async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const r = await pool.query(
+      `SELECT c.*,
+        COUNT(DISTINCT p.id)::int as poster_count
+       FROM poster_campaigns c
+       LEFT JOIN posters p ON p.campaign_id = c.id
+       WHERE c.is_active = true
+       GROUP BY c.id
+       ORDER BY c.open_from DESC`
+    );
+    // 各キャンペーンに公開状態を付加
+    const rows = r.rows.map(c => ({
+      ...c,
+      is_open: today >= c.open_from && today <= c.open_to,
+    }));
+    res.json(rows);
+  } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
+});
+
+// キャンペーン作成（管理者のみ）
+app.post('/api/poster-campaigns', adminRequired, async (req, res) => {
+  const { title, member_name, open_from, open_to } = req.body;
+  if (!title || !open_from || !open_to) return res.status(400).json({ error: 'タイトル・期間は必須です' });
+  try {
+    const r = await pool.query(
+      `INSERT INTO poster_campaigns (title, member_name, open_from, open_to, created_by)
+       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+      [title, member_name || null, open_from, open_to, req.user.userId]
+    );
+    res.json(r.rows[0]);
+  } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
+});
+
+// キャンペーン更新（管理者のみ）
+app.put('/api/poster-campaigns/:id', adminRequired, async (req, res) => {
+  const { title, member_name, open_from, open_to, is_active } = req.body;
+  try {
+    const r = await pool.query(
+      `UPDATE poster_campaigns SET title=$1, member_name=$2, open_from=$3, open_to=$4, is_active=$5
+       WHERE id=$6 RETURNING *`,
+      [title, member_name || null, open_from, open_to, is_active !== false, req.params.id]
+    );
+    res.json(r.rows[0]);
+  } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
+});
+
+// キャンペーン削除（管理者のみ）
+app.delete('/api/poster-campaigns/:id', adminRequired, async (req, res) => {
+  await pool.query('DELETE FROM poster_campaigns WHERE id=$1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// キャンペーン別ランキング（管理者）
+app.get('/api/admin/poster-campaigns/:id/ranking', adminRequired, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT p.*,
+        CASE WHEN p.is_anonymous THEN '匿名' ELSE COALESCE(p.nickname, u.nickname, '不明') END as display_name,
+        (SELECT COUNT(*) FROM poster_likes WHERE poster_id=p.id)::int as likes_count,
+        (SELECT COUNT(*) FROM poster_comments WHERE poster_id=p.id)::int as comments_count
+       FROM posters p
+       LEFT JOIN users u ON p.user_id = u.id
+       WHERE p.campaign_id = $1
+       ORDER BY likes_count DESC, comments_count DESC`,
+      [req.params.id]
+    );
+    res.json(r.rows);
   } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
 });
 

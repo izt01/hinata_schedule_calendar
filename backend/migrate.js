@@ -91,6 +91,7 @@ async function migrate() {
       CREATE TABLE IF NOT EXISTS posters (
         id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id     UUID REFERENCES users(id) ON DELETE SET NULL,
+        campaign_id UUID,
         image_data  TEXT         NOT NULL,
         caption     TEXT,
         is_anonymous BOOLEAN     DEFAULT false,
@@ -98,6 +99,22 @@ async function migrate() {
         likes_count INTEGER      DEFAULT 0,
         created_at  TIMESTAMPTZ  DEFAULT NOW()
       );
+
+      -- ポスター募集キャンペーンテーブル（管理者が作成）
+      CREATE TABLE IF NOT EXISTS poster_campaigns (
+        id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        title       VARCHAR(200) NOT NULL,
+        member_name VARCHAR(100),
+        open_from   DATE NOT NULL,
+        open_to     DATE NOT NULL,
+        created_by  UUID REFERENCES users(id) ON DELETE SET NULL,
+        is_active   BOOLEAN DEFAULT true,
+        created_at  TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      -- 既存テーブルへのカラム追加
+      ALTER TABLE posters ADD COLUMN IF NOT EXISTS campaign_id UUID;
+      CREATE INDEX IF NOT EXISTS idx_posters_campaign ON posters(campaign_id);
 
       -- ポスターいいねテーブル
       CREATE TABLE IF NOT EXISTS poster_likes (
