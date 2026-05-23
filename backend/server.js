@@ -9,7 +9,7 @@ const { Pool }  = require('pg');
 const jwt       = require('jsonwebtoken');
 const bcrypt    = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
-const { notifyAssignment, sendDueReminders } = require('./notifier');
+const { notifyAssignment, sendDueReminders, notifyPosterToAdmin } = require('./notifier');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -375,6 +375,17 @@ app.post('/api/posters', authRequired, async (req, res) => {
        VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
       [req.user.userId, image_data, caption||'', !!is_anonymous, is_anonymous ? null : (nickname||null), campaign_id||null]
     );
+
+    // キャンペーン情報取得 → 管理者にメール通知
+    let campaignTitle = 'ポスター案';
+    if (campaign_id) {
+      const cr = await pool.query('SELECT title FROM poster_campaigns WHERE id=$1', [campaign_id]);
+      if (cr.rows[0]) campaignTitle = cr.rows[0].title;
+    }
+    const userR = await pool.query('SELECT nickname FROM users WHERE id=$1', [req.user.userId]);
+    const posterNickname = is_anonymous ? '匿名' : (userR.rows[0]?.nickname || '不明');
+    notifyPosterToAdmin({ pool, posterNickname, campaignTitle, caption }).catch(err => console.error('[Notify]', err));
+
     res.json(r.rows[0]);
   } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
 });
@@ -668,22 +679,49 @@ app.listen(PORT, () => {
   console.log(`   http://localhost:${PORT}`);
   console.log(`   DB: ${process.env.DATABASE_URL ? '✅ 接続済み' : '❌ DATABASE_URL未設定'}\n`);
 
-  // ── 毎日9:00に期限リマインダー送信 ──────
-  function scheduleDailyCheck() {
+  // ── 毎時0分にリマインダーチェック（設定した時刻に一致した時だけ送信）──
+  function scheduleHourlyCheck() {
     const now  = new Date();
-    const next = new Date();
-    next.setHours(9, 0, 0, 0);
-    if (next <= now) next.setDate(next.getDate() + 1);
-    const msUntil = next - now;
-    console.log(`[Cron] 次回リマインダー: ${next.toLocaleString('ja-JP')} (${Math.round(msUntil/60000)}分後)`);
+    const msUntilNextHour = (60 - now.getMinutes()) * 60000 - now.getSeconds() * 1000 - now.getMilliseconds();
     setTimeout(() => {
       sendDueReminders(pool).catch(err => console.error('[Cron] エラー:', err));
       setInterval(() => {
         sendDueReminders(pool).catch(err => console.error('[Cron] エラー:', err));
-      }, 24 * 60 * 60 * 1000);
-    }, msUntil);
+      }, 60 * 60 * 1000); // 以降は1時間ごと
+    }, msUntilNextHour);
+    console.log(`[Cron] 次回チェック: ${Math.round(msUntilNextHour/60000)}分後（毎時0分に実行）`);
   }
-  scheduleDailyCheck();
+  scheduleHourlyCheck();
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  NOTIF SETTINGS — 通知時刻設定
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const NOTIF_SETTINGS_ID = '00000000-0000-0000-0000-000000000002';
+
+// 設定取得（全員）
+app.get('/api/notif-settings', async (req, res) => {
+  try {
+    const r = await pool.query('SELECT * FROM notif_settings WHERE id=$1', [NOTIF_SETTINGS_ID]);
+    res.json(r.rows[0] || { same_day_hour: 8, prev_day_hour: 20 });
+  } catch (err) { res.status(500).json({ error: 'サーバーエラー' }); }
+});
+
+// 設定更新（管理者のみ）
+app.put('/api/notif-settings', adminRequired, async (req, res) => {
+  const { same_day_hour, prev_day_hour } = req.body;
+  const sh = parseInt(same_day_hour);
+  const ph = parseInt(prev_day_hour);
+  if (isNaN(sh) || sh < 0 || sh > 23) return res.status(400).json({ error: '当日通知時刻は0〜23時で入力してください' });
+  if (isNaN(ph) || ph < 0 || ph > 23) return res.status(400).json({ error: '前日通知時刻は0〜23時で入力してください' });
+  try {
+    const r = await pool.query(
+      `UPDATE notif_settings SET same_day_hour=$1, prev_day_hour=$2, updated_at=NOW()
+       WHERE id=$3 RETURNING *`,
+      [sh, ph, NOTIF_SETTINGS_ID]
+    );
+    res.json(r.rows[0]);
+  } catch (err) { res.status(500).json({ error: 'サーバーエラー' }); }
 });
 
 // ── 管理者認証ミドルウェア ──────────────────

@@ -185,6 +185,19 @@ async function migrate() {
         UNIQUE(target)
       );
 
+      -- 通知設定テーブル（管理者が設定）
+      CREATE TABLE IF NOT EXISTS notif_settings (
+        id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        -- 当日リマインダーの送信時刻（JST 0〜23時）
+        same_day_hour  INTEGER DEFAULT 8,
+        -- 前日リマインダーの送信時刻（JST 0〜23時）
+        prev_day_hour  INTEGER DEFAULT 20,
+        updated_at     TIMESTAMPTZ DEFAULT NOW()
+      );
+      INSERT INTO notif_settings (id, same_day_hour, prev_day_hour)
+        VALUES ('00000000-0000-0000-0000-000000000002', 8, 20)
+        ON CONFLICT (id) DO NOTHING;
+
       -- フィードバックテーブル
       CREATE TABLE IF NOT EXISTS feedbacks (
         id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
