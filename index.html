@@ -1356,7 +1356,12 @@ function updateListBanners() {
   try {
     var campaigns = await apiFetch('/api/poster-campaigns');
     if (campaigns) {
-      campaigns.filter(function(c) { return c.is_open; }).forEach(function(c) {
+      var jstToday = new Date(Date.now() + 9*60*60*1000).toISOString().split('T')[0];
+      campaigns.filter(function(c) {
+        var f = c.open_from.split('T')[0];
+        var t = c.open_to.split('T')[0];
+        return f <= jstToday && jstToday <= t;
+      }).forEach(function(c) {
         banners.push({
           type: 'poster',
           icon: '🎨',

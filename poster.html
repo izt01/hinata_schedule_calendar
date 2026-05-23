@@ -181,8 +181,9 @@ var openComments    = {};
   }
 
   // 公開中のキャンペーンがあるか
-  var today = new Date().toISOString().split('T')[0];
-  var openCampaigns   = campaigns.filter(function(c) { return c.is_open; });
+  var jstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  var today = jstNow.toISOString().split('T')[0];
+  var openCampaigns   = campaigns.filter(function(c) { var f=c.open_from.split('T')[0]; var t=c.open_to.split('T')[0]; return f<=today && today<=t; });
   var futureCampaigns = campaigns.filter(function(c) { return c.open_from > today; });
 
   // タブを表示（複数キャンペーンがある場合）
@@ -221,8 +222,8 @@ function selectCampaign(c) {
 
   // バナー表示
   var banner = document.getElementById('campaignBanner');
-  var fromDate = c.open_from ? c.open_from.replace(/-/g, '/') : '';
-  var toDate   = c.open_to   ? c.open_to.replace(/-/g, '/')   : '';
+  var fromDate = c.open_from ? c.open_from.split('T')[0].replace(/-/g, '/') : '';
+  var toDate   = c.open_to   ? c.open_to.split('T')[0].replace(/-/g, '/')   : '';
   banner.style.display = 'block';
   banner.innerHTML = '<div class="campaign-banner">'
     + '<div class="campaign-banner-title">🎨 ' + c.title + '</div>'
@@ -245,8 +246,9 @@ function selectCampaign(c) {
     document.getElementById('addBtn').style.display    = 'none';
     document.getElementById('posterGrid').style.display   = 'none';
     var sub = document.getElementById('closedBannerSub');
-    var today = new Date().toISOString().split('T')[0];
-    if (c.open_from > today) {
+    var jstNow2 = new Date(Date.now() + 9 * 60 * 60 * 1000);
+    var today2 = jstNow2.toISOString().split('T')[0];
+    if (c.open_from.split('T')[0] > today2) {
       sub.textContent = '募集開始：' + fromDate + ' 〜 ' + toDate;
     } else {
       sub.textContent = 'この募集は終了しました（' + fromDate + ' 〜 ' + toDate + '）';
