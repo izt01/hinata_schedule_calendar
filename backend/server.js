@@ -745,15 +745,27 @@ const FLOWER_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
 app.get('/api/flower-settings', async (req, res) => {
   try {
     const r = await pool.query('SELECT * FROM flower_settings WHERE id=$1', [FLOWER_SETTINGS_ID]);
-    if (!r.rows[0]) return res.json({ is_open: false, open_from: null, open_to: null });
+    if (!r.rows[0]) return res.json({ is_open: false, open_from: null, open_to: null, manual_open: false });
     const s = r.rows[0];
-    // 期間チェック：期間設定がある場合は自動ON/OFF
     const today = new Date().toISOString().split('T')[0];
-    let isOpen = s.is_open;
-    if (s.open_from && s.open_to) {
-      isOpen = today >= s.open_from && today <= s.open_to;
+
+    let isOpen = false;
+    // 即時公開ONなら期間に関わらず公開
+    if (s.is_open) {
+      isOpen = true;
     }
-    res.json({ is_open: isOpen, open_from: s.open_from, open_to: s.open_to, manual_open: s.is_open });
+    // 期間設定がある場合、期間内なら公開（即時公開OFFでも）
+    if (s.open_from && s.open_to) {
+      const inPeriod = today >= s.open_from && today <= s.open_to;
+      if (inPeriod) isOpen = true;
+    }
+
+    res.json({
+      is_open:     isOpen,
+      open_from:   s.open_from,
+      open_to:     s.open_to,
+      manual_open: s.is_open,
+    });
   } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
 });
 
