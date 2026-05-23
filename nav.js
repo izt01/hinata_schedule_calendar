@@ -28,8 +28,10 @@ function injectNav(activePage) {
 
   const navItems = pages.map(p => {
     const isActive = p.href === activePage;
-    return `<a class="drawer-nav-item${isActive ? ' active' : ''}" href="${p.href}">
-      <span class="drawer-nav-icon">${p.icon}</span>${p.label}
+    // スケジュールのタスクバッジはJS側で後から付与
+    const badgeId = p.href === 'schedule.html' ? ' id="schedNavItem"' : '';
+    return `<a class="drawer-nav-item${isActive ? ' active' : ''}" href="${p.href}"${badgeId}>
+      <span class="drawer-nav-icon">${p.icon}</span>${p.label}<span class="task-badge" id="schedNavBadge" style="display:none;margin-left:auto;background:#e05050;color:white;border-radius:20px;font-size:10px;padding:2px 8px;font-weight:700;font-family:'M PLUS Rounded 1c',sans-serif">タスク未完</span>
     </a>`;
   }).join('<div class="drawer-nav-divider"></div>');
 
@@ -203,3 +205,47 @@ function headerHTML(title, subtitle) {
       </div>
     </header>`;
 }
+
+/* ── タスク未完バッジチェック ── */
+async function checkMyPendingTasks() {
+  if (typeof isLoggedIn !== 'function' || !isLoggedIn()) return;
+  if (typeof apiFetch !== 'function') return;
+  try {
+    const myId     = (typeof getUser === 'function') ? getUser()?.id : null;
+    if (!myId) return;
+    const schedules = await apiFetch('/api/schedules');
+    if (!schedules) return;
+    // 自分が担当で in_progress のステップがあるか確認
+    const hasPending = schedules.some(function(s) {
+      return s.status !== 'completed' && (s.steps || []).some(function(st) {
+        return st.status === 'in_progress' && st.assignee_id === myId;
+      });
+    });
+    // ドロワーのバッジ
+    var badge = document.getElementById('schedNavBadge');
+    if (badge) badge.style.display = hasPending ? 'inline-block' : 'none';
+    // トップページのメニューカード（グリッド・リスト）
+    updateScheduleCardBadge(hasPending);
+  } catch {}
+}
+
+function updateScheduleCardBadge(hasPending) {
+  // グリッドのスケジュールカード
+  var cards = document.querySelectorAll('a[href="schedule.html"]');
+  cards.forEach(function(card) {
+    var existing = card.querySelector('.schedule-task-badge');
+    if (hasPending && !existing) {
+      var b = document.createElement('span');
+      b.className = 'schedule-task-badge';
+      b.textContent = '未完';
+      b.style.cssText = 'position:absolute;top:8px;right:8px;background:#e05050;color:white;border-radius:10px;font-size:9px;padding:2px 6px;font-weight:800;font-family:\'M PLUS Rounded 1c\',sans-serif;z-index:1;';
+      card.style.position = 'relative';
+      card.appendChild(b);
+    } else if (!hasPending && existing) {
+      existing.remove();
+    }
+  });
+}
+
+// injectNav後に自動実行
+setTimeout(checkMyPendingTasks, 500);

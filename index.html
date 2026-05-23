@@ -285,6 +285,102 @@ body.has-wallpaper {
   text-align:center; padding:8px 0 4px; min-height:20px;
 }
 @keyframes tapHintPulse { 0%,100%{opacity:.4} 50%{opacity:.9} }
+
+/* ━━━ リスト型UI ━━━ */
+.list-menu { display:flex; flex-direction:column; gap:10px; margin:0 0 24px; }
+.list-menu-item {
+  display:flex; align-items:center; gap:14px;
+  padding:16px 18px;
+  background:rgba(255,255,255,0.72); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border-radius:18px; border:1.5px solid rgba(255,255,255,0.6);
+  box-shadow:0 4px 16px rgba(21,101,160,0.10);
+  text-decoration:none; color:var(--sumi);
+  transition:transform 0.15s; position:relative; overflow:hidden;
+}
+.list-menu-item:active { transform:scale(0.98); }
+.list-menu-item-icon { font-size:24px; flex-shrink:0; width:36px; text-align:center; }
+.list-menu-item-label { font-family:'Shippori Mincho',serif; font-size:15px; font-weight:700; color:var(--sky); flex:1; }
+.list-menu-item-badge {
+  flex-shrink:0; padding:3px 10px; border-radius:20px;
+  font-size:10px; font-weight:800; font-family:'M PLUS Rounded 1c',sans-serif;
+  animation:badgePulse 2s ease-in-out infinite;
+}
+.list-menu-item-badge.flower-badge { background:rgba(200,40,100,0.15); color:#c02860; border:1px solid rgba(200,40,100,0.3); }
+.list-menu-item-badge.poster-badge { background:rgba(96,64,192,0.15); color:#4020a0; border:1px solid rgba(96,64,192,0.3); }
+.list-menu-item-arrow { font-size:16px; color:var(--sumi-light); flex-shrink:0; }
+
+/* 切り替えボタン（固定・右下） */
+.view-toggle-wrap {
+  position:fixed; bottom:80px; left:16px;
+  display:flex; gap:6px; z-index:99;
+}
+.view-toggle-btn {
+  padding:8px 14px; border-radius:20px;
+  border:1.5px solid rgba(255,255,255,0.6);
+  background:rgba(255,255,255,0.82);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  font-size:12px; font-weight:700;
+  font-family:'M PLUS Rounded 1c',sans-serif; color:var(--sumi-light);
+  cursor:pointer; touch-action:manipulation; transition:all 0.15s;
+  box-shadow:0 2px 12px rgba(0,0,0,0.12);
+}
+.view-toggle-btn.active { background:var(--sky); border-color:var(--sky); color:white; }
+
+/* リスト型の時計（コンパクト） */
+.clock-compact {
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,0.72); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border-radius:18px; border:1.5px solid rgba(255,255,255,0.6);
+  box-shadow:0 4px 16px rgba(21,101,160,0.10);
+  padding:14px 20px; margin-bottom:10px; gap:6px;
+}
+.clock-compact-time {
+  font-family:'M PLUS Rounded 1c',sans-serif; font-size:32px; font-weight:800;
+  color:var(--sky); letter-spacing:0.05em;
+}
+.clock-compact-colon { animation:clockBlink 1s step-end infinite; font-size:28px; color:var(--sky); }
+.clock-compact-date {
+  font-family:'Noto Serif JP',serif; font-size:11px; color:var(--sumi-light);
+  margin-left:8px; line-height:1.6;
+}
+
+/* ━━━ 募集中バナー カード型 ━━━ */
+.active-banner-wrap { display:flex; flex-direction:column; gap:12px; margin:0 0 20px; }
+.active-banner {
+  display:flex; align-items:center; gap:14px; padding:18px 20px 18px 24px;
+  border-radius:22px; text-decoration:none; border:2px solid;
+  position:relative; overflow:hidden;
+  touch-action:manipulation; transition:transform 0.18s;
+  box-shadow:0 6px 24px rgba(0,0,0,0.07);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+}
+.active-banner:active { transform:scale(0.97); }
+.active-banner.flower {
+  background:linear-gradient(135deg,rgba(255,255,255,0.9) 0%,rgba(255,220,235,0.6) 100%);
+  border-color:rgba(200,40,100,0.25);
+}
+.active-banner.poster {
+  background:linear-gradient(135deg,rgba(255,255,255,0.9) 0%,rgba(220,210,255,0.6) 100%);
+  border-color:rgba(96,64,192,0.25);
+}
+.active-banner::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:5px; border-radius:22px 0 0 22px;
+}
+.active-banner.flower::before { background:linear-gradient(to bottom,#e8789a,#c02860); }
+.active-banner.poster::before { background:linear-gradient(to bottom,#8060d0,#4020a0); }
+.active-banner-badge {
+  flex-shrink:0; padding:5px 12px; border-radius:20px;
+  font-size:10px; font-weight:800; font-family:'M PLUS Rounded 1c',sans-serif;
+  letter-spacing:0.06em; animation:badgePulse 2s ease-in-out infinite; white-space:nowrap;
+}
+.flower .active-banner-badge { background:#fce7f3; color:#c02860; border:1.5px solid rgba(200,40,100,0.3); }
+.poster .active-banner-badge { background:#ede9fe; color:#4020a0; border:1.5px solid rgba(96,64,192,0.3); }
+@keyframes badgePulse { 0%,100%{opacity:1} 50%{opacity:0.55} }
+.active-banner-icon { font-size:36px; flex-shrink:0; }
+.active-banner-info { flex:1; min-width:0; }
+.active-banner-title { font-family:'Shippori Mincho',serif; font-size:15px; font-weight:800; color:var(--sumi); margin-bottom:3px; }
+.active-banner-sub { font-family:'Noto Serif JP',serif; font-size:11px; color:var(--sumi-light); }
+.active-banner-arrow { font-size:20px; color:var(--sumi-light); flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -307,8 +403,12 @@ body.has-wallpaper {
     <div class="page-content page-enter" style="padding:0;background:transparent">
 
       <div style="padding:0 18px;background:transparent" id="mainContent">
-        <!-- 背景画像設定ボタン -->
-        <button id="bgSetBtn" style="position:fixed;bottom:80px;right:16px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.25);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1.5px solid rgba(255,255,255,0.5);color:white;font-size:18px;cursor:pointer;z-index:100;display:flex;align-items:center;justify-content:center;touch-action:manipulation;box-shadow:0 2px 12px rgba(0,0,0,0.15)" title="背景画像を設定">🖼</button>
+        <!-- 固定ボタン群 -->
+        <div class="view-toggle-wrap">
+          <button class="view-toggle-btn" id="viewGrid" onclick="setView('grid')">⊞</button>
+          <button class="view-toggle-btn" id="viewList" onclick="setView('list')">☰</button>
+        </div>
+        <button id="bgSetBtn" style="position:fixed;bottom:80px;right:16px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1.5px solid rgba(255,255,255,0.6);color:var(--sumi-light);font-size:18px;cursor:pointer;z-index:100;display:flex;align-items:center;justify-content:center;touch-action:manipulation;box-shadow:0 2px 12px rgba(0,0,0,0.12)" title="背景画像を設定">🖼</button>
         <input type="file" id="bgFileInput" accept="image/*" style="display:none">
 
         <!-- 募集中バナー（祝花・ポスター）-->
@@ -325,21 +425,55 @@ body.has-wallpaper {
         </div>
 
         <!-- QUICK ACCESS -->
-        <div class="section-kamon"><span class="section-kamon-text">✿ メニュー ✿</span></div>
-        <div class="quick-grid" style="margin:0 0 24px">
+        <div class="section-kamon" style="margin-bottom:12px"><span class="section-kamon-text">✿ メニュー ✿</span></div>
+
+        <!-- グリッドUI -->
+        <div class="quick-grid" id="menuGrid" style="margin:0 0 24px">
           <a class="quick-card" href="calendar.html"><div class="quick-card-icon">📅</div><div class="quick-card-label">日向坂46</div><div class="quick-card-sub">カレンダー</div></a>
           <a class="quick-card" href="members.html"><div class="quick-card-icon">🌻</div><div class="quick-card-label">推しメン</div><div class="quick-card-sub">メンバー一覧</div></a>
           <a class="quick-card" href="events.html"><div class="quick-card-icon">✿</div><div class="quick-card-label">行事帳</div><div class="quick-card-sub">イベント管理</div></a>
           <a class="quick-card" href="gallery.html"><div class="quick-card-icon">📷</div><div class="quick-card-label">ギャラリー</div><div class="quick-card-sub">フォトコレクション</div></a>
           <a class="quick-card" href="venue.html"><div class="quick-card-icon">🏟️</div><div class="quick-card-label">ライブ会場</div><div class="quick-card-sub">会場一覧</div></a>
           <a class="quick-card" href="schedule.html"><div class="quick-card-icon">📋</div><div class="quick-card-label">スケジュール</div><div class="quick-card-sub">進捗管理</div></a>
-          <a class="quick-card" href="flower.html" id="flowerCard"><div class="quick-card-icon">💐</div><div class="quick-card-label">祝花申し込み</div><div class="quick-card-sub">推しメンに贈ろう</div></a>
-          <a class="quick-card" href="poster.html" id="posterCard"><div class="quick-card-icon">🎨</div><div class="quick-card-label">ポスター案</div><div class="quick-card-sub">イラスト共有</div></a>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <a class="quick-card" href="flower.html" id="flowerCardGrid" style="flex:1"><div class="quick-card-icon">💐</div><div class="quick-card-label">祝花申し込み</div><div class="quick-card-sub">推しメンに贈ろう</div></a>
+            <a href="flower-fanpage.html" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:6px;border-radius:12px;background:rgba(232,120,154,0.08);border:1px solid rgba(232,120,154,0.25);text-decoration:none;font-family:'Noto Serif JP',serif;font-size:10px;font-weight:700;color:#c02860;touch-action:manipulation">🌸 祝花ファンページ</a>
+          </div>
+          <a class="quick-card" href="poster.html" id="posterCardGrid"><div class="quick-card-icon">🎨</div><div class="quick-card-label">ポスター案</div><div class="quick-card-sub">イラスト共有</div></a>
           <a class="quick-card" href="train.html"><div class="quick-card-icon">🚃</div><div class="quick-card-label">電車検索</div><div class="quick-card-sub">乗り換え案内</div></a>
           <a class="quick-card" href="guide.html"><div class="quick-card-icon">📖</div><div class="quick-card-label">使い方ガイド</div><div class="quick-card-sub">機能のご紹介</div></a>
           <a class="quick-card" href="feedback.html"><div class="quick-card-icon">💬</div><div class="quick-card-label">ご意見・ご要望</div><div class="quick-card-sub">フィードバック</div></a>
         </div>
-        <!-- 管理者カード（管理者ログイン時のみ表示） -->
+
+        <!-- リストUI（初期非表示） -->
+        <div class="list-menu" id="menuList" style="display:none">
+          <!-- 時計（コンパクト） -->
+          <div class="clock-compact">
+            <div class="clock-compact-time">
+              <span id="clockHL">--</span><span class="clock-compact-colon">:</span><span id="clockML">--</span>
+            </div>
+            <div class="clock-compact-date" id="clockDateL"></div>
+          </div>
+          <!-- 募集中バナー（リスト用） -->
+          <div id="listActiveBanners"></div>
+          <!-- 通常メニュー -->
+          <a class="list-menu-item" href="calendar.html"><div class="list-menu-item-icon">📅</div><div class="list-menu-item-label">カレンダー</div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="members.html"><div class="list-menu-item-icon">🌻</div><div class="list-menu-item-label">推しメン</div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="events.html"><div class="list-menu-item-icon">✿</div><div class="list-menu-item-label">行事帳</div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="gallery.html"><div class="list-menu-item-icon">📷</div><div class="list-menu-item-label">ギャラリー</div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="venue.html"><div class="list-menu-item-icon">🏟️</div><div class="list-menu-item-label">ライブ会場</div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="schedule.html"><div class="list-menu-item-icon">📋</div><div class="list-menu-item-label">スケジュール進捗</div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="flower.html" id="flowerCardList"><div class="list-menu-item-icon">💐</div><div class="list-menu-item-label">祝花申し込み</div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="flower-fanpage.html" style="background:rgba(232,120,154,0.06);border-color:rgba(232,120,154,0.25)"><div class="list-menu-item-icon">🌸</div><div class="list-menu-item-label" style="color:#c02860;font-size:13px">祝花ファンページ</div><div class="list-menu-item-arrow" style="color:#c02860">›</div></a>
+          <a class="list-menu-item" href="poster.html" id="posterCardList"><div class="list-menu-item-icon">🎨</div><div class="list-menu-item-label">ポスター案</div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="train.html"><div class="list-menu-item-icon">🚃</div><div class="list-menu-item-label">電車検索</div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="guide.html"><div class="list-menu-item-icon">📖</div><div class="list-menu-item-label">使い方ガイド</div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="feedback.html"><div class="list-menu-item-icon">💬</div><div class="list-menu-item-label">ご意見・ご要望</div><div class="list-menu-item-arrow">›</div></a>
+          <!-- 管理者（ログイン時のみ） -->
+          <a class="list-menu-item" href="admin.html" id="adminListItem" style="display:none;background:linear-gradient(135deg,rgba(42,42,106,0.12),rgba(26,26,80,0.08));border-color:rgba(42,42,106,0.3)"><div class="list-menu-item-icon">🔐</div><div class="list-menu-item-label" style="color:#2a2a6a">管理者ページ</div><div class="list-menu-item-arrow">›</div></a>
+        </div>
+
+        <!-- 管理者カード（グリッド用・管理者ログイン時のみ） -->
         <div id="adminCardWrap" style="display:none;margin-bottom:24px">
           <a class="quick-card" href="admin.html" style="background:linear-gradient(135deg,rgba(42,42,106,0.12),rgba(26,26,80,0.08));border-color:rgba(42,42,106,0.3)">
             <div class="quick-card-icon">🔐</div>
@@ -1153,6 +1287,51 @@ if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
 }
 if (typeof isAdmin === 'function' && isAdmin()) {
   document.getElementById('adminCardWrap').style.display = 'block';
+  var adminListItem = document.getElementById('adminListItem');
+  if (adminListItem) adminListItem.style.display = 'flex';
+}
+
+// ━━━ グリッド/リスト切り替え ━━━
+const VIEW_KEY = 'hinata_menu_view';
+var currentView = localStorage.getItem(VIEW_KEY) || 'grid';
+
+function setView(mode) {
+  currentView = mode;
+  localStorage.setItem(VIEW_KEY, mode);
+  document.getElementById('menuGrid').style.display   = mode === 'grid' ? 'grid'  : 'none';
+  document.getElementById('menuList').style.display   = mode === 'list' ? 'flex'  : 'none';
+  document.getElementById('viewGrid').classList.toggle('active', mode === 'grid');
+  document.getElementById('viewList').classList.toggle('active', mode === 'list');
+  // TODAYカードはグリッド時のみ表示
+  var todayStrip = document.querySelector('.today-strip');
+  if (todayStrip) todayStrip.style.display = mode === 'grid' ? 'block' : 'none';
+  // グリッドの募集バナーとリストの募集バナーを同期
+  if (mode === 'list') updateListBanners();
+}
+
+// 初期表示
+setView(currentView);
+
+// リスト用時計
+(function() {
+  var DOW = ['日','月','火','水','木','金','土'];
+  function tickL() {
+    var t = new Date();
+    var hEl = document.getElementById('clockHL');
+    var mEl = document.getElementById('clockML');
+    var dEl = document.getElementById('clockDateL');
+    if (hEl) hEl.textContent = String(t.getHours()).padStart(2,'0');
+    if (mEl) mEl.textContent = String(t.getMinutes()).padStart(2,'0');
+    if (dEl) dEl.textContent = t.getFullYear() + '年 ' + (t.getMonth()+1) + '/' + t.getDate() + '（' + DOW[t.getDay()] + '）';
+  }
+  tickL(); setInterval(tickL, 1000);
+})();
+
+function updateListBanners() {
+  // グリッドのバナーをリストにコピー
+  var src  = document.getElementById('activeBanners');
+  var dest = document.getElementById('listActiveBanners');
+  if (src && dest) dest.innerHTML = src.innerHTML;
 }
 
 // ━━━ 募集中バナー（祝花・ポスター）━━━
@@ -1204,6 +1383,8 @@ if (typeof isAdmin === 'function' && isAdmin()) {
       + '<div class="active-banner-arrow">›</div>'
       + '</a>';
   }).join('');
+  // リスト用にも反映
+  updateListBanners();
 })();
 </script>
 

@@ -138,9 +138,12 @@ var stepCount    = 0;
 // ── 期限フォーマット ──────────────────────
 function formatDueDate(dateStr) {
   if (!dateStr) return null;
-  var due   = new Date(dateStr + 'T00:00:00');
+  // ISO形式（2026-06-09T00:00:00.000Z）と日付形式（2026-06-09）両対応
+  var dateOnly = dateStr.split('T')[0];
+  var due   = new Date(dateOnly + 'T00:00:00');
   var today = new Date(); today.setHours(0,0,0,0);
   var diff  = Math.round((due - today) / 86400000);
+  if (isNaN(diff)) return null;
   var label = diff < 0  ? ('期限切れ ' + Math.abs(diff) + '日超過')
             : diff === 0 ? '📅 今日が期限'
             : diff === 1 ? '📅 明日が期限'

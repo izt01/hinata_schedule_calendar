@@ -148,9 +148,34 @@
       </div>
 
       <!-- 申し込み一覧 -->
-      <div class="admin-card" style="margin-bottom:100px">
+      <div class="admin-card" style="margin-bottom:16px">
         <div class="admin-card-title">📋 申し込み一覧</div>
         <div id="flowerList"></div>
+      </div>
+
+      <!-- 通知時刻設定 -->
+      <div class="admin-card" style="margin-bottom:100px">
+        <div class="admin-card-title">🔔 リマインダー送信時刻設定</div>
+        <div style="font-family:'Noto Serif JP',serif;font-size:11px;color:var(--sumi-light);margin-bottom:14px;line-height:1.8">
+          タスク期限リマインダーを何時に送るか設定します。（日本時間）
+        </div>
+        <div class="form-group">
+          <label class="form-label">⏰ 当日リマインダー</label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input class="form-input" type="number" id="notifSameDayHour" min="0" max="23" style="width:80px;text-align:center" placeholder="8">
+            <span style="font-family:'Noto Serif JP',serif;font-size:13px">時に送信（0〜23）</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">⏰ 前日リマインダー</label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input class="form-input" type="number" id="notifPrevDayHour" min="0" max="23" style="width:80px;text-align:center" placeholder="20">
+            <span style="font-family:'Noto Serif JP',serif;font-size:13px">時に送信（0〜23）</span>
+          </div>
+        </div>
+        <button class="btn-primary" id="notifSaveBtn" style="width:100%;justify-content:center;background:linear-gradient(135deg,#2a2a6a,#1a1a50)">
+          保 存
+        </button>
       </div>
     </div>
 
@@ -249,8 +274,32 @@ const CAT_CLS = { idea:'cat-idea', bug:'cat-bug', request:'cat-request', other:'
   document.getElementById('flowerSaveBtn').addEventListener('click', saveFlowerSettings);
   document.getElementById('flowerSaveBtn').addEventListener('touchend', function(e) { e.preventDefault(); saveFlowerSettings(); }, { passive: false });
 
-  await Promise.all([loadFlowerSettings(), loadFlowerData(), loadFeedbacks(), loadUsers(), loadCampaigns()]);
+  await Promise.all([loadFlowerSettings(), loadFlowerData(), loadFeedbacks(), loadUsers(), loadCampaigns(), loadNotifSettings()]);
 })();
+
+// ── 通知設定 ──────────────────────────────
+async function loadNotifSettings() {
+  try {
+    const s = await apiFetch('/api/notif-settings');
+    if (s) {
+      document.getElementById('notifSameDayHour').value = s.same_day_hour ?? 8;
+      document.getElementById('notifPrevDayHour').value = s.prev_day_hour ?? 20;
+    }
+  } catch {}
+  document.getElementById('notifSaveBtn').addEventListener('click', async function() {
+    const sh = document.getElementById('notifSameDayHour').value;
+    const ph = document.getElementById('notifPrevDayHour').value;
+    const btn = this; btn.disabled = true; btn.textContent = '保存中…';
+    try {
+      const r = await apiFetch('/api/notif-settings', {
+        method: 'PUT',
+        body: JSON.stringify({ same_day_hour: parseInt(sh), prev_day_hour: parseInt(ph) }),
+      });
+      if (r) { btn.textContent = '✅ 保存しました'; setTimeout(() => { btn.textContent = '保 存'; }, 2000); }
+    } catch (err) { alert('保存エラー: ' + err.message); btn.textContent = '保 存'; }
+    finally { btn.disabled = false; }
+  });
+}
 
 // ── ポスターキャンペーン ──────────────────
 var allCampaigns = [];
