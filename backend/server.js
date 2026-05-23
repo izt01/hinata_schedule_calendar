@@ -785,7 +785,9 @@ app.get('/api/flower-settings', async (req, res) => {
     const r = await pool.query('SELECT * FROM flower_settings WHERE id=$1', [FLOWER_SETTINGS_ID]);
     if (!r.rows[0]) return res.json({ is_open: false, open_from: null, open_to: null, manual_open: false });
     const s = r.rows[0];
-    const today = new Date().toISOString().split('T')[0];
+    // JSTで今日の日付を取得（UTC+9）
+    const jstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
+    const today  = jstNow.toISOString().split('T')[0];
 
     let isOpen = false;
     // 即時公開ONなら期間に関わらず公開
@@ -864,7 +866,9 @@ app.get('/api/admin/flowers', adminRequired, async (req, res) => {
 // キャンペーン一覧（全員）
 app.get('/api/poster-campaigns', async (req, res) => {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    // JSTで今日の日付を取得（UTC+9）
+    const jstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
+    const today  = jstNow.toISOString().split('T')[0];
     const r = await pool.query(
       `SELECT c.*,
         COUNT(DISTINCT p.id)::int as poster_count
