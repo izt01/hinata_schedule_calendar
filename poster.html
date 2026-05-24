@@ -237,18 +237,19 @@ function selectCampaign(c) {
   document.getElementById('heroTitle').textContent = c.title;
   document.getElementById('listTitle').textContent = '✿ ' + c.title + ' 投稿一覧 ✿';
 
-  // 公開中かチェック
+  // 公開中かチェック（サーバーのis_openを信頼）
   if (c.is_open) {
-    document.getElementById('addBtn').style.display    = isLoggedIn() ? 'flex' : 'none';
+    document.getElementById('addBtn').style.display       = isLoggedIn() ? 'flex' : 'none';
     document.getElementById('closedBanner').style.display = 'none';
     document.getElementById('posterGrid').style.display   = 'flex';
   } else {
-    document.getElementById('addBtn').style.display    = 'none';
+    document.getElementById('addBtn').style.display       = 'none';
     document.getElementById('posterGrid').style.display   = 'none';
-    var sub = document.getElementById('closedBannerSub');
-    var jstNow2 = new Date(Date.now() + 9 * 60 * 60 * 1000);
-    var today2 = jstNow2.toISOString().split('T')[0];
-    if (c.open_from.split('T')[0] > today2) {
+    var sub    = document.getElementById('closedBannerSub');
+    var jstNow3 = new Date(Date.now() + 9*60*60*1000);
+    var today3  = jstNow3.toISOString().split('T')[0];
+    var openDay = c.open_from ? c.open_from.split('T')[0] : '';
+    if (openDay > today3) {
       sub.textContent = '募集開始：' + fromDate + ' 〜 ' + toDate;
     } else {
       sub.textContent = 'この募集は終了しました（' + fromDate + ' 〜 ' + toDate + '）';
@@ -424,7 +425,7 @@ document.getElementById('posterFileInput').addEventListener('change', function(e
 
 function openAddModal() {
   if (!isLoggedIn()) { alert('投稿するにはログインが必要です'); window.location.href = 'profile.html'; return; }
-  if (!currentCampaign || !currentCampaign.is_open) { alert('現在募集期間外です'); return; }
+  if (!currentCampaign || !currentCampaign.is_open) { alert('現在この募集は受付期間外です'); return; }
   pendingDataUrl = null;
   document.getElementById('posterCaption').value = '';
   document.getElementById('anonCheck').checked   = false;

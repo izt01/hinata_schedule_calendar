@@ -325,17 +325,29 @@ function renderCampaigns() {
   el.innerHTML = allCampaigns.map(function(c) {
     var fromStr = c.open_from ? c.open_from.split('T')[0] : '';
     var toStr   = c.open_to   ? c.open_to.split('T')[0]   : '';
-    var statusBadge = c.is_open
-      ? '<span style="background:rgba(40,180,80,0.12);color:#2a8a40;border:1px solid rgba(40,180,80,0.3);padding:2px 8px;border-radius:8px;font-size:9px;font-weight:700">🟢 公開中</span>'
+    var isOpen  = c.is_open;
+    var statusBadge = isOpen
+      ? '<span style="background:rgba(40,180,80,0.12);color:#2a8a40;border:1px solid rgba(40,180,80,0.3);padding:2px 8px;border-radius:8px;font-size:9px;font-weight:700">🟢 募集中</span>'
       : '<span style="background:rgba(100,100,100,0.1);color:#666;border:1px solid #ddd;padding:2px 8px;border-radius:8px;font-size:9px;font-weight:700">⏸ 期間外</span>';
-    return '<div style="padding:12px 0;border-bottom:1px solid var(--hina-1)">'
+    return '<div style="padding:14px 0;border-bottom:1px solid var(--hina-1)">'
       + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
         + '<div style="font-family:\'Noto Serif JP\',serif;font-size:13px;font-weight:700;color:var(--sumi);flex:1">' + c.title + '</div>'
         + statusBadge
       + '</div>'
-      + '<div style="font-size:10px;color:var(--sumi-light);font-family:\'Noto Serif JP\',serif;margin-bottom:8px">'
+      + '<div style="font-size:10px;color:var(--sumi-light);font-family:\'Noto Serif JP\',serif;margin-bottom:10px">'
         + (c.member_name ? '🌻 ' + c.member_name + ' · ' : '') + '📅 ' + fromStr + ' 〜 ' + toStr
         + ' · 投稿 ' + (c.poster_count || 0) + '件'
+      + '</div>'
+      // 即時公開トグル
+      + '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--hina-0);border-radius:12px;padding:10px 14px;margin-bottom:8px">'
+        + '<div>'
+          + '<div style="font-family:\'Noto Serif JP\',serif;font-size:12px;font-weight:700;color:var(--sumi)">即時公開</div>'
+          + '<div style="font-size:10px;color:var(--sumi-light);font-family:\'Noto Serif JP\',serif">ONにすると期間外でも公開</div>'
+        + '</div>'
+        + '<label class="toggle-switch">'
+          + '<input type="checkbox" ' + (c.manual_open ? 'checked' : '') + ' onchange="toggleCampaignOpen(\'' + c.id + '\',this.checked)">'
+          + '<span class="toggle-slider"></span>'
+        + '</label>'
       + '</div>'
       + '<div style="display:flex;gap:8px">'
         + '<button onclick="showCampRanking(\'' + c.id + '\',\'' + c.title + '\')" style="flex:1;padding:7px;border-radius:12px;border:1.5px solid rgba(96,64,192,0.3);background:rgba(96,64,192,0.06);color:#4020a0;font-family:\'Noto Serif JP\',serif;font-size:11px;font-weight:700;cursor:pointer;touch-action:manipulation">📊 ランキング</button>'
@@ -343,6 +355,23 @@ function renderCampaigns() {
       + '</div>'
       + '</div>';
   }).join('');
+}
+
+async function toggleCampaignOpen(id, isOpen) {
+  try {
+    const result = await apiFetch('/api/poster-campaigns/' + id + '/toggle', {
+      method: 'PUT',
+      body: JSON.stringify({ manual_open: isOpen }),
+    });
+    if (result) {
+      const idx = allCampaigns.findIndex(function(c) { return c.id === id; });
+      if (idx !== -1) {
+        allCampaigns[idx].manual_open = isOpen;
+        allCampaigns[idx].is_open     = isOpen || allCampaigns[idx].in_period;
+      }
+      renderCampaigns();
+    }
+  } catch (err) { alert('更新エラー: ' + err.message); }
 }
 
 async function showCampRanking(campId, campTitle) {

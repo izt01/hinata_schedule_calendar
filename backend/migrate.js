@@ -115,6 +115,7 @@ async function migrate() {
       -- 既存テーブルへのカラム追加
       ALTER TABLE posters ADD COLUMN IF NOT EXISTS campaign_id UUID;
       CREATE INDEX IF NOT EXISTS idx_posters_campaign ON posters(campaign_id);
+      ALTER TABLE poster_campaigns ADD COLUMN IF NOT EXISTS manual_open BOOLEAN DEFAULT false;
 
       -- ポスターいいねテーブル
       CREATE TABLE IF NOT EXISTS poster_likes (

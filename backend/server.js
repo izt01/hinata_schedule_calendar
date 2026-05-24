@@ -866,7 +866,6 @@ app.get('/api/admin/flowers', adminRequired, async (req, res) => {
 // キャンペーン一覧（全員）
 app.get('/api/poster-campaigns', async (req, res) => {
   try {
-    // JSTで今日の日付を取得（UTC+9）
     const jstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
     const today  = jstNow.toISOString().split('T')[0];
     const r = await pool.query(
@@ -878,11 +877,16 @@ app.get('/api/poster-campaigns', async (req, res) => {
        GROUP BY c.id
        ORDER BY c.open_from DESC`
     );
-    // 各キャンペーンに公開状態を付加
-    const rows = r.rows.map(c => ({
-      ...c,
-      is_open: today >= c.open_from && today <= c.open_to,
-    }));
+    const rows = r.rows.map(c => {
+      const f = c.open_from ? String(c.open_from).split('T')[0] : '';
+      const t = c.open_to   ? String(c.open_to).split('T')[0]   : '';
+      const inPeriod = f && t && today >= f && today <= t;
+      return {
+        ...c,
+        is_open: !!(c.manual_open || inPeriod),
+        in_period: inPeriod,
+      };
+    });
     res.json(rows);
   } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
 });
@@ -893,9 +897,21 @@ app.post('/api/poster-campaigns', adminRequired, async (req, res) => {
   if (!title || !open_from || !open_to) return res.status(400).json({ error: 'タイトル・期間は必須です' });
   try {
     const r = await pool.query(
-      `INSERT INTO poster_campaigns (title, member_name, open_from, open_to, created_by)
-       VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+      `INSERT INTO poster_campaigns (title, member_name, open_from, open_to, created_by, manual_open)
+       VALUES ($1,$2,$3,$4,$5,false) RETURNING *`,
       [title, member_name || null, open_from, open_to, req.user.userId]
+    );
+    res.json(r.rows[0]);
+  } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
+});
+
+// キャンペーン即時公開ON/OFF（管理者のみ）
+app.put('/api/poster-campaigns/:id/toggle', adminRequired, async (req, res) => {
+  const { manual_open } = req.body;
+  try {
+    const r = await pool.query(
+      `UPDATE poster_campaigns SET manual_open=$1 WHERE id=$2 RETURNING *`,
+      [!!manual_open, req.params.id]
     );
     res.json(r.rows[0]);
   } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
