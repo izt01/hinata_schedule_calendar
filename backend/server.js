@@ -955,6 +955,172 @@ app.get('/api/admin/poster-campaigns/:id/ranking', adminRequired, async (req, re
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  CHAT — チャット機能
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// グループ一覧（自分が参加 or 公開）
+app.get('/api/chat/groups', authRequired, async (req, res) => {
+  try {
+    const r = await pool.query(`
+      SELECT g.*,
+        u.nickname as creator_nickname,
+        COUNT(DISTINCT cm.user_id)::int as member_count,
+        (SELECT body FROM chat_messages WHERE group_id=g.id ORDER BY created_at DESC LIMIT 1) as last_message,
+        (SELECT created_at FROM chat_messages WHERE group_id=g.id ORDER BY created_at DESC LIMIT 1) as last_message_at,
+        EXISTS(SELECT 1 FROM chat_members WHERE group_id=g.id AND user_id=$1) as is_member
+      FROM chat_groups g
+      LEFT JOIN users u ON g.created_by = u.id
+      LEFT JOIN chat_members cm ON cm.group_id = g.id
+      WHERE g.is_public = true
+         OR EXISTS(SELECT 1 FROM chat_members WHERE group_id=g.id AND user_id=$1)
+         OR g.created_by = $1
+      GROUP BY g.id, u.nickname
+      ORDER BY last_message_at DESC NULLS LAST, g.created_at DESC
+    `, [req.user.userId]);
+    res.json(r.rows);
+  } catch (err) { console.error(err); res.status(500).json({ error: 'サーバーエラー' }); }
+});
+
+// グループ作成
+app.post('/api/chat/groups', authRequired, async (req, res) => {
+  const { name, description, is_public, member_ids } = req.body;
+  if (!name?.trim()) return res.status(400).json({ error: 'グループ名は必須です' });
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const g = await client.query(
+      `INSERT INTO chat_groups (name, description, is_public, created_by)
+       VALUES ($1,$2,$3,$4) RETURNING *`,
+      [name.trim(), description||'', !!is_public, req.user.userId]
+    );
+    const gid = g.rows[0].id;
+    // 作成者を自動追加
+    await client.query('INSERT INTO chat_members (group_id,user_id) VALUES ($1,$2)', [gid, req.user.userId]);
+    // 招待メンバーを追加
+    if (Array.isArray(member_ids)) {
+      for (const uid of member_ids) {
+        if (uid !== req.user.userId) {
+          await client.query(
+            'INSERT INTO chat_members (group_id,user_id) VALUES ($1,$2) ON CONFLICT DO NOTHING',
+            [gid, uid]
+          );
+        }
+      }
+    }
+    await client.query('COMMIT');
+    res.json(g.rows[0]);
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error(err); res.status(500).json({ error: 'サーバーエラー' });
+  } finally { client.release(); }
+});
+
+// グループ削除（作成者or管理者）
+app.delete('/api/chat/groups/:id', authRequired, async (req, res) => {
+  const r = await pool.query('SELECT created_by FROM chat_groups WHERE id=$1', [req.params.id]);
+  if (!r.rows[0]) return res.status(404).json({ error: '見つかりません' });
+  if (r.rows[0].created_by !== req.user.userId && !req.user.isAdmin) {
+    return res.status(403).json({ error: '権限がありません' });
+  }
+  await pool.query('DELETE FROM chat_groups WHERE id=$1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// グループに参加
+app.post('/api/chat/groups/:id/join', authRequired, async (req, res) => {
+  const g = await pool.query('SELECT * FROM chat_groups WHERE id=$1', [req.params.id]);
+  if (!g.rows[0]) return res.status(404).json({ error: '見つかりません' });
+  if (!g.rows[0].is_public) return res.status(403).json({ error: '非公開グループには招待が必要です' });
+  await pool.query(
+    'INSERT INTO chat_members (group_id,user_id) VALUES ($1,$2) ON CONFLICT DO NOTHING',
+    [req.params.id, req.user.userId]
+  );
+  res.json({ ok: true });
+});
+
+// グループを退出
+app.delete('/api/chat/groups/:id/join', authRequired, async (req, res) => {
+  await pool.query('DELETE FROM chat_members WHERE group_id=$1 AND user_id=$2', [req.params.id, req.user.userId]);
+  res.json({ ok: true });
+});
+
+// メッセージ一覧取得
+app.get('/api/chat/groups/:id/messages', authRequired, async (req, res) => {
+  // アクセス権チェック
+  const g = await pool.query('SELECT * FROM chat_groups WHERE id=$1', [req.params.id]);
+  if (!g.rows[0]) return res.status(404).json({ error: '見つかりません' });
+  const isMember = await pool.query('SELECT 1 FROM chat_members WHERE group_id=$1 AND user_id=$2', [req.params.id, req.user.userId]);
+  if (!g.rows[0].is_public && !isMember.rows.length && !req.user.isAdmin) {
+    return res.status(403).json({ error: 'アクセス権限がありません' });
+  }
+  const since = req.query.since; // ポーリング用：最終取得時刻
+  const params = [req.params.id];
+  let whereClause = 'WHERE m.group_id=$1';
+  if (since) {
+    whereClause += ' AND m.created_at > $2';
+    params.push(since);
+  }
+  const r = await pool.query(`
+    SELECT m.*, u.nickname, u.avatar_url, u.avatar_type,
+           m.user_id = $${params.length + 1} as is_own
+    FROM chat_messages m
+    LEFT JOIN users u ON m.user_id = u.id
+    ${whereClause}
+    ORDER BY m.created_at ASC
+    LIMIT 100
+  `, [...params, req.user.userId]);
+  res.json(r.rows);
+});
+
+// メッセージ送信
+app.post('/api/chat/groups/:id/messages', authRequired, async (req, res) => {
+  const { body } = req.body;
+  if (!body?.trim()) return res.status(400).json({ error: 'メッセージを入力してください' });
+  // アクセス権チェック
+  const g = await pool.query('SELECT * FROM chat_groups WHERE id=$1', [req.params.id]);
+  if (!g.rows[0]) return res.status(404).json({ error: '見つかりません' });
+  const isMember = await pool.query('SELECT 1 FROM chat_members WHERE group_id=$1 AND user_id=$2', [req.params.id, req.user.userId]);
+  if (!g.rows[0].is_public && !isMember.rows.length) {
+    return res.status(403).json({ error: 'グループに参加してから送信してください' });
+  }
+  // 公開グループなら自動参加
+  if (g.rows[0].is_public && !isMember.rows.length) {
+    await pool.query('INSERT INTO chat_members (group_id,user_id) VALUES ($1,$2) ON CONFLICT DO NOTHING', [req.params.id, req.user.userId]);
+  }
+  const r = await pool.query(
+    `INSERT INTO chat_messages (group_id, user_id, body) VALUES ($1,$2,$3)
+     RETURNING *, true as is_own`,
+    [req.params.id, req.user.userId, body.trim()]
+  );
+  const msg = r.rows[0];
+  // ニックネームも返す
+  const u = await pool.query('SELECT nickname, avatar_url, avatar_type FROM users WHERE id=$1', [req.user.userId]);
+  Object.assign(msg, u.rows[0] || {});
+  res.json(msg);
+});
+
+// メッセージ削除（自分のみ）
+app.delete('/api/chat/messages/:id', authRequired, async (req, res) => {
+  const r = await pool.query('SELECT user_id FROM chat_messages WHERE id=$1', [req.params.id]);
+  if (!r.rows[0]) return res.status(404).json({ error: '見つかりません' });
+  if (r.rows[0].user_id !== req.user.userId && !req.user.isAdmin) {
+    return res.status(403).json({ error: '自分のメッセージのみ削除できます' });
+  }
+  await pool.query('DELETE FROM chat_messages WHERE id=$1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// グループのメンバー一覧
+app.get('/api/chat/groups/:id/members', authRequired, async (req, res) => {
+  const r = await pool.query(`
+    SELECT u.id, u.nickname, u.avatar_url, u.avatar_type, cm.joined_at
+    FROM chat_members cm JOIN users u ON cm.user_id=u.id
+    WHERE cm.group_id=$1 ORDER BY cm.joined_at
+  `, [req.params.id]);
+  res.json(r.rows);
+});
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  PUSH NOTIFICATIONS — プッシュ通知
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

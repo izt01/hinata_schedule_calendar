@@ -185,6 +185,30 @@ const VENUES = [
     mapUrl: 'https://maps.google.com/?q=K-Arena+Yokohama+横浜市西区みなとみらい6-2-14',
     memo: '',
   },
+  {
+    id: 14,
+    name: '東京ドーム',
+    nameRoma: 'Tokyo Dome',
+    area: '東京・関東',
+    address: '〒112-0004 東京都文京区後楽1-3-61',
+    access: 'JR中央・総武線「水道橋駅」徒歩3分 / 都営三田線・大江戸線「春日駅」徒歩5分 / 東京メトロ丸ノ内線・南北線「後楽園駅」徒歩5分',
+    capacity: '約55,000人',
+    photo: 'venue/tokyo_dome.jpg',
+    mapUrl: 'https://maps.google.com/?q=東京ドーム+東京都文京区後楽1-3-61',
+    memo: '日本最大級のドーム型多目的スタジアム',
+  },
+  {
+    id: 15,
+    name: '横浜スタジアム',
+    nameRoma: 'Yokohama Stadium',
+    area: '東京・関東',
+    address: '〒231-0022 神奈川県横浜市中区横浜公園',
+    access: 'JR京浜東北・根岸線「関内駅」徒歩3分 / 横浜市営地下鉄ブルーライン「関内駅」徒歩5分',
+    capacity: '約34,000人',
+    photo: 'venue/yokohama_stadium.webp',
+    mapUrl: 'https://maps.google.com/?q=横浜スタジアム+横浜市中区横浜公園',
+    memo: '横浜公園内に位置するスタジアム',
+  },
 
   /* ── 大阪・関西 ── */
   {

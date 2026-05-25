@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>日向坂46 — チャット</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8b2252">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── レイアウト ── */
+.chat-layout { display:flex; height:calc(100vh - 56px); overflow:hidden; }
+
+/* ── グループ一覧サイドバー ── */
+.group-sidebar {
+  width:100%; max-width:320px; flex-shrink:0;
+  display:flex; flex-direction:column;
+  border-right:1.5px solid var(--hina-2);
+  background:rgba(255,255,255,0.85); backdrop-filter:blur(12px);
+  transition:transform 0.3s ease;
+}
+.group-sidebar-header {
+  padding:14px 16px 12px;
+  border-bottom:1.5px solid var(--hina-1);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.group-sidebar-title {
+  font-family:'Shippori Mincho',serif; font-size:16px; font-weight:800; color:var(--sky);
+}
+.group-list { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+.group-item {
+  display:flex; align-items:center; gap:12px;
+  padding:13px 16px; cursor:pointer; touch-action:manipulation;
+  border-bottom:1px solid var(--hina-1); transition:background 0.15s;
+  position:relative;
+}
+.group-item:active, .group-item.active { background:rgba(21,101,160,0.08); }
+.group-item-icon {
+  width:44px; height:44px; border-radius:14px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:20px;
+  background:linear-gradient(135deg,var(--hina-1),var(--hina-2));
+  border:1.5px solid var(--hina-2);
+}
+.group-item-icon.public { background:linear-gradient(135deg,rgba(21,101,160,0.12),rgba(21,101,160,0.06)); border-color:var(--hina-2); }
+.group-item-info { flex:1; min-width:0; }
+.group-item-name { font-family:'Noto Serif JP',serif; font-size:13px; font-weight:700; color:var(--sumi); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.group-item-last { font-size:11px; color:var(--sumi-light); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.group-item-meta { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
+.group-item-time { font-size:10px; color:var(--sumi-light); font-family:'Noto Serif JP',serif; }
+.group-unread {
+  background:var(--sky); color:white; border-radius:10px; font-size:10px;
+  font-weight:800; padding:2px 7px; font-family:'M PLUS Rounded 1c',sans-serif;
+  min-width:18px; text-align:center;
+}
+
+/* ── チャット画面 ── */
+.chat-main {
+  flex:1; display:flex; flex-direction:column; overflow:hidden;
+  background:var(--hina-0);
+}
+.chat-header {
+  padding:12px 16px; background:rgba(255,255,255,0.9); backdrop-filter:blur(12px);
+  border-bottom:1.5px solid var(--hina-2);
+  display:flex; align-items:center; gap:12px; flex-shrink:0;
+}
+.chat-back-btn {
+  background:none; border:none; font-size:20px; cursor:pointer;
+  touch-action:manipulation; padding:4px; color:var(--sky);
+  display:none;
+}
+.chat-header-name { font-family:'Shippori Mincho',serif; font-size:15px; font-weight:800; color:var(--sumi); flex:1; }
+.chat-header-sub { font-size:10px; color:var(--sumi-light); font-family:'Noto Serif JP',serif; }
+.chat-members-btn {
+  background:none; border:1.5px solid var(--hina-2); border-radius:10px;
+  padding:5px 10px; font-size:11px; color:var(--sumi-light); cursor:pointer;
+  font-family:'Noto Serif JP',serif; touch-action:manipulation;
+}
+
+/* メッセージリスト */
+.chat-messages {
+  flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  padding:14px 12px; display:flex; flex-direction:column; gap:10px;
+}
+.chat-date-divider {
+  text-align:center; font-size:10px; color:var(--sumi-light);
+  font-family:'Noto Serif JP',serif;
+  display:flex; align-items:center; gap:8px; margin:6px 0;
+}
+.chat-date-divider::before, .chat-date-divider::after {
+  content:''; flex:1; height:1px; background:var(--hina-2);
+}
+.msg-row { display:flex; gap:8px; align-items:flex-end; }
+.msg-row.mine { flex-direction:row-reverse; }
+.msg-avatar {
+  width:32px; height:32px; border-radius:50%; flex-shrink:0;
+  object-fit:cover; border:1.5px solid var(--hina-2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; background:var(--hina-1); overflow:hidden;
+}
+.msg-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.msg-body { max-width:72%; display:flex; flex-direction:column; gap:3px; }
+.msg-row.mine .msg-body { align-items:flex-end; }
+.msg-name { font-size:10px; color:var(--sumi-light); font-family:'Noto Serif JP',serif; margin-bottom:1px; }
+.msg-bubble {
+  padding:10px 13px; border-radius:18px; font-size:13px; line-height:1.6;
+  font-family:'Noto Sans JP',sans-serif; word-break:break-word; position:relative;
+  background:white; border:1.5px solid var(--hina-2);
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+.msg-row.mine .msg-bubble {
+  background:var(--sky); color:white; border-color:transparent;
+}
+.msg-time {
+  font-size:9px; color:var(--sumi-light); font-family:'Noto Serif JP',serif;
+  padding:0 4px;
+}
+.msg-delete-btn {
+  background:none; border:none; font-size:11px; color:rgba(200,60,60,0.5);
+  cursor:pointer; padding:2px 6px; border-radius:6px; touch-action:manipulation;
+}
+.msg-delete-btn:active { background:rgba(200,60,60,0.1); }
+
+/* 入力エリア */
+.chat-input-wrap {
+  padding:10px 12px; background:rgba(255,255,255,0.95);
+  border-top:1.5px solid var(--hina-2); display:flex; gap:8px;
+  align-items:flex-end; flex-shrink:0;
+}
+.chat-input {
+  flex:1; background:rgba(248,248,255,0.9); border:1.5px solid var(--hina-2);
+  border-radius:20px; padding:10px 16px; font-family:'Noto Sans JP',sans-serif;
+  font-size:13px; color:var(--sumi); outline:none; resize:none;
+  max-height:120px; min-height:40px; line-height:1.5;
+  -webkit-appearance:none;
+}
+.chat-send-btn {
+  width:42px; height:42px; border-radius:50%; background:var(--sky);
+  border:none; color:white; font-size:18px; cursor:pointer;
+  flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  touch-action:manipulation; transition:background 0.15s;
+}
+.chat-send-btn:active { background:#0d4a8a; }
+.chat-send-btn:disabled { background:var(--hina-3); }
+
+/* 空状態 */
+.chat-empty {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:12px; color:var(--sumi-light);
+  font-family:'Noto Serif JP',serif; font-size:13px; text-align:center;
+}
+.chat-empty-icon { font-size:48px; }
+.chat-placeholder {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:10px; color:var(--sumi-light);
+  font-family:'Noto Serif JP',serif; font-size:13px; text-align:center;
+  padding:24px;
+}
+
+/* モーダル */
+.ev-modal-wrap { display:none; position:fixed; inset:0; z-index:300; align-items:flex-end; justify-content:center; }
+.ev-modal-wrap.open { display:flex; }
+.ev-modal-bg { position:absolute; inset:0; background:rgba(10,30,60,0.5); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+.ev-modal-box { position:relative; width:100%; max-width:430px; background:var(--white-bg); border-radius:32px 32px 0 0; padding:12px 22px 52px; max-height:85vh; overflow-y:auto; -webkit-overflow-scrolling:touch; border-top:1.5px solid var(--hina-2); z-index:1; }
+.user-select-list { display:flex; flex-direction:column; gap:6px; max-height:200px; overflow-y:auto; border:1.5px solid var(--hina-2); border-radius:14px; padding:8px; background:rgba(255,255,255,0.5); }
+.user-select-item { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:10px; cursor:pointer; }
+.user-select-item.selected { background:var(--hina-1); }
+
+/* メンバー一覧モーダル */
+.member-list-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--hina-1); }
+.member-list-item:last-child { border-bottom:none; }
+
+/* モバイル対応 */
+@media (max-width: 600px) {
+  .group-sidebar { max-width:100%; border-right:none; }
+  .group-sidebar.hidden { display:none; }
+  .chat-main.hidden { display:none; }
+  .chat-back-btn { display:block; }
+}
+</style>
+</head>
+<body>
+<canvas id="petals-canvas"></canvas>
+<div id="app">
+  <div id="headerMount"></div>
+
+  <div class="chat-layout">
+    <!-- グループ一覧 -->
+    <div class="group-sidebar" id="groupSidebar">
+      <div class="group-sidebar-header">
+        <div class="group-sidebar-title">💬 チャット</div>
+        <button class="btn-primary" id="newGroupBtn" style="padding:7px 14px;font-size:11px">＋ グループ</button>
+      </div>
+      <div class="group-list" id="groupList">
+        <div class="empty-state" style="padding:40px 16px">
+          <div class="empty-state-icon">💬</div>
+          <div class="empty-state-text">読み込み中…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- チャット画面 -->
+    <div class="chat-main" id="chatMain">
+      <!-- ヘッダー -->
+      <div class="chat-header" id="chatHeader" style="display:none">
+        <button class="chat-back-btn" id="chatBackBtn">‹</button>
+        <div style="flex:1;min-width:0">
+          <div class="chat-header-name" id="chatHeaderName"></div>
+          <div class="chat-header-sub" id="chatHeaderSub"></div>
+        </div>
+        <button class="chat-members-btn" id="chatMembersBtn">👥 メンバー</button>
+      </div>
+
+      <!-- メッセージ -->
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-placeholder">
+          <div style="font-size:48px">💬</div>
+          <div>グループを選んでチャットを始めましょう</div>
+        </div>
+      </div>
+
+      <!-- 入力 -->
+      <div class="chat-input-wrap" id="chatInputWrap" style="display:none">
+        <textarea class="chat-input" id="chatInput" placeholder="メッセージを入力…" rows="1"></textarea>
+        <button class="chat-send-btn" id="chatSendBtn">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- グループ作成モーダル -->
+<div class="ev-modal-wrap" id="newGroupModal">
+  <div class="ev-modal-bg" id="newGroupModalBg"></div>
+  <div class="ev-modal-box">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" id="newGroupModalClose">✕</button>
+    <div class="modal-title">💬 新しいグループを作成</div>
+    <div class="form-group">
+      <label class="form-label">グループ名 <span style="color:var(--sky)">*</span></label>
+      <input class="form-input" id="groupName" type="text" placeholder="例：推し活メンバー" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label">説明（任意）</label>
+      <input class="form-input" id="groupDesc" type="text" placeholder="グループの説明" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-family:'Noto Serif JP',serif;font-size:13px;color:var(--sumi)">
+        <input type="checkbox" id="groupPublic" style="width:18px;height:18px;accent-color:var(--sky)">
+        🌐 全体公開（誰でも参加・閲覧できる）
+      </label>
+    </div>
+    <div class="form-group" id="memberSelectWrap">
+      <label class="form-label">👥 招待するメンバー（任意）</label>
+      <div class="user-select-list" id="groupMemberList"></div>
+    </div>
+    <button class="btn-primary" id="groupCreateBtn" style="width:100%;justify-content:center;margin-top:8px">作 成</button>
+  </div>
+</div>
+
+<!-- メンバー一覧モーダル -->
+<div class="ev-modal-wrap" id="membersModal">
+  <div class="ev-modal-bg" id="membersModalBg"></div>
+  <div class="ev-modal-box">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" id="membersModalClose">✕</button>
+    <div class="modal-title" id="membersModalTitle">👥 メンバー</div>
+    <div id="memberListContent"></div>
+    <button id="leaveGroupBtn" style="width:100%;padding:12px;border-radius:16px;border:1.5px solid rgba(200,60,60,0.3);background:rgba(200,60,60,0.06);color:#c03030;font-family:'Noto Serif JP',serif;font-size:13px;cursor:pointer;touch-action:manipulation;margin-top:16px">
+      グループを退出する
+    </button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="db.js"></script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+<script src="sakura.js"></script>
+<script>
+document.getElementById('headerMount').outerHTML = headerHTML('チャット', '💬 グループチャット 💬');
+injectNav('chat.html');
+
+if (!isLoggedIn()) {
+  document.querySelector('.chat-layout').innerHTML =
+    '<div class="chat-placeholder" style="flex:1;margin:auto"><div style="font-size:48px">🔑</div><div>チャットを使うには<br><a href="profile.html" style="color:var(--sky)">ログイン</a>が必要です</div></div>';
+}
+
+var myId       = getUser() ? getUser().id : null;
+var myNickname = getUser() ? getUser().nickname : '';
+var currentGroupId   = null;
+var currentGroupData = null;
+var pollTimer        = null;
+var lastMessageAt    = null;
+var allUsers         = [];
+var selectedInviteIds = {};
+var isMobile         = window.innerWidth <= 600;
+
+// ── グループ一覧 ──────────────────────────
+function loadGroups() {
+  apiFetch('/api/chat/groups').then(function(data) {
+    renderGroups(data || []);
+  }).catch(function() {});
+}
+
+function renderGroups(groups) {
+  var el = document.getElementById('groupList');
+  if (!groups.length) {
+    el.innerHTML = '<div class="chat-empty" style="padding:40px 16px"><div class="chat-empty-icon">💬</div><div>グループがまだありません<br>＋ボタンから作成しましょう</div></div>';
+    return;
+  }
+  el.innerHTML = groups.map(function(g) {
+    var icon = g.is_public ? '🌐' : '💬';
+    var time = g.last_message_at ? formatTime(g.last_message_at) : '';
+    var lastMsg = g.last_message ? truncate(g.last_message, 20) : 'メッセージなし';
+    var isActive = currentGroupId === g.id;
+    return '<div class="group-item' + (isActive?' active':'') + '" data-id="' + g.id + '" onclick="openGroup(\'' + g.id + '\')">'
+      + '<div class="group-item-icon' + (g.is_public?' public':'') + '">' + icon + '</div>'
+      + '<div class="group-item-info">'
+        + '<div class="group-item-name">' + escHtml(g.name) + '</div>'
+        + '<div class="group-item-last">' + escHtml(lastMsg) + '</div>'
+      + '</div>'
+      + '<div class="group-item-meta">'
+        + '<div class="group-item-time">' + time + '</div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+// ── グループを開く ────────────────────────
+function openGroup(id) {
+  currentGroupId   = id;
+  lastMessageAt    = null;
+  clearInterval(pollTimer);
+
+  // モバイル：サイドバーを隠してチャット画面を表示
+  if (isMobile) {
+    document.getElementById('groupSidebar').classList.add('hidden');
+    document.getElementById('chatMain').classList.remove('hidden');
+  }
+
+  // アクティブ状態更新
+  document.querySelectorAll('.group-item').forEach(function(el) {
+    el.classList.toggle('active', el.dataset.id === id);
+  });
+
+  // グループデータ取得
+  apiFetch('/api/chat/groups').then(function(groups) {
+    currentGroupData = (groups || []).find(function(g) { return g.id === id; });
+    if (!currentGroupData) return;
+
+    var header = document.getElementById('chatHeader');
+    header.style.display = 'flex';
+    document.getElementById('chatHeaderName').textContent = currentGroupData.name;
+    document.getElementById('chatHeaderSub').textContent =
+      (currentGroupData.is_public ? '🌐 公開グループ' : '🔒 非公開') + ' · ' + currentGroupData.member_count + '人';
+    document.getElementById('chatInputWrap').style.display = 'flex';
+
+    loadMessages();
+    pollTimer = setInterval(pollMessages, 3000);
+  });
+}
+
+// ── メッセージ読み込み ────────────────────
+function loadMessages() {
+  apiFetch('/api/chat/groups/' + currentGroupId + '/messages').then(function(msgs) {
+    renderMessages(msgs || [], false);
+    if (msgs && msgs.length) lastMessageAt = msgs[msgs.length-1].created_at;
+    scrollToBottom();
+  }).catch(function() {});
+}
+
+function pollMessages() {
+  if (!currentGroupId) return;
+  var url = '/api/chat/groups/' + currentGroupId + '/messages';
+  if (lastMessageAt) url += '?since=' + encodeURIComponent(lastMessageAt);
+  apiFetch(url).then(function(msgs) {
+    if (!msgs || !msgs.length) return;
+    appendMessages(msgs);
+    lastMessageAt = msgs[msgs.length-1].created_at;
+    loadGroups(); // サイドバーの最新メッセージも更新
+  }).catch(function() {});
+}
+
+function renderMessages(msgs, append) {
+  var el = document.getElementById('chatMessages');
+  if (!msgs.length) {
+    el.innerHTML = '<div class="chat-empty"><div class="chat-empty-icon">💬</div><div>まだメッセージがありません<br>最初のメッセージを送ってみましょう！</div></div>';
+    return;
+  }
+  el.innerHTML = msgs.map(buildMsgHtml).join('');
+  el.querySelectorAll('.msg-delete-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() { deleteMessage(this.dataset.id); });
+    btn.addEventListener('touchend', function(e) { e.preventDefault(); deleteMessage(this.dataset.id); }, {passive:false});
+  });
+}
+
+function appendMessages(msgs) {
+  var el = document.getElementById('chatMessages');
+  // 空状態を削除
+  var empty = el.querySelector('.chat-empty');
+  if (empty) el.innerHTML = '';
+  var wasAtBottom = el.scrollHeight - el.scrollTop <= el.clientHeight + 40;
+  msgs.forEach(function(m) {
+    var div = document.createElement('div');
+    div.innerHTML = buildMsgHtml(m);
+    var row = div.firstChild;
+    el.appendChild(row);
+    var btn = row.querySelector('.msg-delete-btn');
+    if (btn) {
+      btn.addEventListener('click', function() { deleteMessage(this.dataset.id); });
+      btn.addEventListener('touchend', function(e) { e.preventDefault(); deleteMessage(this.dataset.id); }, {passive:false});
+    }
+  });
+  if (wasAtBottom) scrollToBottom();
+}
+
+function buildMsgHtml(m) {
+  var isMine = m.is_own || m.user_id === myId;
+  var t = new Date(m.created_at);
+  var timeStr = String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0');
+  var avatarHtml;
+  if (m.avatar_url) {
+    avatarHtml = '<div class="msg-avatar"><img src="' + m.avatar_url + '"></div>';
+  } else {
+    avatarHtml = '<div class="msg-avatar">👤</div>';
+  }
+  var deleteBtnHtml = isMine
+    ? '<button class="msg-delete-btn" data-id="' + m.id + '">🗑</button>'
+    : '';
+  return '<div class="msg-row' + (isMine?' mine':'') + '">'
+    + (!isMine ? avatarHtml : '')
+    + '<div class="msg-body">'
+      + (!isMine ? '<div class="msg-name">' + escHtml(m.nickname||'?') + '</div>' : '')
+      + '<div class="msg-bubble">' + escHtml(m.body) + '</div>'
+      + '<div style="display:flex;align-items:center;gap:4px' + (isMine?';flex-direction:row-reverse':'') + '">'
+        + '<div class="msg-time">' + timeStr + '</div>'
+        + deleteBtnHtml
+      + '</div>'
+    + '</div>'
+    + (isMine ? avatarHtml : '')
+    + '</div>';
+}
+
+// ── メッセージ送信 ────────────────────────
+function sendMessage() {
+  var input = document.getElementById('chatInput');
+  var body  = input.value.trim();
+  if (!body || !currentGroupId) return;
+  var btn = document.getElementById('chatSendBtn');
+  btn.disabled = true;
+  apiFetch('/api/chat/groups/' + currentGroupId + '/messages', {
+    method: 'POST',
+    body: JSON.stringify({ body: body }),
+  }).then(function(msg) {
+    input.value = ''; input.style.height = 'auto';
+    if (msg) {
+      appendMessages([msg]);
+      lastMessageAt = msg.created_at;
+      loadGroups();
+    }
+  }).catch(function(err) { alert('送信エラー: ' + err.message); })
+  .finally(function() { btn.disabled = false; });
+}
+
+// ── メッセージ削除 ────────────────────────
+function deleteMessage(id) {
+  if (!confirm('このメッセージを削除しますか？')) return;
+  apiFetch('/api/chat/messages/' + id, { method: 'DELETE' }).then(function() {
+    var row = document.querySelector('[data-id="' + id + '"]')?.closest('.msg-row');
+    if (row) row.remove();
+  }).catch(function(err) { alert('削除エラー: ' + err.message); });
+}
+
+// ── グループ作成 ──────────────────────────
+function openNewGroupModal() {
+  document.getElementById('groupName').value = '';
+  document.getElementById('groupDesc').value = '';
+  document.getElementById('groupPublic').checked = false;
+  selectedInviteIds = {};
+  buildInviteList();
+  document.getElementById('newGroupModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeNewGroupModal() {
+  document.getElementById('newGroupModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function buildInviteList() {
+  var list = document.getElementById('groupMemberList');
+  var others = allUsers.filter(function(u) { return u.id !== myId; });
+  if (!others.length) { list.innerHTML = '<div style="padding:10px;font-size:12px;color:var(--sumi-light)">他のユーザーがいません</div>'; return; }
+  list.innerHTML = others.map(function(u) {
+    var av = u.avatar_url
+      ? '<img src="' + u.avatar_url + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover">'
+      : '<div style="width:32px;height:32px;border-radius:50%;background:var(--hina-1);display:flex;align-items:center;justify-content:center">👤</div>';
+    return '<label class="user-select-item" for="inv_' + u.id + '">'
+      + '<input type="checkbox" id="inv_' + u.id + '" data-uid="' + u.id + '" onchange="toggleInvite(this)">'
+      + av + '<span style="font-family:\'Noto Serif JP\',serif;font-size:13px;font-weight:600">' + escHtml(u.nickname) + '</span></label>';
+  }).join('');
+}
+
+function toggleInvite(cb) {
+  if (cb.checked) selectedInviteIds[cb.dataset.uid] = true;
+  else delete selectedInviteIds[cb.dataset.uid];
+  cb.closest('.user-select-item').classList.toggle('selected', cb.checked);
+}
+
+function createGroup() {
+  var name = document.getElementById('groupName').value.trim();
+  if (!name) { alert('グループ名を入力してください'); return; }
+  var btn = document.getElementById('groupCreateBtn');
+  btn.disabled = true; btn.textContent = '作成中…';
+  apiFetch('/api/chat/groups', {
+    method: 'POST',
+    body: JSON.stringify({
+      name:       name,
+      description: document.getElementById('groupDesc').value.trim(),
+      is_public:  document.getElementById('groupPublic').checked,
+      member_ids: Object.keys(selectedInviteIds),
+    }),
+  }).then(function(g) {
+    if (g) {
+      closeNewGroupModal();
+      loadGroups();
+      setTimeout(function() { openGroup(g.id); }, 300);
+    }
+  }).catch(function(err) { alert('作成エラー: ' + err.message); })
+  .finally(function() { btn.disabled = false; btn.textContent = '作 成'; });
+}
+
+// ── メンバー一覧 ──────────────────────────
+function openMembersModal() {
+  if (!currentGroupId) return;
+  document.getElementById('membersModalTitle').textContent = '👥 ' + (currentGroupData?.name || '') + ' のメンバー';
+  document.getElementById('memberListContent').innerHTML = '<div style="text-align:center;padding:20px;font-size:12px;color:var(--sumi-light)">読み込み中…</div>';
+  document.getElementById('membersModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  apiFetch('/api/chat/groups/' + currentGroupId + '/members').then(function(members) {
+    var html = (members || []).map(function(m) {
+      var av = m.avatar_url
+        ? '<img src="' + m.avatar_url + '" style="width:36px;height:36px;border-radius:50%;object-fit:cover">'
+        : '<div style="width:36px;height:36px;border-radius:50%;background:var(--hina-1);display:flex;align-items:center;justify-content:center">👤</div>';
+      var isMe = m.id === myId;
+      return '<div class="member-list-item">' + av
+        + '<div style="flex:1;font-family:\'Noto Serif JP\',serif;font-size:13px;font-weight:600">'
+        + escHtml(m.nickname) + (isMe ? ' <span style="font-size:10px;color:var(--sky)">(あなた)</span>' : '')
+        + '</div></div>';
+    }).join('');
+    document.getElementById('memberListContent').innerHTML = html || '<div style="padding:12px;font-size:12px;color:var(--sumi-light)">メンバーなし</div>';
+  });
+  // 退出ボタン（自分が作成者の場合は非表示にしない：削除ではなく退出）
+  var isCreator = currentGroupData && currentGroupData.created_by === myId;
+  document.getElementById('leaveGroupBtn').textContent = isCreator ? '🗑 グループを削除' : 'グループを退出する';
+}
+
+function closeMembersModal() {
+  document.getElementById('membersModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function leaveOrDeleteGroup() {
+  if (!currentGroupId) return;
+  var isCreator = currentGroupData && currentGroupData.created_by === myId;
+  var msg = isCreator ? 'このグループを削除しますか？' : 'グループを退出しますか？';
+  if (!confirm(msg)) return;
+  var endpoint = isCreator
+    ? '/api/chat/groups/' + currentGroupId
+    : '/api/chat/groups/' + currentGroupId + '/join';
+  apiFetch(endpoint, { method: 'DELETE' }).then(function() {
+    closeMembersModal();
+    currentGroupId = null; currentGroupData = null;
+    clearInterval(pollTimer);
+    document.getElementById('chatHeader').style.display = 'none';
+    document.getElementById('chatInputWrap').style.display = 'none';
+    document.getElementById('chatMessages').innerHTML = '<div class="chat-placeholder"><div style="font-size:48px">💬</div><div>グループを選んでチャットを始めましょう</div></div>';
+    if (isMobile) {
+      document.getElementById('groupSidebar').classList.remove('hidden');
+      document.getElementById('chatMain').classList.add('hidden');
+    }
+    loadGroups();
+  }).catch(function(err) { alert('エラー: ' + err.message); });
+}
+
+// ── ユーティリティ ────────────────────────
+function scrollToBottom() {
+  var el = document.getElementById('chatMessages');
+  el.scrollTop = el.scrollHeight;
+}
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+function truncate(s, n) { return s.length > n ? s.slice(0,n) + '…' : s; }
+function formatTime(iso) {
+  var d = new Date(iso);
+  var now = new Date();
+  var diff = now - d;
+  if (diff < 60000) return 'たった今';
+  if (diff < 3600000) return Math.floor(diff/60000) + '分前';
+  if (d.toDateString() === now.toDateString()) return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  return (d.getMonth()+1) + '/' + d.getDate();
+}
+
+// ── テキストエリア自動拡縮 ────────────────
+document.getElementById('chatInput').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+document.getElementById('chatInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+// ── ボタンバインド ────────────────────────
+function on(id, fn) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('click', fn);
+  el.addEventListener('touchend', function(e) { e.preventDefault(); fn(); }, { passive: false });
+}
+on('newGroupBtn',     openNewGroupModal);
+on('newGroupModalBg', closeNewGroupModal);
+on('newGroupModalClose', closeNewGroupModal);
+on('groupCreateBtn',  createGroup);
+on('chatSendBtn',     sendMessage);
+on('chatMembersBtn',  openMembersModal);
+on('membersModalBg',  closeMembersModal);
+on('membersModalClose', closeMembersModal);
+on('leaveGroupBtn',   leaveOrDeleteGroup);
+on('chatBackBtn', function() {
+  document.getElementById('groupSidebar').classList.remove('hidden');
+  document.getElementById('chatMain').classList.add('hidden');
+  clearInterval(pollTimer);
+  currentGroupId = null;
+});
+
+// ── 初期化 ────────────────────────────────
+if (isLoggedIn()) {
+  UserAPI.list().then(function(users) { allUsers = users || []; }).catch(function() {});
+  loadGroups();
+  // モバイルは最初チャット画面を隠す
+  if (isMobile) {
+    document.getElementById('chatMain').classList.add('hidden');
+  }
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() { navigator.serviceWorker.register('./service-worker.js'); });
+}
+</script>
+</body>
+</html>

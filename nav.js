@@ -14,6 +14,7 @@ function injectNav(activePage) {
     { href: 'train.html',    icon: '🚃', label: '電車検索' },
     { href: 'venue.html',    icon: '🏟️', label: 'ライブ会場一覧' },
     { href: 'schedule.html',  icon: '📋', label: 'スケジュール進捗' },
+    { href: 'chat.html',      icon: '💬', label: 'チャット' },
     { href: 'flower.html',   icon: '💐', label: '祝花申し込み' },
     { href: 'poster.html',   icon: '🎨', label: 'ポスター案' },
     { href: 'guide.html',    icon: '📖', label: '使い方ガイド' },

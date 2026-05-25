@@ -223,6 +223,34 @@ async function migrate() {
       CREATE INDEX IF NOT EXISTS idx_poster_comments     ON poster_comments(poster_id);
     `);
 
+      -- チャットグループテーブル
+      CREATE TABLE IF NOT EXISTS chat_groups (
+        id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name        VARCHAR(100) NOT NULL,
+        description TEXT,
+        is_public   BOOLEAN DEFAULT false,
+        created_by  UUID REFERENCES users(id) ON DELETE SET NULL,
+        created_at  TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      -- チャットグループメンバー
+      CREATE TABLE IF NOT EXISTS chat_members (
+        group_id  UUID REFERENCES chat_groups(id) ON DELETE CASCADE,
+        user_id   UUID REFERENCES users(id) ON DELETE CASCADE,
+        joined_at TIMESTAMPTZ DEFAULT NOW(),
+        PRIMARY KEY (group_id, user_id)
+      );
+
+      -- チャットメッセージ
+      CREATE TABLE IF NOT EXISTS chat_messages (
+        id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        group_id   UUID REFERENCES chat_groups(id) ON DELETE CASCADE,
+        user_id    UUID REFERENCES users(id) ON DELETE SET NULL,
+        body       TEXT NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_chat_messages_group ON chat_messages(group_id, created_at DESC);
+
     console.log('✅ マイグレーション完了！');
     console.log('  - users テーブル');
     console.log('  - events テーブル');
@@ -231,6 +259,7 @@ async function migrate() {
     console.log('  - posters テーブル（ポスター案）');
     console.log('  - schedules テーブル（スケジュール進捗）');
     console.log('  - schedule_steps テーブル');
+    console.log('  - chat_groups / chat_members / chat_messages テーブル');
   } catch (err) {
     console.error('❌ マイグレーションエラー:', err.message);
     process.exit(1);
