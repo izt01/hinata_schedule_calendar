@@ -1,11 +1,22 @@
 {
   "name": "日向坂46 ひなたカレンダー",
-  "short_name": "日向坂46",
-  "start_url": "./index.html",
+  "short_name": "ひなたCal",
+  "description": "日向坂46ファン向け推し活管理アプリ",
+  "start_url": "./index.html?pwa=1",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "portrait",
   "theme_color": "#1565a0",
-  "background_color": "#f0f8ff",
+  "background_color": "#e8f4ff",
+  "scope": "./",
+  "lang": "ja",
+  "categories": [
+    "entertainment",
+    "lifestyle"
+  ],
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -18,6 +29,39 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "行事帳",
+      "url": "./events.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "スケジュール",
+      "url": "./schedule.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "チャット",
+      "url": "./chat.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

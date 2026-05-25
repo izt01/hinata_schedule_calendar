@@ -382,6 +382,28 @@ body.has-wallpaper {
 .active-banner-sub { font-family:'Noto Serif JP',serif; font-size:11px; color:var(--sumi-light); }
 .active-banner-arrow { font-size:20px; color:var(--sumi-light); flex-shrink:0; }
 </style>
+<script>
+// ── PWA起動チェック ──
+(function() {
+  var isPWA = window.navigator.standalone === true                    // iOS
+    || window.matchMedia('(display-mode: standalone)').matches        // Android/PC
+    || window.matchMedia('(display-mode: minimal-ui)').matches
+    || new URLSearchParams(window.location.search).get('pwa') === '1';
+
+  if (!isPWA) {
+    // ブラウザで直接開いた場合：インストール案内を表示
+    document.addEventListener('DOMContentLoaded', function() {
+      var guide = document.getElementById('pwa-install-guide');
+      if (guide) guide.style.display = 'flex';
+      // アプリ本体は非表示
+      var app = document.getElementById('app');
+      if (app) app.style.display = 'none';
+      var canvas = document.getElementById('petals-canvas');
+      if (canvas) canvas.style.display = 'none';
+    });
+  }
+})();
+</script>
 </head>
 <body>
 <canvas id="petals-canvas"></canvas>
