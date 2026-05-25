@@ -221,7 +221,6 @@ async function migrate() {
       CREATE INDEX IF NOT EXISTS idx_posters_created_at  ON posters(created_at);
       CREATE INDEX IF NOT EXISTS idx_poster_likes_poster ON poster_likes(poster_id);
       CREATE INDEX IF NOT EXISTS idx_poster_comments     ON poster_comments(poster_id);
-    `);
 
       -- チャットグループテーブル
       CREATE TABLE IF NOT EXISTS chat_groups (
@@ -250,6 +249,7 @@ async function migrate() {
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
       CREATE INDEX IF NOT EXISTS idx_chat_messages_group ON chat_messages(group_id, created_at DESC);
+    `); 
 
     console.log('✅ マイグレーション完了！');
     console.log('  - users テーブル');
