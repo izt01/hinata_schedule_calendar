@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="style.css">
-<script src="pwa-check.js"></script>
+<!-- pwa-check disabled -->
 <style>
 /* ── レイアウト ── */
 .chat-layout { display:flex; height:calc(100vh - 56px); overflow:hidden; }
@@ -295,6 +295,9 @@ var pollTimer        = null;
 var lastMessageAt    = null;
 var allUsers         = [];
 var selectedInviteIds = {};
+var allGroups = [];
+var sentMessageIds = {}; // 送信済みIDキャッシュ（重複防止）
+var isPolling = false; // ポーリング中フラグ
 var isMobile         = window.innerWidth <= 600;
 
 // ── グループ一覧 ──────────────────────────
@@ -305,6 +308,7 @@ function loadGroups() {
 }
 
 function renderGroups(groups) {
+  allGroups = groups;
   var el = document.getElementById('groupList');
   if (!groups.length) {
     el.innerHTML = '<div class="chat-empty" style="padding:40px 16px"><div class="chat-empty-icon">💬</div><div>グループがまだありません<br>＋ボタンから作成しましょう</div></div>';
@@ -315,7 +319,7 @@ function renderGroups(groups) {
     var time = g.last_message_at ? formatTime(g.last_message_at) : '';
     var lastMsg = g.last_message ? truncate(g.last_message, 20) : 'メッセージなし';
     var isActive = currentGroupId === g.id;
-    return '<div class="group-item' + (isActive?' active':'') + '" data-id="' + g.id + '" onclick="openGroup(\'' + g.id + '\')">'
+    return '<div class="group-item' + (isActive?' active':'') + '" data-gid="' + g.id + '">'
       + '<div class="group-item-icon' + (g.is_public?' public':'') + '">' + icon + '</div>'
       + '<div class="group-item-info">'
         + '<div class="group-item-name">' + escHtml(g.name) + '</div>'
@@ -326,12 +330,19 @@ function renderGroups(groups) {
       + '</div>'
       + '</div>';
   }).join('');
+  // click + touchend 両対応（iOS Safari対策）
+  el.querySelectorAll('.group-item').forEach(function(item) {
+    item.addEventListener('click', function() { openGroup(this.dataset.gid); });
+    item.addEventListener('touchend', function(e) { e.preventDefault(); openGroup(this.dataset.gid); }, { passive: false });
+  });
 }
 
 // ── グループを開く ────────────────────────
 function openGroup(id) {
   currentGroupId   = id;
   lastMessageAt    = null;
+  sentMessageIds   = {};
+  isPolling        = false;
   clearInterval(pollTimer);
 
   // モバイル：サイドバーを隠してチャット画面を表示
@@ -342,24 +353,31 @@ function openGroup(id) {
 
   // アクティブ状態更新
   document.querySelectorAll('.group-item').forEach(function(el) {
-    el.classList.toggle('active', el.dataset.id === id);
+    el.classList.toggle('active', el.dataset.gid === id);
   });
 
-  // グループデータ取得
-  apiFetch('/api/chat/groups').then(function(groups) {
+  // キャッシュからグループデータを取得（なければAPI呼び出し）
+  function setupChat(groups) {
     currentGroupData = (groups || []).find(function(g) { return g.id === id; });
     if (!currentGroupData) return;
-
     var header = document.getElementById('chatHeader');
     header.style.display = 'flex';
     document.getElementById('chatHeaderName').textContent = currentGroupData.name;
     document.getElementById('chatHeaderSub').textContent =
-      (currentGroupData.is_public ? '🌐 公開グループ' : '🔒 非公開') + ' · ' + currentGroupData.member_count + '人';
+      (currentGroupData.is_public ? '🌐 公開グループ' : '🔒 非公開') + ' · ' + (currentGroupData.member_count || 0) + '人';
     document.getElementById('chatInputWrap').style.display = 'flex';
-
     loadMessages();
     pollTimer = setInterval(pollMessages, 3000);
-  });
+  }
+
+  if (allGroups.length) {
+    setupChat(allGroups);
+  } else {
+    apiFetch('/api/chat/groups').then(function(groups) {
+      allGroups = groups || [];
+      setupChat(allGroups);
+    }).catch(function(err) { alert('グループ情報の取得に失敗しました: ' + err.message); });
+  }
 }
 
 // ── メッセージ読み込み ────────────────────
@@ -372,15 +390,21 @@ function loadMessages() {
 }
 
 function pollMessages() {
-  if (!currentGroupId) return;
+  if (!currentGroupId || isPolling) return;
+  isPolling = true;
   var url = '/api/chat/groups/' + currentGroupId + '/messages';
   if (lastMessageAt) url += '?since=' + encodeURIComponent(lastMessageAt);
   apiFetch(url).then(function(msgs) {
     if (!msgs || !msgs.length) return;
-    appendMessages(msgs);
+    // 自分が送信済みのメッセージは除外（重複防止）
+    var newMsgs = msgs.filter(function(m) { return !sentMessageIds[m.id]; });
+    if (newMsgs.length) {
+      appendMessages(newMsgs);
+      loadGroups();
+    }
     lastMessageAt = msgs[msgs.length-1].created_at;
-    loadGroups(); // サイドバーの最新メッセージも更新
-  }).catch(function() {});
+  }).catch(function() {})
+  .finally(function() { isPolling = false; });
 }
 
 function renderMessages(msgs, append) {
@@ -456,6 +480,7 @@ function sendMessage() {
   }).then(function(msg) {
     input.value = ''; input.style.height = 'auto';
     if (msg) {
+      sentMessageIds[msg.id] = true; // 送信済みとして登録
       appendMessages([msg]);
       lastMessageAt = msg.created_at;
       loadGroups();

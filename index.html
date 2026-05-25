@@ -382,30 +382,79 @@ body.has-wallpaper {
 .active-banner-sub { font-family:'Noto Serif JP',serif; font-size:11px; color:var(--sumi-light); }
 .active-banner-arrow { font-size:20px; color:var(--sumi-light); flex-shrink:0; }
 </style>
-<script>
-// ── PWA起動チェック ──
-(function() {
-  var isPWA = window.navigator.standalone === true                    // iOS
-    || window.matchMedia('(display-mode: standalone)').matches        // Android/PC
-    || window.matchMedia('(display-mode: minimal-ui)').matches
-    || new URLSearchParams(window.location.search).get('pwa') === '1';
-
-  if (!isPWA) {
-    // ブラウザで直接開いた場合：インストール案内を表示
-    document.addEventListener('DOMContentLoaded', function() {
-      var guide = document.getElementById('pwa-install-guide');
-      if (guide) guide.style.display = 'flex';
-      // アプリ本体は非表示
-      var app = document.getElementById('app');
-      if (app) app.style.display = 'none';
-      var canvas = document.getElementById('petals-canvas');
-      if (canvas) canvas.style.display = 'none';
-    });
-  }
-})();
-</script>
+<!-- PWAチェック無効化中 -->
 </head>
 <body>
+<div id="pwa-install-guide" style="display:none;position:fixed;inset:0;z-index:9999;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;background:linear-gradient(160deg,#c8e8fc 0%,#e4f4ff 40%,#fdf4d0 80%,#fff8e8 100%);padding:48px 20px 40px;-webkit-overflow-scrolling:touch">
+
+  <!-- ロゴ -->
+  <div style="text-align:center;margin-bottom:32px">
+    <div style="font-size:72px;margin-bottom:12px">🌻</div>
+    <div style="font-family:'Shippori Mincho',serif;font-size:28px;font-weight:800;color:#1565a0;letter-spacing:0.1em;margin-bottom:6px">日向坂46</div>
+    <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#4a7090;letter-spacing:0.2em">✿ ひなたカレンダー ✿</div>
+  </div>
+
+  <!-- 説明カード -->
+  <div style="background:rgba(255,255,255,0.88);border-radius:24px;border:1.5px solid rgba(200,220,255,0.6);padding:28px 22px;max-width:360px;width:100%;backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(21,101,160,0.12);margin-bottom:20px">
+
+    <div style="text-align:center;margin-bottom:22px">
+      <div style="font-family:'M PLUS Rounded 1c',sans-serif;font-size:14px;font-weight:800;color:#1565a0;margin-bottom:6px">📲 アプリとして使うには</div>
+      <div style="font-family:'Noto Serif JP',serif;font-size:11px;color:#666;line-height:1.8">ホーム画面に追加することで<br>アプリとして起動できます</div>
+    </div>
+
+    <!-- iOS -->
+    <div style="background:linear-gradient(135deg,rgba(21,101,160,0.06),rgba(21,101,160,0.02));border:1.5px solid rgba(21,101,160,0.15);border-radius:18px;padding:18px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <div style="font-size:20px">🍎</div>
+        <div style="font-family:'M PLUS Rounded 1c',sans-serif;font-size:12px;font-weight:800;color:#1565a0">iPhone / iPad（Safari）</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:24px;height:24px;border-radius:50%;background:#1565a0;color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#333;line-height:1.7">このページを <strong>Safari</strong> で開く<br><span style="font-size:10px;color:#888">※ Chrome・LINEブラウザは非対応</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:24px;height:24px;border-radius:50%;background:#1565a0;color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#333;line-height:1.7">画面下部の <span style="display:inline-flex;align-items:center;gap:3px;background:white;border:1px solid #ddd;border-radius:7px;padding:2px 8px;font-size:12px">共有 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565a0" stroke-width="2.5"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg></span> をタップ</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:24px;height:24px;border-radius:50%;background:#1565a0;color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">3</div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#333;line-height:1.7">「<strong>ホーム画面に追加</strong>」をタップ →「追加」をタップ</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:24px;height:24px;border-radius:50%;background:rgba(40,160,80,0.8);color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">✓</div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#2a7a40;line-height:1.7">ホーム画面のアイコンから起動！</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Android -->
+    <div style="background:linear-gradient(135deg,rgba(40,160,80,0.06),rgba(40,160,80,0.02));border:1.5px solid rgba(40,160,80,0.2);border-radius:18px;padding:18px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <div style="font-size:20px">🤖</div>
+        <div style="font-family:'M PLUS Rounded 1c',sans-serif;font-size:12px;font-weight:800;color:#2a7a40">Android（Chrome）</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:24px;height:24px;border-radius:50%;background:#2a7a40;color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#333;line-height:1.7"><strong>Chrome</strong> でこのページを開く</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:24px;height:24px;border-radius:50%;background:#2a7a40;color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#333;line-height:1.7">右上の <span style="background:white;border:1px solid #ddd;border-radius:6px;padding:2px 8px;font-size:12px">⋮</span> メニュー →「<strong>ホーム画面に追加</strong>」</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="width:24px;height:24px;border-radius:50%;background:rgba(40,160,80,0.8);color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">✓</div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#2a7a40;line-height:1.7">ホーム画面のアイコンから起動！</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-family:'Noto Serif JP',serif;font-size:10px;color:#4a7090;text-align:center;line-height:1.9;opacity:0.8">
+    ホーム画面に追加すると<br>ブラウザUIなしでアプリとして使えます 🌸
+  </div>
+</div>
 <canvas id="petals-canvas"></canvas>
 
 <!-- SPLASH -->

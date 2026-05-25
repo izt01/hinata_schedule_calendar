@@ -249,7 +249,7 @@ async function migrate() {
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
       CREATE INDEX IF NOT EXISTS idx_chat_messages_group ON chat_messages(group_id, created_at DESC);
-    `); 
+    `);
 
     console.log('✅ マイグレーション完了！');
     console.log('  - users テーブル');

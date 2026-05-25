@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="style.css">
-<script src="pwa-check.js"></script>
+<!-- pwa-check disabled -->
 <style>
 .guide-hero {
   margin:0 0 24px; padding:32px 20px 28px;
@@ -85,6 +85,7 @@
       <a class="toc-btn" onclick="openSection('sec-schedule')">📋 スケジュール</a>
       <a class="toc-btn" onclick="openSection('sec-flower')">💐 祝花</a>
       <a class="toc-btn" onclick="openSection('sec-poster')">🎨 ポスター</a>
+      <a class="toc-btn" onclick="openSection('sec-chat')">💬 チャット</a>
       <a class="toc-btn" onclick="openSection('sec-notif')">🔔 通知</a>
       <a class="toc-btn" onclick="openSection('sec-admin')">🔐 管理者</a>
     </div>
@@ -392,7 +393,59 @@
       </div>
     </div>
 
-    <!-- ⑨ 通知機能 -->
+    <!-- ⑨ チャット -->
+    <div class="guide-section" id="sec-chat">
+      <div class="guide-section-header" onclick="toggleSection(this)">
+        <div class="guide-section-icon" style="background:rgba(21,101,160,0.1)">💬</div>
+        <div class="guide-section-title">チャット</div>
+        <div class="guide-section-arrow">›</div>
+      </div>
+      <div class="guide-section-body">
+        <div class="guide-feature">
+          <div class="guide-feature-badge">＋</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">グループの作成</div>
+            <div class="guide-feature-desc">「＋ グループ」ボタンからグループを作成できます。</div>
+            <div class="guide-steps" style="margin-top:6px">
+              <div class="guide-step"><div class="guide-step-num">①</div><div class="guide-step-text"><b>グループ名</b>を入力（必須）</div></div>
+              <div class="guide-step"><div class="guide-step-num">②</div><div class="guide-step-text"><b>公開設定</b>：全体公開（🌐）か非公開（🔒）を選択</div></div>
+              <div class="guide-step"><div class="guide-step-num">③</div><div class="guide-step-text"><b>招待メンバー</b>を選択（非公開グループの場合）</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature-badge">🌐</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">グループの種類</div>
+            <div class="guide-feature-desc">全体公開グループは全ユーザーが参加・閲覧できます。非公開グループは招待されたメンバーのみ参加できます。</div>
+          </div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature-badge">💬</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">メッセージの送受信</div>
+            <div class="guide-feature-desc">グループをタップするとチャット画面に移動します。下部のテキストボックスにメッセージを入力して送信できます。3秒ごとに自動更新されるので、他のユーザーのメッセージもリアルタイムで表示されます。</div>
+          </div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature-badge">🗑</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">メッセージの削除</div>
+            <div class="guide-feature-desc">自分が送ったメッセージは 🗑 ボタンで削除できます。他のユーザーのメッセージは削除できません。</div>
+          </div>
+        </div>
+        <div class="guide-feature">
+          <div class="guide-feature-badge">👥</div>
+          <div class="guide-feature-info">
+            <div class="guide-feature-name">メンバー確認・退出</div>
+            <div class="guide-feature-desc">チャット画面右上の「👥 メンバー」ボタンでグループのメンバー一覧を確認できます。グループから退出したり、自分が作成したグループを削除することもできます。</div>
+          </div>
+        </div>
+        <div class="guide-tip">スマホでは左側にグループ一覧、右側にチャット画面が表示されます。グループ名をタップすると切り替わります。</div>
+      </div>
+    </div>
+
+    <!-- ⑩ 通知機能 -->
     <div class="guide-section" id="sec-notif">
       <div class="guide-section-header" onclick="toggleSection(this)">
         <div class="guide-section-icon" style="background:rgba(255,150,0,0.1)">🔔</div>
