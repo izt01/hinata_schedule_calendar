@@ -3,7 +3,7 @@
    service-worker.js
 ═══════════════════════════════════════ */
 
-const CACHE_NAME = 'oshikatu-v1';
+const CACHE_NAME = 'oshikatu-v3';
 const CACHE_FILES = [
   './',
   './index.html',
