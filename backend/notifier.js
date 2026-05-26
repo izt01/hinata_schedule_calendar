@@ -1,8 +1,10 @@
 /* ═══════════════════════════════════════
    ひなたカレンダー — 通知モジュール
    notifier.js
+   Gmail（nodemailer）+ Webプッシュ（web-push）
 ═══════════════════════════════════════ */
-const webpush = require('web-push');
+const webpush    = require('web-push');
+const nodemailer = require('nodemailer');
 
 // ── VAPID設定 ──────────────────────────
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
@@ -13,26 +15,38 @@ if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   );
 }
 
-// ── Resend初期化 ────────────────────────
-let resendClient = null;
-if (process.env.RESEND_API_KEY) {
-  const { Resend } = require('resend');
-  resendClient = new Resend(process.env.RESEND_API_KEY);
+// ── Gmail（nodemailer）初期化 ────────────
+let transporter = null;
+if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_PASS,
+    },
+  });
+  console.log('[Mail] Gmail送信者:', process.env.GMAIL_USER);
+} else {
+  console.log('[Mail] GMAIL_USER/GMAIL_PASS未設定 - メール送信スキップ');
 }
 
 // ━━━ メール送信 ━━━━━━━━━━━━━━━━━━━━━━━━
 async function sendMail({ to, subject, html }) {
-  if (!resendClient) { console.log('[Mail] スキップ:', subject); return false; }
+  if (!transporter) { console.log('[Mail] スキップ（未設定）:', subject); return false; }
   if (!to) return false;
   try {
-    const { error } = await resendClient.emails.send({
-      from: process.env.MAIL_FROM || 'onboarding@resend.dev',
-      to: [to], subject, html,
+    await transporter.sendMail({
+      from: '"ひなたカレンダー" <' + process.env.GMAIL_USER + '>',
+      to:      to,
+      subject: subject,
+      html:    html,
     });
-    if (error) { console.error('[Mail] 送信エラー:', error); return false; }
     console.log('[Mail] 送信成功:', subject, '->', to);
     return true;
-  } catch (err) { console.error('[Mail] 例外:', err.message); return false; }
+  } catch (err) {
+    console.error('[Mail] 送信エラー:', err.message);
+    return false;
+  }
 }
 
 // ━━━ プッシュ通知送信 ━━━━━━━━━━━━━━━━━━
