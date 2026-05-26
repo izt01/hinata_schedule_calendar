@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>日向坂46 — 祝花申し込み</title>
+<title>日向坂46  E祝花申し込み</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#8b2252">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="style.css">
 <!-- pwa-check disabled -->
 <style>
-/* ── 祝花ページ ── */
+/* ── 祝花ペ�Eジ ── */
 .flower-hero {
   margin: 0 0 24px;
   padding: 32px 20px 24px;
@@ -31,7 +31,7 @@
   font-size: 11px; color: rgba(255,255,255,0.8); letter-spacing: 0.15em;
 }
 
-/* メンバー選択 */
+/* メンバ�E選抁E*/
 .member-flower-grid {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;
 }
@@ -53,7 +53,7 @@
   object-fit: cover; border: 2px solid var(--hina-2);
 }
 
-/* 金額ボタン */
+/* 金額�Eタン */
 .amount-grid {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;
 }
@@ -69,7 +69,7 @@
 }
 .amount-btn:active { transform: scale(0.95); }
 
-/* 申し込みリスト */
+/* 申し込みリスチE*/
 .flower-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 100px; }
 .flower-item {
   background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
@@ -118,20 +118,19 @@
   <div id="headerMount"></div>
   <div class="page-content page-enter" style="padding-top:0">
 
-    <!-- ヒーロー -->
+    <!-- ヒ�Eロー -->
     <div class="flower-hero">
       <div class="flower-hero-icon">💐</div>
       <div class="flower-hero-title">祝花申し込み</div>
-      <div class="flower-hero-sub">✿ 推しメンに祝花を贈ろう ✿</div>
-      <!-- ファンページへのリンク -->
+      <div class="flower-hero-sub">✿ 推しメンに祝花を贈ろぁE✿</div>
+      <!-- ファンペ�Eジへのリンク -->
       <a href="https://flower-fanpage.vercel.app/" style="display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:8px 18px;border-radius:20px;background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.4);text-decoration:none;font-family:'Noto Serif JP',serif;font-size:11px;font-weight:700;color:white;backdrop-filter:blur(8px);touch-action:manipulation;transition:background 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.28)'" onmouseout="this.style.background='rgba(255,255,255,0.18)'">
-        🌸 祝花ファンページを見る →
-      </a>
+        🌸 祝花ファンペ�Eジを見る ↁE      </a>
     </div>
 
-    <!-- 合計 -->
+    <!-- 合訁E-->
     <div class="flower-total-bar">
-      <div class="flower-total-label">💐 申し込み総額</div>
+      <div class="flower-total-label">💐 申し込み総顁E/div>
       <div class="flower-total-amount" id="totalAmount">¥0</div>
     </div>
 
@@ -153,16 +152,16 @@
 <div class="modal-overlay" id="flowerModal" onclick="closeFlowerModal(event)">
   <div class="modal">
     <div class="modal-handle"></div>
-    <button class="modal-close-btn" onclick="document.getElementById('flowerModal').classList.remove('open')">✕</button>
+    <button class="modal-close-btn" onclick="document.getElementById('flowerModal').classList.remove('open')">✁E/button>
     <div class="modal-title">💐 祝花申し込み</div>
 
-    <!-- メンバー選択 -->
+    <!-- メンバ�E選抁E-->
     <div class="form-group">
-      <label class="form-label">メンバーを選ぶ <span style="color:#e05080">*</span></label>
+      <label class="form-label">メンバ�Eを選ぶ <span style="color:#e05080">*</span></label>
       <div class="member-flower-grid" id="memberFlowerGrid"></div>
     </div>
 
-    <!-- 金額 -->
+    <!-- 金顁E-->
     <div class="form-group">
       <label class="form-label">金額を選ぶ <span style="color:#e05080">*</span></label>
       <div class="amount-grid">
@@ -174,20 +173,20 @@
         <button class="amount-btn" onclick="selectAmount(30000,this)">¥30,000</button>
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
-        <span style="font-size:12px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;white-space:nowrap">その他：¥</span>
-        <input class="form-input" id="customAmount" type="number" placeholder="金額を入力" min="1" style="flex:1" oninput="onCustomAmount(this)">
+        <span style="font-size:12px;color:var(--sumi-light);font-family:'Noto Serif JP',serif;white-space:nowrap">そ�E他：¥</span>
+        <input class="form-input" id="customAmount" type="number" placeholder="金額を入劁E min="1" style="flex:1" oninput="onCustomAmount(this)">
       </div>
     </div>
 
-    <!-- メッセージ -->
+    <!-- メチE��ージ -->
     <div class="form-group">
-      <label class="form-label">メッセージ（任意）</label>
-      <input class="form-input" id="flowerMessage" type="text" placeholder="例：お誕生日おめでとう！">
+      <label class="form-label">メチE��ージ�E�任意！E/label>
+      <input class="form-input" id="flowerMessage" type="text" placeholder="例：お誕生日おめでとぁE��E>
     </div>
 
     <!-- 選択中の金額表示 -->
     <div style="text-align:center;margin-bottom:16px">
-      <div style="font-family:'Noto Serif JP',serif;font-size:11px;color:var(--sumi-light);margin-bottom:4px">申し込み金額</div>
+      <div style="font-family:'Noto Serif JP',serif;font-size:11px;color:var(--sumi-light);margin-bottom:4px">申し込み金顁E/div>
       <div id="selectedAmountDisplay" style="font-family:'Shippori Mincho',serif;font-size:28px;font-weight:800;color:#c03060">¥---</div>
     </div>
 
@@ -197,30 +196,29 @@
   </div>
 </div>
 
-<!-- 振込案内モーダル -->
+<!-- 振込案�Eモーダル -->
 <div class="modal-overlay" id="transferModal" onclick="closeTransferModal(event)">
   <div class="modal" style="text-align:center">
     <div class="modal-handle"></div>
-    <button class="modal-close-btn" onclick="document.getElementById('transferModal').classList.remove('open')">✕</button>
+    <button class="modal-close-btn" onclick="document.getElementById('transferModal').classList.remove('open')">✁E/button>
     <div style="font-size:56px;margin-bottom:12px">💐</div>
-    <div class="modal-title" style="text-align:center">申し込み完了！</div>
+    <div class="modal-title" style="text-align:center">申し込み完亁E��E/div>
     <div style="font-family:'Noto Serif JP',serif;font-size:13px;color:var(--sumi-light);line-height:1.9;margin-bottom:24px">
-      以下の口座に振込をお願いします。<br>
-      振込確認後、ステータスが「完了」になります。
-    </div>
+      以下�E口座に振込をお願いします、Ebr>
+      振込確認後、スチE�Eタスが「完亁E��になります、E    </div>
     <div style="background:var(--hina-1);border-radius:16px;border:1.5px solid var(--hina-2);padding:18px;margin-bottom:20px;text-align:left">
-      <div style="font-family:'M PLUS Rounded 1c',sans-serif;font-size:11px;color:var(--hina-4);letter-spacing:0.15em;margin-bottom:10px">振込先</div>
+      <div style="font-family:'M PLUS Rounded 1c',sans-serif;font-size:11px;color:var(--hina-4);letter-spacing:0.15em;margin-bottom:10px">振込允E/div>
       <div style="font-family:'Shippori Mincho',serif;font-size:15px;font-weight:700;color:var(--sumi);line-height:2">
-        銀行名：〇〇銀行<br>
-        支店名：〇〇支店<br>
-        口座番号：〇〇〇〇〇〇〇<br>
-        口座名義：ヒナタカレンダー
+        銀行名�E�、E��E��衁Ebr>
+        支店名�E�、E��E��庁Ebr>
+        口座番号�E�、E��E��E��E��E��E��Ebr>
+        口座名義�E�ヒナタカレンダー
       </div>
-      <div style="font-size:10px;color:var(--sumi-light);margin-top:8px;font-family:'Noto Serif JP',serif">※振込先は実際のものに変更してください</div>
+      <div style="font-size:10px;color:var(--sumi-light);margin-top:8px;font-family:'Noto Serif JP',serif">※振込先�E実際のも�Eに変更してください</div>
     </div>
     <div style="font-family:'Shippori Mincho',serif;font-size:24px;font-weight:800;color:#c03060;margin-bottom:20px" id="transferAmount"></div>
     <button class="btn-primary" style="width:100%;justify-content:center" onclick="markComplete()">
-      振込完了！ → 「完了」にする
+      振込完亁E��EↁE「完亁E��にする
     </button>
     <button style="width:100%;margin-top:10px;padding:13px;border-radius:16px;border:1.5px solid var(--hina-2);background:rgba(255,255,255,0.8);font-family:'Noto Serif JP',serif;font-size:13px;color:var(--sumi-light);cursor:pointer" onclick="document.getElementById('transferModal').classList.remove('open')">
       後で振り込む
@@ -231,32 +229,31 @@
 <script src="data.js"></script>
 <script src="db.js"></script>
 <script src="api.js"></script>
-<script src="nav.js"></script>
+<script src="nav2.js"></script>
 <script src="sakura.js"></script>
 <script>
-document.getElementById('headerMount').outerHTML = headerHTML('祝花申し込み', '💐 推しメンに贈ろう 💐');
+document.getElementById('headerMount').outerHTML = headerHTML('祝花申し込み', '💐 推しメンに贈ろぁE💐');
 injectNav('flower.html');
 
 let selectedMemberId   = null;
 
-// ── 公開チェック ──────────────────────────
+// ── 公開チェチE�� ──────────────────────────
 (async function checkFlowerOpen() {
-  // 管理者はチェックをスキップ
+  // 管琁E��E�EチェチE��をスキチE�E
   if (isAdmin()) { init(); return; }
   try {
     const s = await apiFetch('/api/flower-settings');
     if (!s || !s.is_open) {
-      // 非公開中はページをロック
+      // 非�E開中はペ�EジをロチE��
       document.getElementById('app').innerHTML = `
         <div id="headerMount2"></div>
         <div class="page-content" style="padding-top:60px;text-align:center">
           <div style="font-size:64px;margin-bottom:16px">💐</div>
-          <div style="font-family:'Shippori Mincho',serif;font-size:22px;font-weight:800;color:var(--sky);margin-bottom:8px">現在受付期間外です</div>
+          <div style="font-family:'Shippori Mincho',serif;font-size:22px;font-weight:800;color:var(--sky);margin-bottom:8px">現在受付期間外でぁE/div>
           <div style="font-family:'Noto Serif JP',serif;font-size:13px;color:var(--sumi-light);line-height:1.8">
-            祝花申し込みの受付期間外です。<br>受付期間になるとこのページから申し込みできます。
-            ${s && s.open_from ? '<br><br>次回受付：' + s.open_from + ' 〜 ' + s.open_to : ''}
+            祝花申し込みの受付期間外です、Ebr>受付期間になるとこ�Eペ�Eジから申し込みできます、E            ${s && s.open_from ? '<br><br>次回受付！E + s.open_from + ' 、E' + s.open_to : ''}
           </div>
-          <a href="index.html" style="display:inline-block;margin-top:24px;padding:12px 28px;background:var(--sky);color:white;border-radius:16px;text-decoration:none;font-family:'M PLUS Rounded 1c',sans-serif;font-weight:700">トップへ戻る</a>
+          <a href="index.html" style="display:inline-block;margin-top:24px;padding:12px 28px;background:var(--sky);color:white;border-radius:16px;text-decoration:none;font-family:'M PLUS Rounded 1c',sans-serif;font-weight:700">トップへ戻めE/a>
         </div>`;
       return;
     }
@@ -268,7 +265,7 @@ let selectedAmount     = 0;
 let pendingFlowerId    = null;
 let allFlowers         = [];
 
-// ── 初期化（checkFlowerOpenから呼ばれる）────
+// ── 初期化！EheckFlowerOpenから呼ばれる�E�────
 function init() {
   buildMemberGrid();
   loadFlowers();
@@ -331,8 +328,8 @@ function closeTransferModal(e) {
 
 // ── 申し込み送信 ──────────────────────────
 async function submitFlower() {
-  if (!selectedMemberId) { alert('メンバーを選択してください'); return; }
-  if (!selectedAmount || selectedAmount <= 0) { alert('金額を選択または入力してください'); return; }
+  if (!selectedMemberId) { alert('メンバ�Eを選択してください'); return; }
+  if (!selectedAmount || selectedAmount <= 0) { alert('金額を選択また�E入力してください'); return; }
 
   try {
     const result = await apiFetch('/api/flowers', {
@@ -395,10 +392,10 @@ function renderFlowers() {
       ? `<img class="flower-item-avatar" src="${avatarSrc}" alt="${f.member_name}">`
       : `<div class="flower-item-avatar" style="display:flex;align-items:center;justify-content:center;background:var(--hina-1);font-size:22px">${avatarSrc||'🌻'}</div>`;
 
-    const statusLabel = f.status === 'completed' ? '✅ 完了' : '⏳ 振込待ち';
+    const statusLabel = f.status === 'completed' ? '✁E完亁E : '⏳ 振込征E��';
     const statusCls   = f.status === 'completed' ? 'completed' : 'pending';
 
-    // 自分の申し込み かつ 振込待ち の場合だけ取り消しボタンを表示
+    // 自刁E�E申し込み かつ 振込征E�� の場合だけ取り消しボタンを表示
     const isMyPending = f.user_id === myId && f.status === 'pending';
     const cancelBtn = isMyPending
       ? `<button class="flower-cancel-btn" onclick="cancelFlower('${f.id}')">取り消し</button>`
@@ -421,7 +418,7 @@ function renderFlowers() {
 }
 
 async function cancelFlower(id) {
-  if (!confirm('この申し込みを取り消しますか？')) return;
+  if (!confirm('こ�E申し込みを取り消しますか�E�E)) return;
   try {
     await apiFetch(`/api/flowers/${id}`, { method: 'DELETE' });
     allFlowers = allFlowers.filter(f => f.id !== id);
