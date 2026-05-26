@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>日向坂46  Eメンバ�E詳細</title>
+<title>日向坂46 — メンバー詳細</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="theme-color" content="#8b2252">
@@ -210,17 +210,17 @@
   <div id="headerMount"></div>
 
   <div class="page-content page-enter" style="padding-top:10px">
-    <a class="back-link" href="members.html">ↁE推しメン一覧へ戻めE/a>
+    <a class="back-link" href="members.html">← 推しメン一覧へ戻る</a>
     <div id="detailContent"></div>
   </div>
 </div>
 
 <script src="data.js"></script>
-<script src="nav2.js"></script>
+<script src="nav.js"></script>
 <script src="sakura.js"></script>
 <script src="notify.js"></script>
 <script>
-document.getElementById('headerMount').outerHTML = headerHTML('日向坂46', '☀ メンバ�E詳細 ☀');
+document.getElementById('headerMount').outerHTML = headerHTML('日向坂46', '☀ メンバー詳細 ☀');
 initNotifications();
 injectNav('members.html');
 
@@ -234,10 +234,10 @@ if (!m) {
   document.getElementById('detailContent').innerHTML = `
     <div class="not-found">
       <div style="font-size:48px;margin-bottom:12px">🌻</div>
-      メンバ�Eが見つかりませんでした
+      メンバーが見つかりませんでした
     </div>`;
 } else {
-  document.title = `日向坂46  E${m.name}`;
+  document.title = `日向坂46 — ${m.name}`;
   renderDetail();
 }
 
@@ -247,7 +247,8 @@ function renderDetail() {
   const [yy, mm, dd] = parts.length === 3 ? parts.map(Number) : [null, ...parts.map(Number)];
   const isOshi  = oshiSet.has(m.id);
 
-  // 拡張子で画像か絵斁E��かを判宁E  const isImg = m.avatar && /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(m.avatar);
+  // 拡張子で画像か絵文字かを判定
+  const isImg = m.avatar && /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(m.avatar);
   const heroAvatar    = isImg ? `<img src="${m.avatar}" alt="${m.name}">` : (m.avatar || '🌻');
   const flowerAvatar  = isImg
     ? `<img src="${m.avatar}" alt="${m.name}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.6);">`
@@ -279,25 +280,25 @@ function renderDetail() {
     <div class="info-grid">
       <div class="info-tile">
         <div class="info-tile-label">誕生日</div>
-        <div class="info-tile-value" style="font-size:15px">${yy ? yy + '年' : ''}${mm}朁E{dd}日</div>
+        <div class="info-tile-value" style="font-size:15px">${yy ? yy + '年' : ''}${mm}月${dd}日</div>
       </div>
       <div class="info-tile">
         <div class="info-tile-label">年齢</div>
-        <div class="info-tile-value">${calcAge(m.birthday) !== null ? calcAge(m.birthday) + '歳' : ' E}</div>
+        <div class="info-tile-value">${calcAge(m.birthday) !== null ? calcAge(m.birthday) + '歳' : '—'}</div>
       </div>
       <div class="info-tile">
         <div class="info-tile-label">身長</div>
-        <div class="info-tile-value">${m.height || ' E}</div>
+        <div class="info-tile-value">${m.height || '—'}</div>
       </div>
       <div class="info-tile">
         <div class="info-tile-label">MBTI</div>
-        <div class="info-tile-value">${m.mbti || ' E}</div>
+        <div class="info-tile-value">${m.mbti || '—'}</div>
       </div>
     </div>
 
     ${m.fav ? `
     <div class="fav-block">
-      <div class="fav-block-label">好きなも�E</div>
+      <div class="fav-block-label">好きなもの</div>
       <div class="fav-block-value">${m.fav}</div>
     </div>` : ''}
 
