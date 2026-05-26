@@ -378,3 +378,4 @@ function updateTaskNoticeBanner(hasPending, pendingSteps) {
 
 // injectNav後に自動実行
 setTimeout(checkMyPendingTasks, 500);
+2026/05/26 20:12:05
