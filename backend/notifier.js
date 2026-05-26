@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════
    ひなたカレンダー — 通知モジュール
    notifier.js
-   Resend（HTTP API）+ Webプッシュ
+   Brevo（HTTP API）+ Webプッシュ
 ═══════════════════════════════════════ */
 const webpush = require('web-push');
 
@@ -14,30 +14,30 @@ if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   );
 }
 
-// ━━━ メール送信（Resend HTTP API）━━━━━━
+// ━━━ メール送信（Brevo HTTP API）━━━━━━━
 async function sendMail({ to, subject, html }) {
-  if (!process.env.RESEND_API_KEY) {
-    console.log('[Mail] RESEND_API_KEY未設定 - スキップ:', subject);
+  if (!process.env.BREVO_API_KEY) {
+    console.log('[Mail] BREVO_API_KEY未設定 - スキップ:', subject);
     return false;
   }
   if (!to) return false;
   try {
-    const res = await fetch('https://api.resend.com/emails', {
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + process.env.RESEND_API_KEY,
+        'api-key': process.env.BREVO_API_KEY,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'ひなたカレンダー <onboarding@resend.dev>',
-        to: [to],
+        sender: { name: 'ひなたカレンダー', email: 'noreply@hinata-calendar.com' },
+        to: [{ email: to }],
         subject: subject,
-        html: html,
+        htmlContent: html,
       }),
     });
     const data = await res.json();
     if (!res.ok) {
-      console.error('[Mail] 送信エラー:', data);
+      console.error('[Mail] 送信エラー:', JSON.stringify(data));
       return false;
     }
     console.log('[Mail] 送信成功:', subject, '->', to);
@@ -67,7 +67,7 @@ async function sendPush(subscription, payload) {
 // ━━━ メールテンプレート ━━━━━━━━━━━━━━━━
 function mailWrap(color, icon, title, body, extra) {
   extra = extra || '';
-  return '<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:0">'
+  return '<div style="font-family:sans-serif;max-width:480px;margin:0 auto">'
     + '<div style="background:' + color + ';padding:20px 24px;border-radius:16px 16px 0 0">'
       + '<h2 style="color:white;font-size:18px;margin:0">' + icon + ' ' + title + '</h2>'
     + '</div>'
@@ -87,17 +87,14 @@ function stepCard(title, dueDate, borderColor, labelColor) {
   return '<div style="background:white;border-radius:12px;padding:16px;margin:16px 0;border:1.5px solid ' + borderColor + '">'
     + '<div style="font-size:11px;color:#888;margin-bottom:4px">STEP</div>'
     + '<div style="font-size:16px;font-weight:bold;color:#1a2a3a">' + title + '</div>'
-    + due
-    + '</div>';
+    + due + '</div>';
 }
 
 // ━━━ タスク割当通知 ━━━━━━━━━━━━━━━━━━━━
 async function notifyAssignment({ pool, userId, scheduleTitle, stepTitle, dueDate }) {
   const userRes = await pool.query('SELECT email, nickname FROM users WHERE id=$1', [userId]);
-  if (!userRes.rows[0]) return;
-  const email    = userRes.rows[0].email;
-  const nickname = userRes.rows[0].nickname;
-  if (!email) return;
+  if (!userRes.rows[0] || !userRes.rows[0].email) return;
+  const { email, nickname } = userRes.rows[0];
 
   const subject = '【ひなたカレンダー】📋 タスクが割り当てられました';
   const html = mailWrap(
@@ -106,7 +103,6 @@ async function notifyAssignment({ pool, userId, scheduleTitle, stepTitle, dueDat
     stepCard(stepTitle, dueDate)
     + '<p style="font-size:12px;color:#888">アプリを開いて「タスク完了」ボタンを押すと次の担当者に進みます。</p>'
   );
-
   await sendMail({ to: email, subject, html });
 
   const subs = await pool.query('SELECT * FROM push_subscriptions WHERE user_id=$1', [userId]);
@@ -182,7 +178,7 @@ async function notifyPosterToAdmin({ pool, posterNickname, campaignTitle, captio
     const html = mailWrap(
       '#6040c0', '🎨', '新しいポスターが投稿されました',
       '<p style="color:#333;font-size:14px;line-height:1.8">募集「<b>' + (campaignTitle || 'ポスター案') + '</b>」に<br><b>' + (posterNickname || '匿名') + '</b> さんが新しいポスターを投稿しました。</p>',
-      (caption ? '<div style="background:white;border-radius:12px;padding:14px;margin:12px 0;border:1.5px solid #d0c0f0;font-size:13px;color:#333">' + caption + '</div>' : '')
+      (caption ? '<div style="background:white;border-radius:12px;padding:14px;margin:12px 0;border:1.5px solid #d0c0f0;font-size:13px">' + caption + '</div>' : '')
       + '<a href="' + (process.env.FRONTEND_URL || 'https://izt01.github.io/hinata_schedule_calendar') + '/poster.html" style="display:inline-block;padding:10px 20px;background:#6040c0;color:white;border-radius:12px;text-decoration:none;font-size:13px;font-weight:bold;margin-top:8px">ポスターを確認する →</a>'
     );
 
