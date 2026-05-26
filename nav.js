@@ -11,7 +11,7 @@ function injectNav(activePage) {
     { href: 'members.html',  icon: '🌻', label: '推しメン一覧' },
     { href: 'events.html',   icon: '☀️',  label: '行事帳' },
     { href: 'gallery.html',  icon: '📷', label: 'フォトギャラリー' },
-    { href: 'train.html',    icon: '🚃', label: '電車検索' },
+    // { href: 'train.html',    icon: '🚃', label: '電車検索' }, // 一時非表示
     { href: 'venue.html',    icon: '🏟️', label: 'ライブ会場一覧' },
     { href: 'schedule.html',  icon: '📋', label: 'スケジュール進捗' },
     { href: 'chat.html',      icon: '💬', label: 'チャット' },
@@ -63,6 +63,9 @@ function injectNav(activePage) {
           <div class="drawer-logo-sub">☀ ひなたカレンダー ☀</div>
           <button class="drawer-close" onclick="closeDrawerDirect()">✕</button>
         </div>
+        <a href="index.html" class="drawer-nav-item" style="background:rgba(21,101,160,0.08);border-bottom:1.5px solid var(--hina-2);font-weight:800">
+          <span class="drawer-nav-icon">🏠</span>メインページへ戻る
+        </a>
         ${userSection}
         <div class="drawer-nav">${navItems}</div>
         <div class="drawer-footer">☀ 日向坂46 · hinatazaka calendar ☀</div>
@@ -212,41 +215,166 @@ async function checkMyPendingTasks() {
   if (typeof isLoggedIn !== 'function' || !isLoggedIn()) return;
   if (typeof apiFetch !== 'function') return;
   try {
-    const myId     = (typeof getUser === 'function') ? getUser()?.id : null;
+    var myId = (typeof getUser === 'function') ? getUser().id : null;
     if (!myId) return;
-    const schedules = await apiFetch('/api/schedules');
+    var schedules = await apiFetch('/api/schedules');
     if (!schedules) return;
-    // 自分が担当で in_progress のステップがあるか確認
-    const hasPending = schedules.some(function(s) {
-      return s.status !== 'completed' && (s.steps || []).some(function(st) {
-        return st.status === 'in_progress' && st.assignee_id === myId;
+
+    // 自分が担当で in_progress のステップを収集
+    var pendingSteps = [];
+    schedules.forEach(function(s) {
+      if (s.status === 'completed') return;
+      (s.steps || []).forEach(function(st) {
+        if (st.status === 'in_progress' && st.assignee_id === myId) {
+          pendingSteps.push({ scheduleTitle: s.title, stepTitle: st.title, dueDate: st.due_date });
+        }
       });
     });
-    // ドロワーのバッジ
+    var hasPending = pendingSteps.length > 0;
+
+    // ① ドロワーのバッジ
     var badge = document.getElementById('schedNavBadge');
     if (badge) badge.style.display = hasPending ? 'inline-block' : 'none';
-    // トップページのメニューカード（グリッド・リスト）
-    updateScheduleCardBadge(hasPending);
+
+    // ② トップページのメニューカード強化
+    updateScheduleCardBadge(hasPending, pendingSteps);
+
+    // ③ トップページのお知らせバナー
+    updateTaskNoticeBanner(hasPending, pendingSteps);
+
   } catch {}
 }
 
-function updateScheduleCardBadge(hasPending) {
-  // グリッドのスケジュールカード
+function updateScheduleCardBadge(hasPending, pendingSteps) {
   var cards = document.querySelectorAll('a[href="schedule.html"]');
   cards.forEach(function(card) {
+    // 既存バッジ削除
     var existing = card.querySelector('.schedule-task-badge');
-    if (hasPending && !existing) {
-      var b = document.createElement('span');
-      b.className = 'schedule-task-badge';
-      b.textContent = '未完';
-      b.style.cssText = 'position:absolute;top:8px;right:8px;background:#e05050;color:white;border-radius:10px;font-size:9px;padding:2px 6px;font-weight:800;font-family:\'M PLUS Rounded 1c\',sans-serif;z-index:1;';
-      card.style.position = 'relative';
-      card.appendChild(b);
-    } else if (!hasPending && existing) {
-      existing.remove();
+    if (existing) existing.remove();
+
+    if (!hasPending) return;
+
+    // カード自体を強調
+    card.style.borderColor = 'rgba(220,60,60,0.45)';
+    card.style.background  = 'linear-gradient(135deg,rgba(255,240,240,0.9),rgba(255,255,255,0.85))';
+
+    // バッジ追加
+    var b = document.createElement('span');
+    b.className = 'schedule-task-badge';
+    b.textContent = pendingSteps.length + '件';
+    b.style.cssText = 'position:absolute;top:8px;right:8px;background:#e05050;color:white;border-radius:10px;font-size:9px;padding:2px 8px;font-weight:800;font-family:\'M PLUS Rounded 1c\',sans-serif;z-index:1;animation:taskPulse 1.8s ease-in-out infinite;';
+    card.style.position = 'relative';
+    card.appendChild(b);
+
+    // アイコンのアニメーション
+    var icon = card.querySelector('.quick-card-icon, .list-menu-item-icon');
+    if (icon && !icon.dataset.original) {
+      icon.dataset.original = icon.textContent;
+      icon.textContent = '📋';
+    }
+
+    // リスト用：ラベルにコメント追加
+    var label = card.querySelector('.list-menu-item-label');
+    if (label && !label.dataset.original) {
+      label.dataset.original = label.textContent;
+      label.innerHTML = 'スケジュール進捗 <span style="font-size:10px;color:#e05050;font-weight:700">● ' + pendingSteps.length + '件のタスク</span>';
     }
   });
+
+  // 通常に戻す（hasPendingがfalseの場合）
+  if (!hasPending) {
+    cards.forEach(function(card) {
+      card.style.borderColor = '';
+      card.style.background  = '';
+      var icon = card.querySelector('.quick-card-icon, .list-menu-item-icon');
+      if (icon && icon.dataset.original) {
+        icon.textContent = icon.dataset.original;
+        delete icon.dataset.original;
+      }
+      var label = card.querySelector('.list-menu-item-label');
+      if (label && label.dataset.original) {
+        label.textContent = label.dataset.original;
+        delete label.dataset.original;
+      }
+    });
+  }
 }
+
+function updateTaskNoticeBanner(hasPending, pendingSteps) {
+  // トップページ専用（index.htmlにのみ挿入）
+  var grid = document.getElementById('menuGrid') || document.getElementById('menuList');
+  if (!grid) return; // トップページでなければスキップ
+
+  var bannerId = 'taskNoticeBanner';
+  var existing = document.getElementById(bannerId);
+
+  if (!hasPending) {
+    if (existing) existing.remove();
+    return;
+  }
+
+  if (existing) {
+    // 更新
+    existing.querySelector('.task-notice-text').textContent =
+      '📋 ' + pendingSteps.length + '件のタスクが割り当てられています';
+    return;
+  }
+
+  // 新規作成
+  var banner = document.createElement('a');
+  banner.id        = bannerId;
+  banner.href      = 'schedule.html';
+  banner.className = '';
+  banner.style.cssText = [
+    'display:flex','align-items:center','gap:12px',
+    'padding:14px 18px','border-radius:18px',
+    'background:linear-gradient(135deg,rgba(220,60,60,0.10),rgba(255,255,255,0.88))',
+    'border:2px solid rgba(220,60,60,0.35)',
+    'text-decoration:none','cursor:pointer',
+    'touch-action:manipulation',
+    'box-shadow:0 4px 20px rgba(220,60,60,0.12)',
+    'margin-bottom:14px',
+    'animation:taskBannerIn 0.4s cubic-bezier(.34,1.56,.64,1) both',
+    'position:relative','overflow:hidden',
+  ].join(';');
+
+  banner.innerHTML = [
+    '<div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(to bottom,#e05050,#c03030);border-radius:18px 0 0 18px"></div>',
+    '<div style="font-size:32px;flex-shrink:0">📋</div>',
+    '<div style="flex:1;min-width:0">',
+      '<div class="task-notice-text" style="font-family:'Shippori Mincho',serif;font-size:14px;font-weight:800;color:#c03030;margin-bottom:2px">',
+        '📋 ' + pendingSteps.length + '件のタスクが割り当てられています',
+      '</div>',
+      '<div style="font-family:'Noto Serif JP',serif;font-size:11px;color:var(--sumi-light)">',
+        'スケジュール進捗を確認して完了ボタンを押してください',
+      '</div>',
+    '</div>',
+    '<div style="font-size:18px;color:#c03030;flex-shrink:0">›</div>',
+  ].join('');
+
+  // activeBannersの直後に挿入
+  var activeBanners = document.getElementById('activeBanners');
+  if (activeBanners && activeBanners.parentNode) {
+    activeBanners.parentNode.insertBefore(banner, activeBanners.nextSibling);
+  } else if (grid && grid.parentNode) {
+    grid.parentNode.insertBefore(banner, grid);
+  }
+
+  // タッチ対応
+  banner.addEventListener('touchend', function(e) { e.preventDefault(); location.href='schedule.html'; }, { passive: false });
+}
+
+// CSSアニメーション注入（一度だけ）
+(function injectTaskBadgeCSS() {
+  if (document.getElementById('taskBadgeStyle')) return;
+  var s = document.createElement('style');
+  s.id = 'taskBadgeStyle';
+  s.textContent = [
+    '@keyframes taskPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.75;transform:scale(1.08)}}',
+    '@keyframes taskBannerIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}',
+  ].join('');
+  document.head.appendChild(s);
+})();
 
 // injectNav後に自動実行
 setTimeout(checkMyPendingTasks, 500);
