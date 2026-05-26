@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>日向坂46  Eひなたカレンダー</title>
+<title>日向坂46 — ひなたカレンダー</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="theme-color" content="#1565a0">
@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="日向坂46">
 <link rel="stylesheet" href="style.css">
 <style>
-/* ━━━ESPLASH ━━━E*/
+/* ━━━ SPLASH ━━━ */
 #splash {
   position: fixed; inset: 0;
   background: linear-gradient(165deg, #e8f6ff 0%, #c8e8f8 40%, #a8d4f0 100%);
@@ -39,11 +39,11 @@
 .splash-start-btn:active { transform:scale(0.95); box-shadow:0 4px 16px rgba(139,34,82,0.25); }
 .splash-ver { position:absolute; bottom:24px; font-family:'Noto Serif JP',serif; font-size:10px; color:var(--hina-3); letter-spacing:0.2em; animation:titleReveal 1s ease 1.1s both; }
 
-/* ━━━EMAIN ━━━E*/
+/* ━━━ MAIN ━━━ */
 #main { opacity:0; transition:opacity 0.6s ease; pointer-events:none; }
 #main.visible { opacity:1; pointer-events:auto; }
 
-/* ━━━E全画面背景 ━━━E*/
+/* ━━━ 全画面背景 ━━━ */
 body.has-wallpaper {
   background-image: var(--hero-wallpaper-url, none);
   background-size: cover;
@@ -51,12 +51,12 @@ body.has-wallpaper {
   background-attachment: fixed;
 }
 
-/* 背景なし時のチE��ォルトグラチE�Eション */
+/* 背景なし時のデフォルトグラデーション */
 body:not(.has-wallpaper) {
   background: linear-gradient(160deg, #c8e8fc 0%, #e4f4ff 40%, #fdf4d0 80%, #fff8e8 100%);
 }
 
-/* ━━━EQUICK GRID ━━━E*/
+/* ━━━ QUICK GRID ━━━ */
 .quick-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:13px; margin:0 18px 24px; }
 .quick-card { background:rgba(255,255,255,0.72); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-radius:22px; border:1.5px solid rgba(255,255,255,0.6); padding:22px 16px; text-align:center; text-decoration:none; color:var(--sumi); box-shadow:0 4px 20px rgba(21,101,160,0.12); transition:transform 0.18s; display:flex; flex-direction:column; align-items:center; gap:8px; position:relative; overflow:hidden; }
 .quick-card::before { content:'✿'; position:absolute; bottom:-6px; right:-4px; font-size:44px; color:var(--hina-2); opacity:0.55; pointer-events:none; }
@@ -65,7 +65,7 @@ body:not(.has-wallpaper) {
 .quick-card-label { font-family:'Shippori Mincho',serif; font-size:14px; font-weight:700; color:var(--sky); letter-spacing:0.08em; }
 .quick-card-sub { font-size:10px; color:var(--sumi-light); letter-spacing:0.06em; }
 
-/* ━━━ETODAY STRIP ━━━E*/
+/* ━━━ TODAY STRIP ━━━ */
 .today-strip { margin:0 18px 24px; background:rgba(255,255,255,0.72); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-radius:20px; border:1.5px solid rgba(255,255,255,0.6); padding:18px 20px; box-shadow:0 4px 20px rgba(21,101,160,0.12); }
 .today-strip-label { font-family:'Noto Serif JP',serif; font-size:10px; color:var(--hina-4); letter-spacing:0.22em; text-transform:uppercase; margin-bottom:10px; }
 .today-strip-date { font-family:'Shippori Mincho',serif; font-size:26px; font-weight:800; color:var(--sky); letter-spacing:0.06em; margin-bottom:2px; }
@@ -75,10 +75,10 @@ body:not(.has-wallpaper) {
 @keyframes clockBlink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 .today-strip-clock-sec { font-size:18px; color:var(--hina-4); font-weight:700; margin-left:2px; align-self:flex-end; padding-bottom:3px; }
 
-/* ━━━EUPCOMING ━━━E*/
+/* ━━━ UPCOMING ━━━ */
 .upcoming-mini { margin:0 18px 100px; }
 
-/* メインコンチE��チE��景�E�壁紙を全画面に固定表示�E�E*/
+/* メインコンテンツ背景（壁紙を全画面に固定表示） */
 body.has-wallpaper {
   background-image: var(--hero-wallpaper-url, none);
   background-size: cover;
@@ -97,7 +97,7 @@ body.has-wallpaper {
 .upcoming-mini-badge { font-size:10px; padding:3px 9px; border-radius:20px; font-weight:700; background:var(--hina-1); color:var(--sky); border:1px solid var(--hina-2); white-space:nowrap; font-family:'Noto Serif JP',serif; }
 .upcoming-mini-badge.event-badge { background:rgba(90,122,90,0.1); color:var(--matcha); border-color:rgba(90,122,90,0.3); }
 
-/* ━━━E公式X�E�埋め込み代替�E�E━━━E*/
+/* ━━━ 公式X（埋め込み代替） ━━━ */
 .x-section {
   margin: 0 18px 24px;
   background: rgba(255,255,255,0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
@@ -123,7 +123,7 @@ body.has-wallpaper {
 .x-open-link:active { opacity: 0.85; }
 .x-open-link-icon { font-size: 18px; }
 
-/* 最新チE��ート風カード（静皁E��E*/
+/* 最新ツイート風カード（静的） */
 .x-tweet-card {
   padding: 14px 18px;
   border-bottom: 1px solid var(--hina-1);
@@ -140,7 +140,7 @@ body.has-wallpaper {
 .x-tweet-handle { font-size: 10px; color: var(--sumi-light); margin-bottom: 6px; }
 .x-tweet-text { font-family: 'Noto Serif JP', serif; font-size: 12px; color: var(--sumi); line-height: 1.7; }
 
-/* アカウンチETA */
+/* アカウントCTA */
 .account-cta-card { display:flex; align-items:center; gap:14px; padding:18px; background:rgba(255,255,255,0.70); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-radius:20px; border:1.5px solid rgba(255,255,255,0.6); text-decoration:none; color:var(--sumi); box-shadow:0 4px 20px rgba(21,101,160,0.12); transition:transform 0.15s; }
 .account-cta-card:active { transform:scale(0.97); }
 .account-cta-icon { font-size:32px; flex-shrink:0; }
@@ -148,8 +148,8 @@ body.has-wallpaper {
 .account-cta-title { font-family:'Shippori Mincho',serif; font-size:15px; font-weight:700; color:var(--sky); margin-bottom:3px; }
 .account-cta-sub { font-size:11px; color:var(--sumi-light); font-family:'Noto Serif JP',serif; }
 
-/* ━━━ELOGIN SCREEN ━━━E*/
-/* ━━━ELOGIN SCREEN ━━━E*/
+/* ━━━ LOGIN SCREEN ━━━ */
+/* ━━━ LOGIN SCREEN ━━━ */
 #login-screen {
   position:fixed; inset:0; z-index:400; display:none; overflow:hidden; cursor:pointer;
 }
@@ -164,7 +164,7 @@ body.has-wallpaper {
   background-size:cover; background-position:center;
 }
 
-/* カスタム写真オーバ�Eレイ */
+/* カスタム写真オーバーレイ */
 #login-photo-layer {
   position:absolute; inset:0;
   background-size:cover; background-position:center;
@@ -172,7 +172,7 @@ body.has-wallpaper {
 }
 #login-photo-layer.has-photo { opacity:1; }
 
-/* チE��ストオーバ�Eレイ�E��E真�E上！E*/
+/* テキストオーバーレイ（写真の上） */
 #login-text-overlay {
   position:absolute; inset:0;
   background: linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.25) 100%);
@@ -191,11 +191,11 @@ body.has-wallpaper {
 @keyframes titleBadgeIn { from{opacity:0;transform:translateX(-14px)} to{opacity:1;transform:translateX(0)} }
 .login-title-main { font-size:clamp(22px,5.5vw,30px); font-weight:900; color:var(--sky); font-family:'Noto Serif JP',serif; text-shadow:0 2px 12px rgba(72,180,224,.35); letter-spacing:.06em; }
 .login-title-sub  { font-size:11px; color:#4a7090; letter-spacing:.18em; font-family:'Noto Serif JP',serif; }
-/* 写真の上でのチE��スト色 */
+/* 写真の上でのテキスト色 */
 .login-on-photo .login-title-main { color:white; text-shadow:0 2px 16px rgba(0,0,0,0.5); }
 .login-on-photo .login-title-sub  { color:rgba(255,255,255,0.85); }
 
-/* カスタムチE��スチE*/
+/* カスタムテキスト */
 #login-custom-text {
   position:fixed; bottom:clamp(70px,12vh,100px); left:clamp(12px,5vw,40px); right:clamp(12px,5vw,40px);
   text-align:center; pointer-events:none;
@@ -210,7 +210,7 @@ body.has-wallpaper {
   color:white; text-shadow:0 2px 16px rgba(0,0,0,0.5);
 }
 
-/* タチE�EヒンチE*/
+/* タップヒント */
 #login-tap-hint {
   position:fixed; bottom:clamp(24px,5vh,44px); left:0; right:0;
   text-align:center; font-size:11.5px; color:rgba(40,90,140,.5);
@@ -220,7 +220,7 @@ body.has-wallpaper {
 .login-on-photo #login-tap-hint { color:rgba(255,255,255,0.6); }
 @keyframes tapHintPulse { 0%,100%{opacity:.4} 50%{opacity:.9} }
 
-/* 設定�Eタン�E�右下！E*/
+/* 設定ボタン（右下） */
 #login-settings-btn {
   position:fixed; bottom:clamp(24px,5vh,44px); right:16px;
   width:38px; height:38px; border-radius:50%;
@@ -233,7 +233,7 @@ body.has-wallpaper {
 #login-settings-btn:active { background:rgba(255,255,255,0.5); }
 .login-on-photo #login-settings-btn { color:rgba(255,255,255,0.8); border-color:rgba(255,255,255,0.4); }
 
-/* ━━━E設定パネル ━━━E*/
+/* ━━━ 設定パネル ━━━ */
 #login-settings-panel {
   position:fixed; inset:0; z-index:500; display:none;
   align-items:flex-end; justify-content:center;
@@ -254,7 +254,7 @@ body.has-wallpaper {
   color:var(--hina-4); letter-spacing:0.18em; text-transform:uppercase; margin:16px 0 8px;
 }
 
-/* アニメーション選択カーチE*/
+/* アニメーション選択カード */
 .anim-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:4px; }
 .anim-card {
   border:2px solid var(--hina-2); border-radius:16px; padding:14px 10px;
@@ -279,14 +279,14 @@ body.has-wallpaper {
 .photo-preview-box.has-photo { border-style:solid; }
 .photo-preview-box img { width:100%; height:100%; object-fit:cover; border-radius:14px; }
 
-/* チE��スト�E劁E*/
+/* テキスト入力 */
 .settings-text-preview {
   font-family:'Shippori Mincho',serif; font-size:13px; color:var(--sky);
   text-align:center; padding:8px 0 4px; min-height:20px;
 }
 @keyframes tapHintPulse { 0%,100%{opacity:.4} 50%{opacity:.9} }
 
-/* ━━━Eリスト型UI ━━━E*/
+/* ━━━ リスト型UI ━━━ */
 .list-menu { display:flex; flex-direction:column; gap:10px; margin:0 0 24px; }
 .list-menu-item {
   display:flex; align-items:center; gap:14px;
@@ -309,7 +309,7 @@ body.has-wallpaper {
 .list-menu-item-badge.poster-badge { background:rgba(96,64,192,0.15); color:#4020a0; border:1px solid rgba(96,64,192,0.3); }
 .list-menu-item-arrow { font-size:16px; color:var(--sumi-light); flex-shrink:0; }
 
-/* 刁E��替え�Eタン�E�固定�E右下！E*/
+/* 切り替えボタン（固定・右下） */
 .view-toggle-wrap {
   position:fixed; bottom:80px; left:16px;
   display:flex; gap:6px; z-index:99;
@@ -326,7 +326,7 @@ body.has-wallpaper {
 }
 .view-toggle-btn.active { background:var(--sky); border-color:var(--sky); color:white; }
 
-/* リスト型の時計（コンパクト！E*/
+/* リスト型の時計（コンパクト） */
 .clock-compact {
   display:flex; align-items:center; justify-content:center;
   background:rgba(255,255,255,0.72); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
@@ -344,7 +344,7 @@ body.has-wallpaper {
   margin-left:8px; line-height:1.6;
 }
 
-/* ━━━E募集中バナー カード型 ━━━E*/
+/* ━━━ 募集中バナー カード型 ━━━ */
 .active-banner-wrap { display:flex; flex-direction:column; gap:12px; margin:0 0 20px; }
 .active-banner {
   display:flex; align-items:center; gap:14px; padding:18px 20px 18px 24px;
@@ -382,7 +382,7 @@ body.has-wallpaper {
 .active-banner-sub { font-family:'Noto Serif JP',serif; font-size:11px; color:var(--sumi-light); }
 .active-banner-arrow { font-size:20px; color:var(--sumi-light); flex-shrink:0; }
 </style>
-<!-- PWAチェチE��無効化中 -->
+<!-- PWAチェック無効化中 -->
 </head>
 <body>
 <div id="pwa-install-guide" style="display:none;position:fixed;inset:0;z-index:9999;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;background:linear-gradient(160deg,#c8e8fc 0%,#e4f4ff 40%,#fdf4d0 80%,#fff8e8 100%);padding:48px 20px 40px;-webkit-overflow-scrolling:touch">
@@ -394,36 +394,36 @@ body.has-wallpaper {
     <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#4a7090;letter-spacing:0.2em">✿ ひなたカレンダー ✿</div>
   </div>
 
-  <!-- 説明カーチE-->
+  <!-- 説明カード -->
   <div style="background:rgba(255,255,255,0.88);border-radius:24px;border:1.5px solid rgba(200,220,255,0.6);padding:28px 22px;max-width:360px;width:100%;backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(21,101,160,0.12);margin-bottom:20px">
 
     <div style="text-align:center;margin-bottom:22px">
-      <div style="font-family:'M PLUS Rounded 1c',sans-serif;font-size:14px;font-weight:800;color:#1565a0;margin-bottom:6px">📲 アプリとして使ぁE��は</div>
-      <div style="font-family:'Noto Serif JP',serif;font-size:11px;color:#666;line-height:1.8">ホ�Eム画面に追加することで<br>アプリとして起動できまぁE/div>
+      <div style="font-family:'M PLUS Rounded 1c',sans-serif;font-size:14px;font-weight:800;color:#1565a0;margin-bottom:6px">📲 アプリとして使うには</div>
+      <div style="font-family:'Noto Serif JP',serif;font-size:11px;color:#666;line-height:1.8">ホーム画面に追加することで<br>アプリとして起動できます</div>
     </div>
 
     <!-- iOS -->
     <div style="background:linear-gradient(135deg,rgba(21,101,160,0.06),rgba(21,101,160,0.02));border:1.5px solid rgba(21,101,160,0.15);border-radius:18px;padding:18px;margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
         <div style="font-size:20px">🍎</div>
-        <div style="font-family:'M PLUS Rounded 1c',sans-serif;font-size:12px;font-weight:800;color:#1565a0">iPhone / iPad�E�Eafari�E�E/div>
+        <div style="font-family:'M PLUS Rounded 1c',sans-serif;font-size:12px;font-weight:800;color:#1565a0">iPhone / iPad（Safari）</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px">
         <div style="display:flex;align-items:flex-start;gap:10px">
           <div style="width:24px;height:24px;border-radius:50%;background:#1565a0;color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div>
-          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#333;line-height:1.7">こ�Eペ�EジめE<strong>Safari</strong> で開く<br><span style="font-size:10px;color:#888">※ Chrome・LINEブラウザは非対忁E/span></div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#333;line-height:1.7">このページを <strong>Safari</strong> で開く<br><span style="font-size:10px;color:#888">※ Chrome・LINEブラウザは非対応</span></div>
         </div>
         <div style="display:flex;align-items:flex-start;gap:10px">
           <div style="width:24px;height:24px;border-radius:50%;background:#1565a0;color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div>
-          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#333;line-height:1.7">画面下部の <span style="display:inline-flex;align-items:center;gap:3px;background:white;border:1px solid #ddd;border-radius:7px;padding:2px 8px;font-size:12px">共朁E<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565a0" stroke-width="2.5"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg></span> をタチE�E</div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#333;line-height:1.7">画面下部の <span style="display:inline-flex;align-items:center;gap:3px;background:white;border:1px solid #ddd;border-radius:7px;padding:2px 8px;font-size:12px">共有 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1565a0" stroke-width="2.5"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg></span> をタップ</div>
         </div>
         <div style="display:flex;align-items:flex-start;gap:10px">
           <div style="width:24px;height:24px;border-radius:50%;background:#1565a0;color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">3</div>
-          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#333;line-height:1.7">、Estrong>ホ�Eム画面に追加</strong>」をタチE�E →「追加」をタチE�E</div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#333;line-height:1.7">「<strong>ホーム画面に追加</strong>」をタップ →「追加」をタップ</div>
         </div>
         <div style="display:flex;align-items:flex-start;gap:10px">
-          <div style="width:24px;height:24px;border-radius:50%;background:rgba(40,160,80,0.8);color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">✁E/div>
-          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#2a7a40;line-height:1.7">ホ�Eム画面のアイコンから起動！E/div>
+          <div style="width:24px;height:24px;border-radius:50%;background:rgba(40,160,80,0.8);color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">✓</div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#2a7a40;line-height:1.7">ホーム画面のアイコンから起動！</div>
         </div>
       </div>
     </div>
@@ -431,28 +431,28 @@ body.has-wallpaper {
     <!-- Android -->
     <div style="background:linear-gradient(135deg,rgba(40,160,80,0.06),rgba(40,160,80,0.02));border:1.5px solid rgba(40,160,80,0.2);border-radius:18px;padding:18px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-        <div style="font-size:20px">🤁E/div>
-        <div style="font-family:'M PLUS Rounded 1c',sans-serif;font-size:12px;font-weight:800;color:#2a7a40">Android�E�Ehrome�E�E/div>
+        <div style="font-size:20px">🤖</div>
+        <div style="font-family:'M PLUS Rounded 1c',sans-serif;font-size:12px;font-weight:800;color:#2a7a40">Android（Chrome）</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px">
         <div style="display:flex;align-items:flex-start;gap:10px">
           <div style="width:24px;height:24px;border-radius:50%;background:#2a7a40;color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div>
-          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#333;line-height:1.7"><strong>Chrome</strong> でこ�Eペ�Eジを開ぁE/div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#333;line-height:1.7"><strong>Chrome</strong> でこのページを開く</div>
         </div>
         <div style="display:flex;align-items:flex-start;gap:10px">
           <div style="width:24px;height:24px;border-radius:50%;background:#2a7a40;color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div>
-          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#333;line-height:1.7">右上�E <span style="background:white;border:1px solid #ddd;border-radius:6px;padding:2px 8px;font-size:12px">⋮</span> メニュー →、Estrong>ホ�Eム画面に追加</strong>、E/div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#333;line-height:1.7">右上の <span style="background:white;border:1px solid #ddd;border-radius:6px;padding:2px 8px;font-size:12px">⋮</span> メニュー →「<strong>ホーム画面に追加</strong>」</div>
         </div>
         <div style="display:flex;align-items:flex-start;gap:10px">
-          <div style="width:24px;height:24px;border-radius:50%;background:rgba(40,160,80,0.8);color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">✁E/div>
-          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#2a7a40;line-height:1.7">ホ�Eム画面のアイコンから起動！E/div>
+          <div style="width:24px;height:24px;border-radius:50%;background:rgba(40,160,80,0.8);color:white;font-size:11px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">✓</div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:12px;color:#2a7a40;line-height:1.7">ホーム画面のアイコンから起動！</div>
         </div>
       </div>
     </div>
   </div>
 
   <div style="font-family:'Noto Serif JP',serif;font-size:10px;color:#4a7090;text-align:center;line-height:1.9;opacity:0.8">
-    ホ�Eム画面に追加すると<br>ブラウザUIなしでアプリとして使えまぁE🌸
+    ホーム画面に追加すると<br>ブラウザUIなしでアプリとして使えます 🌸
   </div>
 </div>
 <canvas id="petals-canvas"></canvas>
@@ -463,7 +463,7 @@ body.has-wallpaper {
     <div class="splash-title">日向坂46</div>
   <div class="splash-subtitle">✿ ひなたカレンダー ✿</div>
   <div class="splash-divider"><span class="splash-divider-mark">✿ ✿ ✿</span></div>
-  <button class="splash-start-btn" id="splashBtn">はじめめE/button>
+  <button class="splash-start-btn" id="splashBtn">はじめる</button>
   <div class="splash-ver">Hinata Calendar · ver 2.0</div>
 </div>
 
@@ -474,15 +474,15 @@ body.has-wallpaper {
     <div class="page-content page-enter" style="padding:0;background:transparent">
 
       <div style="padding:0 18px;background:transparent" id="mainContent">
-        <!-- 固定�Eタン群 -->
+        <!-- 固定ボタン群 -->
         <div class="view-toggle-wrap">
-          <button class="view-toggle-btn" id="viewGrid" onclick="setView('grid')">⊁E/button>
+          <button class="view-toggle-btn" id="viewGrid" onclick="setView('grid')">⊞</button>
           <button class="view-toggle-btn" id="viewList" onclick="setView('list')">☰</button>
         </div>
-        <button id="bgSetBtn" style="position:fixed;bottom:80px;right:16px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1.5px solid rgba(255,255,255,0.6);color:var(--sumi-light);font-size:18px;cursor:pointer;z-index:100;display:flex;align-items:center;justify-content:center;touch-action:manipulation;box-shadow:0 2px 12px rgba(0,0,0,0.12)" title="背景画像を設宁E>🖼</button>
+        <button id="bgSetBtn" style="position:fixed;bottom:80px;right:16px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1.5px solid rgba(255,255,255,0.6);color:var(--sumi-light);font-size:18px;cursor:pointer;z-index:100;display:flex;align-items:center;justify-content:center;touch-action:manipulation;box-shadow:0 2px 12px rgba(0,0,0,0.12)" title="背景画像を設定">🖼</button>
         <input type="file" id="bgFileInput" accept="image/*" style="display:none">
 
-        <!-- 募集中バナー�E�祝花・ポスター�E�E->
+        <!-- 募集中バナー（祝花・ポスター）-->
         <div class="active-banner-wrap" id="activeBanners" style="margin-top:20px;display:none"></div>
 
         <!-- TODAY -->
@@ -498,60 +498,60 @@ body.has-wallpaper {
         <!-- QUICK ACCESS -->
         <div class="section-kamon" style="margin-bottom:12px"><span class="section-kamon-text">✿ メニュー ✿</span></div>
 
-        <!-- グリチE��UI -->
+        <!-- グリッドUI -->
         <div class="quick-grid" id="menuGrid" style="margin:0 0 24px">
           <a class="quick-card" href="calendar.html"><div class="quick-card-icon">📅</div><div class="quick-card-label">日向坂46</div><div class="quick-card-sub">カレンダー</div></a>
-          <a class="quick-card" href="members.html"><div class="quick-card-icon">🌻</div><div class="quick-card-label">推しメン</div><div class="quick-card-sub">メンバ�E一覧</div></a>
-          <a class="quick-card" href="events.html"><div class="quick-card-icon">✿</div><div class="quick-card-label">行事帳</div><div class="quick-card-sub">イベント管琁E/div></a>
+          <a class="quick-card" href="members.html"><div class="quick-card-icon">🌻</div><div class="quick-card-label">推しメン</div><div class="quick-card-sub">メンバー一覧</div></a>
+          <a class="quick-card" href="events.html"><div class="quick-card-icon">✿</div><div class="quick-card-label">行事帳</div><div class="quick-card-sub">イベント管理</div></a>
           <a class="quick-card" href="gallery.html"><div class="quick-card-icon">📷</div><div class="quick-card-label">ギャラリー</div><div class="quick-card-sub">フォトコレクション</div></a>
-          <a class="quick-card" href="venue.html"><div class="quick-card-icon">🏟�E�E/div><div class="quick-card-label">ライブ会場</div><div class="quick-card-sub">会場一覧</div></a>
-          <a class="quick-card" href="schedule.html"><div class="quick-card-icon">📋</div><div class="quick-card-label">スケジュール</div><div class="quick-card-sub">進捗管琁E/div></a>
-          <a class="quick-card" href="chat.html"><div class="quick-card-icon">💬</div><div class="quick-card-label">チャチE��</div><div class="quick-card-sub">グループで会話</div></a>
+          <a class="quick-card" href="venue.html"><div class="quick-card-icon">🏟️</div><div class="quick-card-label">ライブ会場</div><div class="quick-card-sub">会場一覧</div></a>
+          <a class="quick-card" href="schedule.html"><div class="quick-card-icon">📋</div><div class="quick-card-label">スケジュール</div><div class="quick-card-sub">進捗管理</div></a>
+          <a class="quick-card" href="chat.html"><div class="quick-card-icon">💬</div><div class="quick-card-label">チャット</div><div class="quick-card-sub">グループで会話</div></a>
           <div style="display:flex;flex-direction:column;gap:6px">
-            <a class="quick-card" href="flower.html" id="flowerCardGrid" style="flex:1"><div class="quick-card-icon">💐</div><div class="quick-card-label">祝花申し込み</div><div class="quick-card-sub">推しメンに贈ろぁE/div></a>
-            <a href="https://flower-fanpage.vercel.app/" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:6px;border-radius:12px;background:rgba(232,120,154,0.08);border:1px solid rgba(232,120,154,0.25);text-decoration:none;font-family:'Noto Serif JP',serif;font-size:10px;font-weight:700;color:#c02860;touch-action:manipulation">🌸 祝花ファンペ�Eジ</a>
+            <a class="quick-card" href="flower.html" id="flowerCardGrid" style="flex:1"><div class="quick-card-icon">💐</div><div class="quick-card-label">祝花申し込み</div><div class="quick-card-sub">推しメンに贈ろう</div></a>
+            <a href="https://flower-fanpage.vercel.app/" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:6px;border-radius:12px;background:rgba(232,120,154,0.08);border:1px solid rgba(232,120,154,0.25);text-decoration:none;font-family:'Noto Serif JP',serif;font-size:10px;font-weight:700;color:#c02860;touch-action:manipulation">🌸 祝花ファンページ</a>
           </div>
-          <a class="quick-card" href="poster.html" id="posterCardGrid"><div class="quick-card-icon">🎨</div><div class="quick-card-label">ポスター桁E/div><div class="quick-card-sub">イラスト�E朁E/div></a>
+          <a class="quick-card" href="poster.html" id="posterCardGrid"><div class="quick-card-icon">🎨</div><div class="quick-card-label">ポスター案</div><div class="quick-card-sub">イラスト共有</div></a>
           <!-- 電車検索 一時非表示 -->
-          <a class="quick-card" href="guide.html"><div class="quick-card-icon">📖</div><div class="quick-card-label">使ぁE��ガイチE/div><div class="quick-card-sub">機�Eのご紹仁E/div></a>
-          <a class="quick-card" href="feedback.html"><div class="quick-card-icon">💬</div><div class="quick-card-label">ご意見�Eご要望</div><div class="quick-card-sub">フィードバチE��</div></a>
+          <a class="quick-card" href="guide.html"><div class="quick-card-icon">📖</div><div class="quick-card-label">使い方ガイド</div><div class="quick-card-sub">機能のご紹介</div></a>
+          <a class="quick-card" href="feedback.html"><div class="quick-card-icon">💬</div><div class="quick-card-label">ご意見・ご要望</div><div class="quick-card-sub">フィードバック</div></a>
         </div>
 
-        <!-- リスチEI�E��E期非表示�E�E-->
+        <!-- リストUI（初期非表示） -->
         <div class="list-menu" id="menuList" style="display:none">
-          <!-- 時計（コンパクト！E-->
+          <!-- 時計（コンパクト） -->
           <div class="clock-compact">
             <div class="clock-compact-time">
               <span id="clockHL">--</span><span class="clock-compact-colon">:</span><span id="clockML">--</span>
             </div>
             <div class="clock-compact-date" id="clockDateL"></div>
           </div>
-          <!-- 募集中バナー�E�リスト用�E�E-->
+          <!-- 募集中バナー（リスト用） -->
           <div id="listActiveBanners"></div>
           <!-- 通常メニュー -->
           <a class="list-menu-item" href="calendar.html"><div class="list-menu-item-icon">📅</div><div class="list-menu-item-label">カレンダー</div><div class="list-menu-item-arrow">›</div></a>
           <a class="list-menu-item" href="members.html"><div class="list-menu-item-icon">🌻</div><div class="list-menu-item-label">推しメン</div><div class="list-menu-item-arrow">›</div></a>
           <a class="list-menu-item" href="events.html"><div class="list-menu-item-icon">✿</div><div class="list-menu-item-label">行事帳</div><div class="list-menu-item-arrow">›</div></a>
           <a class="list-menu-item" href="gallery.html"><div class="list-menu-item-icon">📷</div><div class="list-menu-item-label">ギャラリー</div><div class="list-menu-item-arrow">›</div></a>
-          <a class="list-menu-item" href="venue.html"><div class="list-menu-item-icon">🏟�E�E/div><div class="list-menu-item-label">ライブ会場</div><div class="list-menu-item-arrow">›</div></a>
-          <a class="list-menu-item" href="schedule.html"><div class="list-menu-item-icon">📋</div><div class="list-menu-item-label">スケジュール進捁E/div><div class="list-menu-item-arrow">›</div></a>
-          <a class="list-menu-item" href="chat.html"><div class="list-menu-item-icon">💬</div><div class="list-menu-item-label">チャチE��</div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="venue.html"><div class="list-menu-item-icon">🏟️</div><div class="list-menu-item-label">ライブ会場</div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="schedule.html"><div class="list-menu-item-icon">📋</div><div class="list-menu-item-label">スケジュール進捗</div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="chat.html"><div class="list-menu-item-icon">💬</div><div class="list-menu-item-label">チャット</div><div class="list-menu-item-arrow">›</div></a>
           <a class="list-menu-item" href="flower.html" id="flowerCardList"><div class="list-menu-item-icon">💐</div><div class="list-menu-item-label">祝花申し込み</div><div class="list-menu-item-arrow">›</div></a>
-          <a class="list-menu-item" href="https://flower-fanpage.vercel.app/" style="background:rgba(232,120,154,0.06);border-color:rgba(232,120,154,0.25)"><div class="list-menu-item-icon">🌸</div><div class="list-menu-item-label" style="color:#c02860;font-size:13px">祝花ファンペ�Eジ</div><div class="list-menu-item-arrow" style="color:#c02860">›</div></a>
-          <a class="list-menu-item" href="poster.html" id="posterCardList"><div class="list-menu-item-icon">🎨</div><div class="list-menu-item-label">ポスター桁E/div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="https://flower-fanpage.vercel.app/" style="background:rgba(232,120,154,0.06);border-color:rgba(232,120,154,0.25)"><div class="list-menu-item-icon">🌸</div><div class="list-menu-item-label" style="color:#c02860;font-size:13px">祝花ファンページ</div><div class="list-menu-item-arrow" style="color:#c02860">›</div></a>
+          <a class="list-menu-item" href="poster.html" id="posterCardList"><div class="list-menu-item-icon">🎨</div><div class="list-menu-item-label">ポスター案</div><div class="list-menu-item-arrow">›</div></a>
           <!-- 電車検索 一時非表示 -->
-          <a class="list-menu-item" href="guide.html"><div class="list-menu-item-icon">📖</div><div class="list-menu-item-label">使ぁE��ガイチE/div><div class="list-menu-item-arrow">›</div></a>
-          <a class="list-menu-item" href="feedback.html"><div class="list-menu-item-icon">💬</div><div class="list-menu-item-label">ご意見�Eご要望</div><div class="list-menu-item-arrow">›</div></a>
-          <!-- 管琁E��E��ログイン時�Eみ�E�E-->
-          <a class="list-menu-item" href="admin.html" id="adminListItem" style="display:none;background:linear-gradient(135deg,rgba(42,42,106,0.12),rgba(26,26,80,0.08));border-color:rgba(42,42,106,0.3)"><div class="list-menu-item-icon">🔐</div><div class="list-menu-item-label" style="color:#2a2a6a">管琁E��E�Eージ</div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="guide.html"><div class="list-menu-item-icon">📖</div><div class="list-menu-item-label">使い方ガイド</div><div class="list-menu-item-arrow">›</div></a>
+          <a class="list-menu-item" href="feedback.html"><div class="list-menu-item-icon">💬</div><div class="list-menu-item-label">ご意見・ご要望</div><div class="list-menu-item-arrow">›</div></a>
+          <!-- 管理者（ログイン時のみ） -->
+          <a class="list-menu-item" href="admin.html" id="adminListItem" style="display:none;background:linear-gradient(135deg,rgba(42,42,106,0.12),rgba(26,26,80,0.08));border-color:rgba(42,42,106,0.3)"><div class="list-menu-item-icon">🔐</div><div class="list-menu-item-label" style="color:#2a2a6a">管理者ページ</div><div class="list-menu-item-arrow">›</div></a>
         </div>
 
-        <!-- 管琁E��E��ード（グリチE��用・管琁E��E��グイン時�Eみ�E�E-->
+        <!-- 管理者カード（グリッド用・管理者ログイン時のみ） -->
         <div id="adminCardWrap" style="display:none;margin-bottom:24px">
           <a class="quick-card" href="admin.html" style="background:linear-gradient(135deg,rgba(42,42,106,0.12),rgba(26,26,80,0.08));border-color:rgba(42,42,106,0.3)">
             <div class="quick-card-icon">🔐</div>
-            <div class="quick-card-label" style="color:#2a2a6a">管琁E��E�Eージ</div>
-            <div class="quick-card-sub">フィードバチE��・祝花管琁E/div>
+            <div class="quick-card-label" style="color:#2a2a6a">管理者ページ</div>
+            <div class="quick-card-sub">フィードバック・祝花管理</div>
           </a>
         </div>
 
@@ -559,7 +559,7 @@ body.has-wallpaper {
         <div class="section-kamon"><span class="section-kamon-text">✿ COMING UP ✿</span></div>
         <div class="upcoming-mini" id="upcomingMini" style="margin:0 0 24px"></div>
 
-        <!-- 公式X�E�埋め込みが機�EしなぁE��合�E代替チE��イン�E�E-->
+        <!-- 公式X（埋め込みが機能しない場合の代替デザイン） -->
         <div class="section-kamon" style="margin-top:0"><span class="section-kamon-text">✿ 公式X ✿</span></div>
         <div class="x-section">
           <div class="x-section-header">
@@ -569,7 +569,7 @@ body.has-wallpaper {
               <div class="x-tweet-handle">@hinatazaka46</div>
             </div>
           </div>
-          <!-- Twitter公式ウィジェチE���E�読み込めた場合に表示�E�E-->
+          <!-- Twitter公式ウィジェット（読み込めた場合に表示） -->
           <div id="xWidgetWrap" style="min-height:80px;overflow:hidden">
             <a class="twitter-timeline"
               data-lang="ja"
@@ -580,22 +580,22 @@ body.has-wallpaper {
               href="https://twitter.com/hinatazaka46">
             </a>
           </div>
-          <!-- フォールバック�E�Xへのリンクボタン -->
+          <!-- フォールバック：Xへのリンクボタン -->
           <a href="https://twitter.com/hinatazaka46" target="_blank" rel="noopener" class="x-open-link">
             <span class="x-open-link-icon">𝕏</span>
-            @hinatazaka46 の最新チE��ートを見る
+            @hinatazaka46 の最新ツイートを見る
           </a>
         </div>
 
-        <!-- アカウント設定CTA�E�未ログイン時！E-->
+        <!-- アカウント設定CTA（未ログイン時） -->
         <div id="accountCta" style="display:none;margin:16px 0 100px">
           <a href="profile.html" class="account-cta-card">
             <div class="account-cta-icon">👤</div>
             <div class="account-cta-info">
-              <div class="account-cta-title">アカウントを設定すめE/div>
-              <div class="account-cta-sub">イベント�E写真の共有機�Eが使えるようになりまぁE/div>
+              <div class="account-cta-title">アカウントを設定する</div>
+              <div class="account-cta-sub">イベント・写真の共有機能が使えるようになります</div>
             </div>
-            <div style="font-size:18px;color:var(--sky)">ↁE/div>
+            <div style="font-size:18px;color:var(--sky)">→</div>
           </a>
         </div>
         <div style="height:100px"></div>
@@ -607,11 +607,11 @@ body.has-wallpaper {
 
 <!-- LOGIN SCREEN -->
 <div id="login-screen">
-  <!-- 背景グラチE�Eション -->
+  <!-- 背景グラデーション -->
   <div id="login-bg"></div>
   <!-- カスタム写真 -->
   <div id="login-photo-layer"></div>
-  <!-- 写真上�EチE��ストオーバ�Eレイ -->
+  <!-- 写真上のテキストオーバーレイ -->
   <div id="login-text-overlay"></div>
   <!-- アニメーションキャンバス -->
   <canvas id="login-anim-canvas"></canvas>
@@ -621,13 +621,13 @@ body.has-wallpaper {
     <div class="login-title-sub"  id="loginTitleSub">✿ ひなたカレンダー ✿</div>
   </div>
 
-  <!-- カスタムチE��スチE-->
+  <!-- カスタムテキスト -->
   <div id="login-custom-text" style="display:none">
     <div id="login-custom-text-content"></div>
   </div>
 
-  <div id="login-tap-hint">✦ タチE�Eして続けめE✦</div>
-  <button id="login-settings-btn" title="画面をカスタマイズ">⚁E/button>
+  <div id="login-tap-hint">✦ タップして続ける ✦</div>
+  <button id="login-settings-btn" title="画面をカスタマイズ">⚙</button>
 </div>
 
 <!-- ログイン画面設定パネル -->
@@ -635,7 +635,7 @@ body.has-wallpaper {
   <div id="login-settings-overlay"></div>
   <div id="login-settings-box">
     <div class="modal-handle"></div>
-    <button class="modal-close-btn" id="settingsPanelClose">✁E/button>
+    <button class="modal-close-btn" id="settingsPanelClose">✕</button>
     <div class="modal-title">🎨 画面をカスタマイズ</div>
 
     <!-- ① 背景写真 -->
@@ -643,56 +643,58 @@ body.has-wallpaper {
     <div class="photo-preview-box" id="loginPhotoPicker" style="margin-bottom:8px">
       <div id="loginPhotoPlaceholder" style="text-align:center;color:var(--sumi-light);pointer-events:none">
         <div style="font-size:32px;margin-bottom:6px">🖼</div>
-        <div style="font-family:'Noto Serif JP',serif;font-size:12px">タチE�Eして写真を選抁E/div>
+        <div style="font-family:'Noto Serif JP',serif;font-size:12px">タップして写真を選択</div>
       </div>
       <img id="loginPhotoPreview" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
     </div>
     <input type="file" id="loginPhotoInput" accept="image/*" style="display:none">
-    <button id="loginPhotoRemove" style="display:none;width:100%;padding:10px;border-radius:12px;border:1.5px solid rgba(200,60,60,0.3);background:rgba(200,60,60,0.06);color:#c03030;font-family:'Noto Serif JP',serif;font-size:12px;cursor:pointer;touch-action:manipulation;margin-bottom:4px">写真を削除してチE��ォルトに戻ぁE/button>
+    <button id="loginPhotoRemove" style="display:none;width:100%;padding:10px;border-radius:12px;border:1.5px solid rgba(200,60,60,0.3);background:rgba(200,60,60,0.06);color:#c03030;font-family:'Noto Serif JP',serif;font-size:12px;cursor:pointer;touch-action:manipulation;margin-bottom:4px">写真を削除してデフォルトに戻す</button>
 
-    <!-- ② 表示チE��スチE-->
-    <div class="settings-section-title">② 表示チE��スト（任意！E/div>
-    <input class="form-input" id="loginCustomTextInput" type="text" placeholder="例：推し活がんばろう�E�E maxlength="40" style="margin-bottom:4px">
-    <div class="settings-text-preview" id="settingsTextPreview">�E�ここに表示されます！E/div>
+    <!-- ② 表示テキスト -->
+    <div class="settings-section-title">② 表示テキスト（任意）</div>
+    <input class="form-input" id="loginCustomTextInput" type="text" placeholder="例：推し活がんばろう！" maxlength="40" style="margin-bottom:4px">
+    <div class="settings-text-preview" id="settingsTextPreview">（ここに表示されます）</div>
 
     <!-- ③ アニメーション -->
     <div class="settings-section-title">③ アニメーション</div>
     <div class="anim-grid" id="animGrid">
       <div class="anim-card selected" data-anim="none">
         <div class="anim-card-icon">✨</div>
-        <div class="anim-card-name">なし（シンプル�E�E/div>
-        <div class="anim-card-desc">グラチE�Eション背景のみ</div>
+        <div class="anim-card-name">なし（シンプル）</div>
+        <div class="anim-card-desc">グラデーション背景のみ</div>
       </div>
       <div class="anim-card" data-anim="light">
         <div class="anim-card-icon">🌅</div>
-        <div class="anim-card-name">暗闇から允E/div>
-        <div class="anim-card-desc">右上から�Eが差し込んで画面が現れる</div>
+        <div class="anim-card-name">暗闇から光</div>
+        <div class="anim-card-desc">右上から光が差し込んで画面が現れる</div>
       </div>
       <div class="anim-card" data-anim="rain">
         <div class="anim-card-icon">🌦</div>
         <div class="anim-card-name">雨から晴れへ</div>
-        <div class="anim-card-desc">雨が降り、太陽が�Eて雨が止む</div>
+        <div class="anim-card-desc">雨が降り、太陽が出て雨が止む</div>
       </div>
       <div class="anim-card" data-anim="leaves">
         <div class="anim-card-icon">🍂</div>
-        <div class="anim-card-name">風と木の葁E/div>
-        <div class="anim-card-desc">風が吹ぁE��葉が舞い散めE/div>
+        <div class="anim-card-name">風と木の葉</div>
+        <div class="anim-card-desc">風が吹いて葉が舞い散る</div>
       </div>
     </div>
 
     <button class="btn-primary" id="settingsSaveBtn" style="width:100%;justify-content:center;margin-top:16px">
-      俁E孁E    </button>
+      保 存
+    </button>
   </div>
 </div>
 
 <script src="data.js"></script>
 <script src="db.js"></script>
 <script src="api.js"></script>
-<script src="nav2.js"></script>
+<script src="nav.js"></script>
 <script src="sakura.js"></script>
 <script src="notify.js"></script>
 <script>
-// ━━━E全画面背景設宁E━━━E(function() {
+// ━━━ 全画面背景設定 ━━━
+(function() {
   const BG_KEY   = 'hinata_hero_wallpaper';
   const bgBtn    = document.getElementById('bgSetBtn');
   const fileInput= document.getElementById('bgFileInput');
@@ -700,10 +702,12 @@ body.has-wallpaper {
   function applyBg(dataUrl) {
     document.documentElement.style.setProperty('--hero-wallpaper-url', 'url(' + dataUrl + ')');
     document.body.classList.add('has-wallpaper');
-    // ボタン色を少し暗く�E�背景色に合わせる�E�E    bgBtn.style.background = 'rgba(0,0,0,0.25)';
+    // ボタン色を少し暗く（背景色に合わせる）
+    bgBtn.style.background = 'rgba(0,0,0,0.25)';
   }
 
-  // 保存済み背景を復允E  try {
+  // 保存済み背景を復元
+  try {
     const saved = localStorage.getItem(BG_KEY);
     if (saved) applyBg(saved);
   } catch {}
@@ -725,7 +729,8 @@ body.has-wallpaper {
   });
 })();
 
-// ━━━ESPLASH ━━━E(function() {
+// ━━━ SPLASH ━━━
+(function() {
   const c = document.getElementById('splashCanvas');
   c.width = window.innerWidth; c.height = window.innerHeight;
   const ctx = c.getContext('2d');
@@ -760,7 +765,8 @@ body.has-wallpaper {
   window._stopSplashPetals = () => cancelAnimationFrame(raf);
 })();
 
-// ━━━Eログイン画面カスタマイズ ━━━Econst LOGIN_SETTINGS_KEY = 'hinata_login_settings';
+// ━━━ ログイン画面カスタマイズ ━━━
+const LOGIN_SETTINGS_KEY = 'hinata_login_settings';
 
 function loadLoginSettings() {
   try { return JSON.parse(localStorage.getItem(LOGIN_SETTINGS_KEY) || '{}'); } catch { return {}; }
@@ -790,17 +796,20 @@ function applyLoginSettings(settings) {
     document.getElementById('login-text-overlay').style.display = 'none';
   }
 
-  // カスタムチE��スチE  if (settings.text) {
+  // カスタムテキスト
+  if (settings.text) {
     customTxt.textContent = settings.text;
     customText.style.display = 'block';
   } else {
     customText.style.display = 'none';
   }
 
-  // アニメーション開姁E  startLoginAnim(settings.anim || 'none');
+  // アニメーション開始
+  startLoginAnim(settings.anim || 'none');
 }
 
-// ━━━Eアニメーション ━━━Elet animRAF = null;
+// ━━━ アニメーション ━━━
+let animRAF = null;
 
 function stopLoginAnim() {
   if (animRAF) { cancelAnimationFrame(animRAF); animRAF = null; }
@@ -821,17 +830,20 @@ function startLoginAnim(type) {
   if (type === 'leaves') animLeaves(canvas, ctx);
 }
 
-// ① 暗闇から光（右上からスポットライト！Efunction animLight(canvas, ctx) {
+// ① 暗闇から光（右上からスポットライト）
+function animLight(canvas, ctx) {
   const W = canvas.width, H = canvas.height;
   let t = 0;
-  // フェーズ: 0=暗闇 ↁE1=光が差ぁEↁE2=維持E  const PHASE1 = 80, PHASE2 = 200;
+  // フェーズ: 0=暗闇 → 1=光が差す → 2=維持
+  const PHASE1 = 80, PHASE2 = 200;
 
   function draw() {
     ctx.clearRect(0,0,W,H);
     t++;
 
     if (t < PHASE1) {
-      // 暗闇フェーズ�E�真っ暁E      const alpha = Math.max(0, 1 - t/PHASE1 * 0.3);
+      // 暗闇フェーズ：真っ暗
+      const alpha = Math.max(0, 1 - t/PHASE1 * 0.3);
       ctx.fillStyle = `rgba(5,10,20,${alpha * 0.98})`;
       ctx.fillRect(0,0,W,H);
     } else {
@@ -843,7 +855,7 @@ function startLoginAnim(type) {
       ctx.fillStyle = `rgba(5,10,20,${0.7 * (1 - eased)})`;
       ctx.fillRect(0,0,W,H);
 
-      // 右上から�E光ビーム
+      // 右上からの光ビーム
       const cx = W * (0.75 + eased * 0.1), cy = -H * 0.05;
       const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, W * (0.5 + eased * 0.7));
       grad.addColorStop(0, `rgba(255,250,220,${0.65 * eased})`);
@@ -853,7 +865,8 @@ function startLoginAnim(type) {
       ctx.fillStyle = grad;
       ctx.fillRect(0,0,W,H);
 
-      // 光条�E�細ぁE��封E��！E      if (eased > 0.2) {
+      // 光条（細い放射線）
+      if (eased > 0.2) {
         const rays = 6;
         ctx.save();
         ctx.globalAlpha = 0.12 * eased;
@@ -875,7 +888,8 @@ function startLoginAnim(type) {
     if (t < PHASE2 + 40) {
       animRAF = requestAnimationFrame(draw);
     } else {
-      // 終亁E���E薁E��グロウのみ維持E      function glow() {
+      // 終了後は薄いグロウのみ維持
+      function glow() {
         ctx.clearRect(0,0,W,H);
         const g = ctx.createRadialGradient(W*0.8, -H*0.1, 0, W*0.8, -H*0.1, W*0.6);
         g.addColorStop(0, 'rgba(255,240,160,0.18)');
@@ -896,13 +910,15 @@ function animRain(canvas, ctx) {
   let t = 0;
   const RAIN_DUR = 220, CLEAR_DUR = 320, PUDDLE_DUR = 420;
 
-  // 雨粁E  const drops = Array.from({length:120}, () => ({
+  // 雨粒
+  const drops = Array.from({length:120}, () => ({
     x: Math.random()*W, y: Math.random()*H*2 - H,
     len: 12+Math.random()*20, speed: 8+Math.random()*6,
     alpha: 0.3+Math.random()*0.5,
   }));
 
-  // 水たまめE  const puddles = Array.from({length:4}, () => ({
+  // 水たまり
+  const puddles = Array.from({length:4}, () => ({
     x: 80 + Math.random()*(W-160), y: H * (0.75+Math.random()*0.2),
     rx: 20+Math.random()*40, ry: 4+Math.random()*6,
     alpha: 0,
@@ -917,7 +933,7 @@ function animRain(canvas, ctx) {
     const phase = t < RAIN_DUR ? 'rain' : t < CLEAR_DUR ? 'clearing' : t < PUDDLE_DUR ? 'clear' : 'done';
 
     if (phase === 'rain' || phase === 'clearing') {
-      // 雨の薁E��青グラチE�Eション
+      // 雨の薄い青グラデーション
       const rainAlpha = phase === 'clearing' ? Math.max(0, 1 - (t-RAIN_DUR)/(CLEAR_DUR-RAIN_DUR)) : 0.9;
       const skyGrad = ctx.createLinearGradient(0,0,0,H);
       skyGrad.addColorStop(0, `rgba(80,110,160,${rainAlpha*0.35})`);
@@ -925,7 +941,8 @@ function animRain(canvas, ctx) {
       ctx.fillStyle = skyGrad;
       ctx.fillRect(0,0,W,H);
 
-      // 雨粁E      ctx.strokeStyle = `rgba(160,200,240,${rainAlpha * 0.7})`;
+      // 雨粒
+      ctx.strokeStyle = `rgba(160,200,240,${rainAlpha * 0.7})`;
       ctx.lineWidth = 1.5;
       drops.forEach(d => {
         d.y += d.speed;
@@ -940,14 +957,16 @@ function animRain(canvas, ctx) {
       ctx.globalAlpha = 1;
     }
 
-    // 太陽は表示しなぁE��晴れ�E背景のグラチE�Eションのみで表現�E�E
+    // 太陽は表示しない（晴れは背景のグラデーションのみで表現）
+
     if (phase === 'clear' || phase === 'done') {
-      // 水たまめE      const pProg = Math.min(1, (t-CLEAR_DUR)/(PUDDLE_DUR-CLEAR_DUR));
+      // 水たまり
+      const pProg = Math.min(1, (t-CLEAR_DUR)/(PUDDLE_DUR-CLEAR_DUR));
       puddles.forEach(p => {
         p.alpha = pProg * 0.35;
         ctx.save();
         ctx.globalAlpha = p.alpha;
-        // 水たまり楕�E
+        // 水たまり楕円
         const pg = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.rx);
         pg.addColorStop(0, 'rgba(160,210,240,0.7)');
         pg.addColorStop(0.6, 'rgba(120,180,220,0.4)');
@@ -975,7 +994,8 @@ function animRain(canvas, ctx) {
     if (t < PUDDLE_DUR + 60) {
       animRAF = requestAnimationFrame(draw);
     } else {
-      // 維持E��水たまり�Eみ・太陽なし！E      function maintain() {
+      // 維持（水たまりのみ・太陽なし）
+      function maintain() {
         ctx.clearRect(0,0,W,H);
         puddles.forEach(p => {
           ctx.save(); ctx.globalAlpha=0.3;
@@ -994,10 +1014,11 @@ function animRain(canvas, ctx) {
   draw();
 }
 
-// ③ 風と木の葁Efunction animLeaves(canvas, ctx) {
+// ③ 風と木の葉
+function animLeaves(canvas, ctx) {
   const W = canvas.width, H = canvas.height;
 
-  // 葉�E形状パラメータ
+  // 葉の形状パラメータ
   const COLORS = ['#8aab3a','#b4772a','#c8a030','#6a9a28','#d4841a','#a05018','#5a8a1a'];
   let t = 0;
   const FALL_DUR = 280;
@@ -1019,7 +1040,8 @@ function animRain(canvas, ctx) {
     alpha: 0.8+Math.random()*0.2,
   }));
 
-  // 画面周辺に残る葉（静止葉！E  const settled = Array.from({length:18}, () => ({
+  // 画面周辺に残る葉（静止葉）
+  const settled = Array.from({length:18}, () => ({
     x: Math.random()<0.5 ? Math.random()*60 : W-Math.random()*60,
     y: H*0.3 + Math.random()*H*0.65,
     size: 7+Math.random()*10,
@@ -1044,7 +1066,8 @@ function animRain(canvas, ctx) {
     ctx.stroke();
   }
 
-  // 風エフェクト（水平の細ぁE��！E  const windLines = Array.from({length:12}, () => ({
+  // 風エフェクト（水平の細い線）
+  const windLines = Array.from({length:12}, () => ({
     x: W+Math.random()*100, y: Math.random()*H,
     speed: 8+Math.random()*10,
     len: 40+Math.random()*80, alpha:0.15+Math.random()*0.15,
@@ -1088,7 +1111,8 @@ function animRain(canvas, ctx) {
       ctx.restore();
     });
 
-    // 定着した葉（画面周辺�E�E    if (t > FALL_DUR * 0.6) {
+    // 定着した葉（画面周辺）
+    if (t > FALL_DUR * 0.6) {
       const prog = Math.min(1, (t - FALL_DUR*0.6) / 80);
       settled.forEach(s => {
         s.alpha = Math.min(0.85, s.alpha + 0.012 * prog);
@@ -1106,19 +1130,21 @@ function animRain(canvas, ctx) {
   draw();
 }
 
-// ━━━E設定パネル ━━━E(function initSettingsPanel() {
+// ━━━ 設定パネル ━━━
+(function initSettingsPanel() {
   const STORAGE = LOGIN_SETTINGS_KEY;
   let curSettings = loadLoginSettings();
   let curAnim     = curSettings.anim || 'none';
   let previewPhoto= curSettings.photo || null;
 
-  // アニメーション選抁E  document.getElementById('animGrid').addEventListener('click', function(e) {
+  // アニメーション選択
+  document.getElementById('animGrid').addEventListener('click', function(e) {
     const card = e.target.closest('.anim-card');
     if (!card) return;
     document.querySelectorAll('.anim-card').forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
     curAnim = card.dataset.anim;
-    // 既存�E設定を選択状態に
+    // 既存の設定を選択状態に
     const saved = loadLoginSettings();
     if (saved.anim) {
       document.querySelectorAll('.anim-card').forEach(c => {
@@ -1128,19 +1154,23 @@ function animRain(canvas, ctx) {
     card.classList.add('selected');
   });
 
-  // 設定パネルを開ぁE  function openSettingsPanel() {
+  // 設定パネルを開く
+  function openSettingsPanel() {
     const settings = loadLoginSettings();
     curAnim = settings.anim || 'none';
     previewPhoto = settings.photo || null;
 
-    // アニメーション選択を復允E    document.querySelectorAll('.anim-card').forEach(c => {
+    // アニメーション選択を復元
+    document.querySelectorAll('.anim-card').forEach(c => {
       c.classList.toggle('selected', c.dataset.anim === curAnim);
     });
 
-    // チE��スト�E力を復允E    document.getElementById('loginCustomTextInput').value = settings.text || '';
-    document.getElementById('settingsTextPreview').textContent = settings.text || '�E�ここに表示されます！E;
+    // テキスト入力を復元
+    document.getElementById('loginCustomTextInput').value = settings.text || '';
+    document.getElementById('settingsTextPreview').textContent = settings.text || '（ここに表示されます）';
 
-    // 写真プレビューを復允E    if (settings.photo) {
+    // 写真プレビューを復元
+    if (settings.photo) {
       document.getElementById('loginPhotoPreview').src = settings.photo;
       document.getElementById('loginPhotoPreview').style.display = 'block';
       document.getElementById('loginPhotoPlaceholder').style.display = 'none';
@@ -1162,14 +1192,16 @@ function animRain(canvas, ctx) {
     document.body.style.overflow = '';
   }
 
-  // ボタンバインチE  var settingsBtn = document.getElementById('login-settings-btn');
+  // ボタンバインド
+  var settingsBtn = document.getElementById('login-settings-btn');
   settingsBtn.addEventListener('click', function(e) { e.stopPropagation(); openSettingsPanel(); });
   settingsBtn.addEventListener('touchend', function(e) { e.preventDefault(); e.stopPropagation(); openSettingsPanel(); }, { passive:false });
 
   document.getElementById('settingsPanelClose').addEventListener('click', closeSettingsPanel);
   document.getElementById('login-settings-overlay').addEventListener('click', closeSettingsPanel);
 
-  // 写真選抁E  document.getElementById('loginPhotoPicker').addEventListener('click', function() {
+  // 写真選択
+  document.getElementById('loginPhotoPicker').addEventListener('click', function() {
     document.getElementById('loginPhotoInput').click();
   });
   document.getElementById('loginPhotoInput').addEventListener('change', function(e) {
@@ -1195,12 +1227,13 @@ function animRain(canvas, ctx) {
     document.getElementById('loginPhotoRemove').style.display = 'none';
   });
 
-  // チE��スト�E力�Eレビュー
+  // テキスト入力プレビュー
   document.getElementById('loginCustomTextInput').addEventListener('input', function() {
-    document.getElementById('settingsTextPreview').textContent = this.value || '�E�ここに表示されます！E;
+    document.getElementById('settingsTextPreview').textContent = this.value || '（ここに表示されます）';
   });
 
-  // アニメーション選抁E  document.getElementById('animGrid').addEventListener('click', function(e) {
+  // アニメーション選択
+  document.getElementById('animGrid').addEventListener('click', function(e) {
     const card = e.target.closest('.anim-card');
     if (!card) return;
     document.querySelectorAll('.anim-card').forEach(c => c.classList.remove('selected'));
@@ -1208,7 +1241,8 @@ function animRain(canvas, ctx) {
     curAnim = card.dataset.anim;
   });
 
-  // 保孁E  document.getElementById('settingsSaveBtn').addEventListener('click', function() {
+  // 保存
+  document.getElementById('settingsSaveBtn').addEventListener('click', function() {
     const newSettings = {
       photo: previewPhoto,
       text:  document.getElementById('loginCustomTextInput').value.trim(),
@@ -1217,7 +1251,8 @@ function animRain(canvas, ctx) {
     saveLoginSettings(newSettings);
     closeSettingsPanel();
     applyLoginSettings(newSettings);
-    // アニメーションを�E甁E    stopLoginAnim();
+    // アニメーションを再生
+    stopLoginAnim();
     startLoginAnim(newSettings.anim);
   });
 })();
@@ -1233,7 +1268,8 @@ function showLoginScreen(onDone) {
   screen.classList.add('active');
 
   function proceed(e) {
-    // 設定�EタンタチE�Eは無要E    if (e.target.closest('#login-settings-btn') || e.target.closest('#login-settings-panel')) return;
+    // 設定ボタンタップは無視
+    if (e.target.closest('#login-settings-btn') || e.target.closest('#login-settings-panel')) return;
     screen.removeEventListener('click', proceed);
     screen.removeEventListener('touchend', proceed);
     stopLoginAnim();
@@ -1257,18 +1293,21 @@ function startApp() {
 }
 document.getElementById('splashBtn').addEventListener('click', startApp);
 
-// ━━━EHEADER ━━━Edocument.getElementById('headerMount').outerHTML = headerHTML('日向坂46','🌻 ひなたカレンダー 🌻');
+// ━━━ HEADER ━━━
+document.getElementById('headerMount').outerHTML = headerHTML('日向坂46','🌻 ひなたカレンダー 🌻');
 initNotifications();
 injectNav('index.html');
 
-// ━━━ETODAY ━━━E(function() {
+// ━━━ TODAY ━━━
+(function() {
   const now = new Date();
-  const DOW = ['日','朁E,'火','水','木','釁E,'圁E];
-  document.getElementById('todayDate').textContent = `${now.getFullYear()}年 ${now.getMonth()+1}朁E{now.getDate()}日�E�E{DOW[now.getDay()]}�E�`;
+  const DOW = ['日','月','火','水','木','金','土'];
+  document.getElementById('todayDate').textContent = `${now.getFullYear()}年 ${now.getMonth()+1}月${now.getDate()}日（${DOW[now.getDay()]}）`;
   document.getElementById('todayReki').textContent = `${MONTHS_JP[now.getMonth()]} 🌻 ${MONTHS_EN[now.getMonth()]}`;
 })();
 
-// ━━━ELIVE CLOCK ━━━E(function() {
+// ━━━ LIVE CLOCK ━━━
+(function() {
   function pad(n) { return String(n).padStart(2,'0'); }
   function tick() {
     const t = new Date();
@@ -1279,25 +1318,26 @@ injectNav('index.html');
   tick(); setInterval(tick, 1000);
 })();
 
-// ━━━EUPCOMING ━━━E(function() {
+// ━━━ UPCOMING ━━━
+(function() {
   const today = new Date(); today.setHours(0,0,0,0);
   const items = [];
   ACTIVE_MEMBERS.forEach(m => {
     const diff = daysUntilBirthday(m.birthday);
     if (diff <= 30) {
       const [mm,dd] = m.birthday.split('-').map(Number);
-      items.push({ icon:m.avatar, name:`${m.name}の誕生日`, dateStr:`${mm}朁E{dd}日`, diff, href:`member-detail.html?id=${m.id}`, type:'bday' });
+      items.push({ icon:m.avatar, name:`${m.name}の誕生日`, dateStr:`${mm}月${dd}日`, diff, href:`member-detail.html?id=${m.id}`, type:'bday' });
     }
   });
   loadEvents().forEach(e => {
     const d = new Date(e.date+'T00:00:00');
     const diff = Math.round((d-today)/86400000);
-    if (diff >= 0 && diff <= 30) items.push({ icon:e.emoji, name:e.name, dateStr:`${d.getMonth()+1}朁E{d.getDate()}日`, diff, href:'events.html', type:'event' });
+    if (diff >= 0 && diff <= 30) items.push({ icon:e.emoji, name:e.name, dateStr:`${d.getMonth()+1}月${d.getDate()}日`, diff, href:'events.html', type:'event' });
   });
   items.sort((a,b)=>a.diff-b.diff);
   const el = document.getElementById('upcomingMini');
   if (!items.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✿</div><div class="empty-state-text">近日の行事�Eありません</div></div>`;
+    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✿</div><div class="empty-state-text">近日の行事はありません</div></div>`;
     return;
   }
   el.innerHTML = items.slice(0,5).map(u => {
@@ -1314,7 +1354,8 @@ injectNav('index.html');
   }).join('');
 })();
 
-// ━━━EアカウンチETA・管琁E��E��ーチE━━━Eif (typeof isLoggedIn === 'function' && !isLoggedIn()) {
+// ━━━ アカウントCTA・管理者カード ━━━
+if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
   document.getElementById('accountCta').style.display = 'block';
 }
 if (typeof isAdmin === 'function' && isAdmin()) {
@@ -1323,7 +1364,8 @@ if (typeof isAdmin === 'function' && isAdmin()) {
   if (adminListItem) adminListItem.style.display = 'flex';
 }
 
-// ━━━EグリチE��/リスト�Eり替ぁE━━━Econst VIEW_KEY = 'hinata_menu_view';
+// ━━━ グリッド/リスト切り替え ━━━
+const VIEW_KEY = 'hinata_menu_view';
 var currentView = localStorage.getItem(VIEW_KEY) || 'grid';
 
 function setView(mode) {
@@ -1333,17 +1375,19 @@ function setView(mode) {
   document.getElementById('menuList').style.display   = mode === 'list' ? 'flex'  : 'none';
   document.getElementById('viewGrid').classList.toggle('active', mode === 'grid');
   document.getElementById('viewList').classList.toggle('active', mode === 'list');
-  // TODAYカード�EグリチE��時�Eみ表示
+  // TODAYカードはグリッド時のみ表示
   var todayStrip = document.querySelector('.today-strip');
   if (todayStrip) todayStrip.style.display = mode === 'grid' ? 'block' : 'none';
-  // グリチE��の募集バナーとリスト�E募集バナーを同朁E  if (mode === 'list') updateListBanners();
+  // グリッドの募集バナーとリストの募集バナーを同期
+  if (mode === 'list') updateListBanners();
 }
 
 // 初期表示
 setView(currentView);
 
-// リスト用時訁E(function() {
-  var DOW = ['日','朁E,'火','水','木','釁E,'圁E];
+// リスト用時計
+(function() {
+  var DOW = ['日','月','火','水','木','金','土'];
   function tickL() {
     var t = new Date();
     var hEl = document.getElementById('clockHL');
@@ -1351,37 +1395,37 @@ setView(currentView);
     var dEl = document.getElementById('clockDateL');
     if (hEl) hEl.textContent = String(t.getHours()).padStart(2,'0');
     if (mEl) mEl.textContent = String(t.getMinutes()).padStart(2,'0');
-    if (dEl) dEl.textContent = t.getFullYear() + '年 ' + (t.getMonth()+1) + '/' + t.getDate() + '�E�E + DOW[t.getDay()] + '�E�E;
+    if (dEl) dEl.textContent = t.getFullYear() + '年 ' + (t.getMonth()+1) + '/' + t.getDate() + '（' + DOW[t.getDay()] + '）';
   }
   tickL(); setInterval(tickL, 1000);
 })();
 
 function updateListBanners() {
-  // グリチE��のバナーをリストにコピ�E
+  // グリッドのバナーをリストにコピー
   var src  = document.getElementById('activeBanners');
   var dest = document.getElementById('listActiveBanners');
   if (src && dest) dest.innerHTML = src.innerHTML;
 }
 
-// ━━━E募集中バナー�E�祝花・ポスター�E�━━━
+// ━━━ 募集中バナー（祝花・ポスター）━━━
 (async function checkActiveBanners() {
   var banners = [];
 
-  // 祝花の公開チェチE��
+  // 祝花の公開チェック
   try {
     var fs = await apiFetch('/api/flower-settings');
     if (fs && fs.is_open) {
       banners.push({
         type: 'flower',
         icon: '💐',
-        title: '祝花申し込み 受付中�E�E,
-        sub: fs.open_to ? ('受付期限！E + fs.open_to.split('T')[0].replace(/-/g,'/')) : '期間限定受付中',
+        title: '祝花申し込み 受付中！',
+        sub: fs.open_to ? ('受付期限：' + fs.open_to.split('T')[0].replace(/-/g,'/')) : '期間限定受付中',
         href: 'flower.html',
       });
     }
   } catch {}
 
-  // ポスター募集チェチE��
+  // ポスター募集チェック
   try {
     var campaigns = await apiFetch('/api/poster-campaigns');
     if (campaigns) {
@@ -1394,8 +1438,8 @@ function updateListBanners() {
         banners.push({
           type: 'poster',
           icon: '🎨',
-          title: c.title + ' 募集中�E�E,
-          sub: (c.member_name ? c.member_name + ' · ' : '') + (c.open_to ? '締刁E��E + c.open_to.split('T')[0].replace(/-/g,'/') : ''),
+          title: c.title + ' 募集中！',
+          sub: (c.member_name ? c.member_name + ' · ' : '') + (c.open_to ? '締切：' + c.open_to.split('T')[0].replace(/-/g,'/') : ''),
           href: 'poster.html',
         });
       });
@@ -1422,7 +1466,7 @@ function updateListBanners() {
 })();
 </script>
 
-<!-- Twitter公式ウィジェチE��スクリプト�E�読み込めれば表示、できなければリンクのみ�E�E-->
+<!-- Twitter公式ウィジェットスクリプト（読み込めれば表示、できなければリンクのみ） -->
 <script>
 (function() {
   const script = document.createElement('script');
@@ -1430,7 +1474,7 @@ function updateListBanners() {
   script.charset = 'utf-8';
   script.src = 'https://platform.twitter.com/widgets.js';
   script.onerror = function() {
-    // ウィジェチE��読み込み失敗時はエリアを非表示
+    // ウィジェット読み込み失敗時はエリアを非表示
     const wrap = document.getElementById('xWidgetWrap');
     if (wrap) wrap.style.display = 'none';
   };

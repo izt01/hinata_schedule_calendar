@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -125,7 +125,7 @@
 <script src="data.js"></script>
 <script src="db.js"></script>
 <script src="api.js"></script>
-<script src="nav2.js"></script>
+<script src="nav.js"></script>
 <script src="sakura.js"></script>
 <script>
 // ── 初期化 ──────────────────────────────
@@ -275,8 +275,6 @@ function completeStep(schedId, stepId) {
         allSchedules[idx].status   = result.schedule.status;
       }
       renderSchedules();
-      // タスクバッジを即時更新
-      if (typeof checkMyPendingTasks === 'function') checkMyPendingTasks();
     })
     .catch(function(err) { alert('エラー: ' + err.message); });
 }
