@@ -275,6 +275,8 @@ function completeStep(schedId, stepId) {
         allSchedules[idx].status   = result.schedule.status;
       }
       renderSchedules();
+      // タスクバッジを即時更新
+      if (typeof checkMyPendingTasks === 'function') checkMyPendingTasks();
     })
     .catch(function(err) { alert('エラー: ' + err.message); });
 }
