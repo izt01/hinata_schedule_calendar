@@ -29,7 +29,7 @@ async function sendMail({ to, subject, html }) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        sender: { name: 'ひなたカレンダー', email: 'noreply@hinata-calendar.com' },
+        sender: { name: 'ひなたカレンダー', email: 'izt.ta01ki18@gmail.com' },
         to: [{ email: to }],
         subject: subject,
         htmlContent: html,
